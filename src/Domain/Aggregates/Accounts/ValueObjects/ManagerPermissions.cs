@@ -1,6 +1,6 @@
 namespace ReSR.Domain.Aggregates.Accounts.ValueObjects;
 [Flags]
-public enum AdminPermissions {
+public enum ManagerPermissions {
     None,
     ViewCategoies    = 0b000001,
     ManageCategories = 0b000011,

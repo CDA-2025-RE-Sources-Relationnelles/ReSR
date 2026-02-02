@@ -4,27 +4,27 @@ using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Accounts.Events;
 
 namespace ReSR.Domain.Tests.Aggregates.Accounts;
-public class AdminCreationTests {
+public class ManagerCreationTests {
     
     [Fact]
     public void TryCreate_WithValidData_ShouldSucceed()  {
 
         // Arrange
-        var email    = "admin@test.com";
+        var email    = "manager@test.com";
         var password = "abcdABCD1234";
 
         // Act
-        var response = Admin.TryCreate(email, password);
+        var response = Manager.TryCreate(email, password);
 
         // Assert
-        Assert.IsType<ISuccess<Admin>>(response, exactMatch: false);
+        Assert.IsType<ISuccess<Manager>>(response, exactMatch: false);
 
         var user = response.Unwrap();
         Assert.Equal(email, user.Email);
         Assert.Single(user.DomainEvents);
         Assert.Contains(
             user.DomainEvents,
-            e => e is AccountCreated<Admin>
+            e => e is AccountCreated<Manager>
         );
     }
 
@@ -36,7 +36,7 @@ public class AdminCreationTests {
         var password = "abcdABCD1234";
 
         // Act
-        var response = Admin.TryCreate(email, password);
+        var response = Manager.TryCreate(email, password);
 
         // Assert
         Assert.IsType<IFailure>(response, exactMatch: false);
