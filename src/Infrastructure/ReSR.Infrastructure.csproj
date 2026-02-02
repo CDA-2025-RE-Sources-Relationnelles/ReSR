@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\shared\FluentResponse\FluentResponse.csproj" />
+    <ProjectReference Include="..\Application\ReSR.Application.csproj" />
     <ProjectReference Include="..\Domain\ReSR.Domain.csproj" />
   </ItemGroup>
 </Project>

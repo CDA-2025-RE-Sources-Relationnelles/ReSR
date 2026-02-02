@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\shared\FluentResponse\FluentResponse.csproj" />
     <ProjectReference Include="..\Domain\ReSR.Domain.csproj" />
-    <ProjectReference Include="..\Infrastructure\ReSR.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
