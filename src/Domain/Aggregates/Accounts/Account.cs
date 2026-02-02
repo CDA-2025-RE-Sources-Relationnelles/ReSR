@@ -35,17 +35,21 @@ public abstract record Account<T>(Id Id = default) : IAggregateRoot<T> where T :
 
         /// <returns> A copy of the account if the password is valid. </returns>
         public virtual IResponse<T> TryWithPassword(string value) =>
-            Password
-                .TryCreate(value)
-                .OnSuccess(password => (T)(this with { Password = password }));
+            TryVerifyPasswordInvariant(value).OnSuccess(() =>
+            
+                Password
+                    .TryCreate(value)
+                    .OnSuccess(password => (T)(this with { Password = password }))
+                
+            );
 
         /// <returns> A successful response if the password matches the account's. </returns>
         public virtual IResponse TryVerifyPassword(string value) =>
             this.Password.TryVerify(value);
 
         protected static IResponse TryVerifyPasswordInvariant(string value) =>
-            string.Concat(value.Where(char.IsLower)).Length >= 4 ||
-            string.Concat(value.Where(char.IsUpper)).Length >= 4 ||
+            string.Concat(value.Where(char.IsLower)).Length >= 4 &&
+            string.Concat(value.Where(char.IsUpper)).Length >= 4 &&
             string.Concat(value.Where(char.IsAsciiDigit)).Length >= 4
             ? Response.Success()
             : Response.Failure<T>(new InvariantException("Un mot de passe doit contenir au moins 4 minuscules, 4 majuscules, et 4 chiffres !"));

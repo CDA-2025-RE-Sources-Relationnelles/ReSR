@@ -40,8 +40,6 @@ public record User : Account<User>, IAggregateRoot<User> {
         /// <summary> Whether or not the user's account has been temporaly deactivated. </summary>
         public bool Suspended { get; internal init; }
 
-
-
         /// <summary> The date at which the user's automatic anonymization process started, if any. </summary>
         public DateTime? AnonymizationProcessStartedAt { get; internal init; }
 
@@ -110,8 +108,6 @@ public record User : Account<User>, IAggregateRoot<User> {
                         : this.DomainEvents
                 };
 
-
-
             /// <returns> A copy of the user account as anonymized. </returns>
             public virtual User AsAnonymized() =>
                 this with {
@@ -123,7 +119,7 @@ public record User : Account<User>, IAggregateRoot<User> {
                 };
 
             /// <returns> A copy of the user account with a new anonymization process if none were already started. </returns>
-            public virtual IResponse<User> TryStartAnonymizationProcess() =>
+            public virtual IResponse<User> TryWithNewAnonymizationProcess() =>
                 this.AnonymizationProcessStartedAt is not null
                     ? Response.Failure<User>(new InvariantException("Le compte est déjà en train d'être anonymisé !"))
                     : Response.Success(this with {
@@ -142,7 +138,7 @@ public record User : Account<User>, IAggregateRoot<User> {
         #region INVARIANTS
 
             protected static IResponse TryVerifyUsernameInvariant(string value) =>
-                value.All(char.IsLetterOrDigit) && value.Length > 4
+                value.All(char.IsLetterOrDigit) && value.Length >= 4
                 ? Response.Success()
                 : Response.Failure<User>(new InvariantException("Un nom d'utilisateur doit contenir au moins 4 caractères alphanumériques !"));
 
