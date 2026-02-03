@@ -1,0 +1,49 @@
+using FluentResponse;
+using FluentResponse.Interfaces;
+using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Aggregates.Resources;
+using ReSR.Domain.Core;
+
+namespace ReSR.Domain.Aggregates.Messages;
+
+/// <summary>
+/// A private message between two users.
+/// </summary>
+public record PrivateMessage : Message<PrivateMessage> {
+
+    #region PROPERTIES
+
+        /// <summary> The user receiving the private message. </summary>
+        public virtual User SentTo { get; internal init; } = null!;
+
+        /// <summary> The resource quoted in the message, if any. </summary>
+        public virtual Resource? QuotedResource { get; internal init; } = null!;
+
+    #endregion
+    #region CONSTRUCTORS
+            
+        public static IResponse<PrivateMessage> TryCreate(
+            User      sentBy,
+            User      sentTo,
+            string    content,
+            Resource? quotedResource = null
+        ) => TryVerifySenderReceiverInvariant(sentBy, sentTo)
+                .OnSuccess(() => TryVerifyContentInvariant(content))
+                .OnSuccess(() => new PrivateMessage {
+                    SentBy         = sentBy,
+                    SentTo         = sentTo,
+                    Content        = content,
+                    QuotedResource = quotedResource
+                });
+
+    #endregion
+    #region METHODS
+
+        protected static IResponse TryVerifySenderReceiverInvariant(User sender, User receiver) =>
+            sender.Id != receiver.Id
+            ? Response.Success()
+            : Response.Failure(new InvariantException("Un message ne peut être envoyé à l'envoyeur !"));
+
+    #endregion
+    
+}
