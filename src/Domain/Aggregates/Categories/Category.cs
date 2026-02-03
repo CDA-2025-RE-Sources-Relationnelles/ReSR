@@ -1,5 +1,6 @@
 using FluentResponse;
 using FluentResponse.Interfaces;
+using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Core;
 
 namespace ReSR.Domain.Aggregates.Categories;
@@ -13,6 +14,9 @@ public record Category(Id Id = default) : IAggregateRoot<Category> {
 
         /// <summary> The resource category's name. </summary>
         public string Name { get; internal init; } = null!;
+
+        /// <summary> The resources associated with this category. </summary>
+        public virtual ICollection<Resource> Resources { get; internal init; } = null!;
 
     #endregion
     #region CONSTRUCTORS
