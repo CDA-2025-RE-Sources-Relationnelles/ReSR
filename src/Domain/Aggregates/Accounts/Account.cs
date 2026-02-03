@@ -59,7 +59,7 @@ public abstract record Account<T>(Id Id = default) : IAggregateRoot<T> where T :
             ? Response.Success()
             : Response.Failure<T>(new InvariantException("Une adresse électronique doit avoir le format 'nom@domaine' !"));
 
-        public IEnumerable<IDomainEvent> DomainEvents { get; protected init; } = [];
+        public IEnumerable<IDomainEvent> DomainEvents { get; internal init; } = [];
         public T WithConsumedEvents(out IEnumerable<IDomainEvent> domainEvents) {
             domainEvents = this.DomainEvents;
             return (T)(this with { DomainEvents = [] });

@@ -22,10 +22,10 @@ public record User : Account<User>, IAggregateRoot<User> {
         public virtual IEnumerable<User> LikedUsers { get; internal init; } = new HashSet<User>();
 
         /// <summary> The collection of users that liked this user. </summary>
-        public virtual IEnumerable<User> LikedByUsers { get; internal init; } = new HashSet<User>();
+        public virtual IEnumerable<User> LikedBy { get; internal init; } = new HashSet<User>();
 
         /// <summary> The collection of mutually liked users. </summary>
-        public virtual IEnumerable<User> Friends => this.LikedUsers.Union(this.LikedByUsers);
+        public virtual IEnumerable<User> Friends => this.LikedUsers.Union(this.LikedBy);
 
 
 
@@ -85,11 +85,11 @@ public record User : Account<User>, IAggregateRoot<User> {
             public virtual User WithLikeFrom(User from, bool value) =>
                 value
                 ? this with {
-                    LikedByUsers = [..this.LikedByUsers, from],
-                    DomainEvents = !this.LikedByUsers.Contains(from)
+                    LikedBy = [..this.LikedBy, from],
+                    DomainEvents = !this.LikedBy.Contains(from)
                         ? [..this.DomainEvents, new UserMutuallyLiked(this.Id, from.Id)]
                         : this.DomainEvents
-                } : this with { LikedByUsers = this.LikedByUsers.Where(x => x.Id != from.Id) };
+                } : this with { LikedBy = this.LikedBy.Where(x => x.Id != from.Id) };
 
 
 
@@ -138,7 +138,7 @@ public record User : Account<User>, IAggregateRoot<User> {
         #region INVARIANTS
 
             protected static IResponse TryVerifyUsernameInvariant(string value) =>
-                value.All(char.IsLetterOrDigit) && value.Length >= 4
+                value.All(char.IsAsciiLetterOrDigit) && value.Length >= 4
                 ? Response.Success()
                 : Response.Failure<User>(new InvariantException("Un nom d'utilisateur doit contenir au moins 4 caractères alphanumériques !"));
 
