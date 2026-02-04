@@ -4,6 +4,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using ReSR.Domain.Core;
 using ReSR.Application.Services;
+using ReSR.Application.EventListeners.Accounts;
+using ReSR.Domain.Aggregates.Accounts.Events;
+using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Aggregates.Resources.Events;
+using ReSR.Application.EventListeners.Resources;
 
 namespace ReSR.Application.Core;
 public static partial class Extensions {
@@ -33,6 +38,21 @@ public static partial class Extensions {
         }
 
         builder.Services.AddScoped<IDomainEventDispatcher, DomainEventsDispatcher>();
+
+        builder.Services.AddScoped<IDomainEventListener<AccountCreated<Manager>>,      ManagerAccountCreatedListener>();
+        builder.Services.AddScoped<IDomainEventListener<AccountEmailChanged<Manager>>, ManagerEmailChangedListener>();
+
+        builder.Services.AddScoped<IDomainEventListener<AccountCreated<User>>,            UserAccountCreatedListener>();
+        builder.Services.AddScoped<IDomainEventListener<UserAnonymizationProcessStarted>, UserAnonymizationProcessStartedListener>();
+        builder.Services.AddScoped<IDomainEventListener<UserAnonymized>,                  UserAnonymizedListener>();
+        builder.Services.AddScoped<IDomainEventListener<AccountEmailChanged<User>>,       UserEmailChangedListener>();
+        builder.Services.AddScoped<IDomainEventListener<UserMutuallyLiked>,               UserMutuallyLikedListener>();
+        builder.Services.AddScoped<IDomainEventListener<UserSuspensionChanged>,           UserSuspensionChangedListener>();
+
+
+        builder.Services.AddScoped<IDomainEventListener<ResourceRejected>, ResourceRejectedListener>();
+        builder.Services.AddScoped<IDomainEventListener<ResourceVerified>, ResourceVerifiedListener>();
+
         builder.Services.AddHostedService<UserAnonymizationService>();
         builder.Services.AddHostedService<CommentReportForgivenessService>();
 
