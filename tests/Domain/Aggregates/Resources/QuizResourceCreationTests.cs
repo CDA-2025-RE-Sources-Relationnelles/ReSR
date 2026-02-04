@@ -1,7 +1,5 @@
 using FluentResponse;
 using FluentResponse.Interfaces;
-using ReSR.Domain.Aggregates.Accounts;
-using ReSR.Domain.Aggregates.Accounts.Events;
 using ReSR.Domain.Aggregates.Categories;
 using ReSR.Domain.Aggregates.Resources;
 
@@ -28,8 +26,6 @@ public class QuizResourceCreationTests {
         Assert.Equal("Some content", quiz.Content);
         Assert.Equal("tag1;tag2", quiz.RawTags);
         Assert.Single(quiz.Questions);
-        Assert.Equal(1, quiz.Questions[0].Index);
-        Assert.Equal(1, quiz.Questions[0].Answers[0].Index);
     }
 
     [Fact]
@@ -56,11 +52,11 @@ public class QuizResourceCreationTests {
             category  : Category.TryCreate("General").Unwrap(),
             tags      : ["tag1", "tag2"],
             content   : "Some content",
-            questions : [new (
-                Score   : 20,
-                Content : "Content",
-                Answers : []
-            )]
+            questions : [new() {
+                Score   = 20,
+                Content = "Content",
+                Answers = []
+            }]
         );
 
         Assert.IsType<IFailure>(response, exactMatch: false);

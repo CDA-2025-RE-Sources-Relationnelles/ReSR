@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\shared\FluentResponse\FluentResponse.csproj" />
     <ProjectReference Include="..\Domain\ReSR.Domain.csproj" />
   </ItemGroup>

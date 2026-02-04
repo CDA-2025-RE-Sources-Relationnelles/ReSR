@@ -14,11 +14,11 @@ public class QuizQuestionInvariantTests {
 
         // Arrange
         var quiz = QuizResourceTestFactory.CreateValidQuiz();
-        var badQuestion = new QuizQuestion(
-            Content : "Invalid question",
-            Score   : 20,
-            Answers : [new (IsCorrect: true, Content: "Content")]
-        );
+        var badQuestion = new QuizQuestion {
+            Content = "Invalid question",
+            Score   = 20,
+            Answers = [new() { IsCorrect = true, Content = "Content" }]
+        };
 
         // Act
         var response = quiz.WithNewQuestion(badQuestion);
@@ -32,15 +32,15 @@ public class QuizQuestionInvariantTests {
 
         // Arrange
         var quiz = QuizResourceTestFactory.CreateValidQuiz();
-        var badQuestion = new QuizQuestion(
-            Content : "Invalid question",
-            Score   : 20,
-            Answers : [
-                new (IsCorrect: false, Content: "Content"),
-                new (IsCorrect: false, Content: "Content"),
-                new (IsCorrect: false, Content: "Content"),
+        var badQuestion = new QuizQuestion {
+            Content = "Invalid question",
+            Score   = 20,
+            Answers = [
+                new() { IsCorrect = false, Content = "Content" },
+                new() { IsCorrect = false, Content = "Content" },
+                new() { IsCorrect = false, Content = "Content" },
             ]
-        );
+        };
 
         // Act
         var response = quiz.WithNewQuestion(badQuestion);

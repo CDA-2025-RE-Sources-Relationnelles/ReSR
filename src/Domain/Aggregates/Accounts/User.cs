@@ -2,6 +2,7 @@ using FluentResponse;
 using FluentResponse.Interfaces;
 using ReSR.Domain.Aggregates.Accounts.Events;
 using ReSR.Domain.Aggregates.Accounts.ValueObjects;
+using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Core;
 using ReSR.Domain.Extensions;
 
@@ -36,6 +37,14 @@ public record User : Account<User>, IAggregateRoot<User> {
         public DateTime LastActivity { get; internal init; } = DateTime.UtcNow;
 
 
+        /// <summary> The user's bookmarked resources. </summary>
+        public virtual ICollection<Resource> Bookmarks     { get; internal init; } = [];
+
+        /// <summary> The user's published resources. </summary>
+        public virtual ICollection<Resource> OwnedResources { get; internal init; } = [];
+
+        /// <summary> The user's resource verification assignments. </summary>
+        public virtual ICollection<Resource> ResourcesToVerify { get; internal init; } = [];
 
         /// <summary> Whether or not the user's account has been temporaly deactivated. </summary>
         public bool Suspended { get; internal init; }

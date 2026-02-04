@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using FluentResponse;
 using FluentResponse.Interfaces;
 using ReSR.Domain.Aggregates.Accounts;
@@ -15,7 +14,7 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
         public string Content { get; internal init; } = null!;
 
         /// <summary> The resource's quiz questions. </summary>
-        public ImmutableList<QuizQuestion> Questions { get; internal init; } = [];
+        public ICollection<QuizQuestion> Questions { get; internal init; } = [];
 
     #endregion
     #region CONSTRUCTORS
@@ -36,7 +35,7 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
                     Category   = category,
                     RawTags    = string.Join(';', tags.ToHashSet()),
                     Content    = content,
-                    Questions  = [.. ProcessQuestions(questions)],
+                    Questions  = [.. questions],
                     Owner      = owner,
                     Visibility = isPrivate
                         ? Visibility.Private 
@@ -53,16 +52,16 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
         /// <returns> A copy of the resource with the given additional question if valid. </returns>
         public virtual IResponse<QuizResource> WithNewQuestion(QuizQuestion value) =>
             TryVerifyQuizQuestionInvariant(value)
-                .OnSuccess(() => this with { Questions = this.Questions.Add(ProcessQuestion(value)) })
+                .OnSuccess(() => this with { Questions = [.. this.Questions, value] })
                 .OnSuccess(x => TryVerifyQuizQuestionsInvariant(x.Questions).OnSuccess(() => x));
 
         /// <returns> A copy of the resource with the given additional question if valid. </returns>
         public virtual IResponse<QuizResource> WithQuestion(int index, QuizQuestion value) =>
-            TryVerifyQuizQuestionInvariant(value).OnSuccess(() => this with { Questions = this.Questions.SetItem(index, ProcessQuestion(value)) });
+            TryVerifyQuizQuestionInvariant(value).OnSuccess(() => this with { Questions = [.. this.Questions.Select((x, i) => i == index ? value : x)] });
 
         /// <returns> A copy of the resource without the question at the given index. </returns>
         public virtual IResponse<QuizResource> WithoutQuestion(int index) =>
-            Response.Success(this with { Questions = this.Questions.RemoveAt(index) })
+            Response.Success(this with { Questions = [.. this.Questions.Where((_, i) => index != i)] })
                 .OnSuccess(x => TryVerifyQuizQuestionsInvariant(x.Questions).OnSuccess(() => x));
 
 
@@ -84,16 +83,7 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
             ? Response.Success()
             : Response.Failure(new InvariantException("Une question devrait avoir entre 2 et 4 réponses, et au moins 1 réponse correcte !"));
 
-        protected static QuizQuestion ProcessQuestion(QuizQuestion value) =>
-            value with { Answers = [.. value.Answers.Select((x, index) => x with { Index = index + 1 })] };
 
-        protected static IEnumerable<QuizQuestion> ProcessQuestions(IEnumerable<QuizQuestion> values) =>
-            values.Select((x, index) => x with {
-                Index   = index + 1,
-                Answers = [.. x.Answers.Select((x, index) => x with {
-                    Index = index + 1
-                })]
-            });
 
         #region OVERRIDES
 

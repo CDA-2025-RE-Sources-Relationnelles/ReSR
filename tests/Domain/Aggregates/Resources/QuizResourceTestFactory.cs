@@ -6,15 +6,15 @@ using FluentResponse.Interfaces;
 
 internal static class QuizResourceTestFactory {
     public static QuizQuestion ValidQuestion() =>
-        new (
-            Content : "Question",
-            Score   : 20,
-            Answers : [
-                new (IsCorrect: true,  "Foo"),
-                new (IsCorrect: false, "Bar"),
-                new (IsCorrect: false, "Baz"),
+        new() {
+            Content = "Question",
+            Score   = 20,
+            Answers = [
+                new() { IsCorrect = true,  Content = "Foo" },
+                new() { IsCorrect = false, Content = "Bar" },
+                new() { IsCorrect = false, Content = "Baz" },
             ]
-        );
+        };
 
     public static QuizResource CreateValidQuiz(IEnumerable<QuizQuestion>? questions = null) {
         var response = QuizResource.TryCreate(

@@ -1,7 +1,8 @@
 using ReSR.Domain.Aggregates.Accounts;
 
 namespace ReSR.Domain.Aggregates.Messages.ValueObjects;
-public record Report(
-    User   ReportedBy,
-    string Content
-) { public DateTime ReportedAt { get; init; }}
+public record Report {
+    public required         string   Content    { get; init; }
+    public required virtual User     ReportedBy { get; init; }
+    public                  DateTime ReportedAt { get; internal init; } = DateTime.UtcNow;
+}

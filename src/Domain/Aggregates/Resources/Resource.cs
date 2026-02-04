@@ -2,6 +2,7 @@ using FluentResponse;
 using FluentResponse.Interfaces;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Categories;
+using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Aggregates.Resources.Events;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
 using ReSR.Domain.Core;
@@ -49,16 +50,19 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
         public virtual User? Owner { get; internal init; }
 
         /// <summary> The users that liked this resource. </summary>
-        public virtual IEnumerable<User> LikedBy { get; internal init; } = new HashSet<User>();
+        public virtual ICollection<User> LikedBy { get; internal init; } = new HashSet<User>();
 
         /// <summary> The users that bookmarked this resource. </summary>
-        public virtual IEnumerable<User> BookmarkedBy { get; internal init; } = new HashSet<User>();
+        public virtual ICollection<User> BookmarkedBy { get; internal init; } = new HashSet<User>();
 
         /// <summary> The users that exploited this resource. </summary>
-        public virtual IEnumerable<User> ExploitedBy { get; internal init; } = new HashSet<User>();
+        public virtual ICollection<User> ExploitedBy { get; internal init; } = new HashSet<User>();
 
         /// <summary> The users that is verifying this resource before being publicly available. </summary>
         public virtual User? VerifyingUser { get; internal init; }
+
+        /// <summary> The resource's comments. </summary>
+        public virtual ICollection<Comment> Comments { get; internal init; } = [];
 
 
 
@@ -120,14 +124,14 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
             /// <returns> A copy of the resource with a like set or unset from the given user. </returns>
             public virtual Resource WithLikeFrom(User from, bool value) =>
                 value
-                ? this with { LikedBy = [..this.LikedBy, from], }
-                : this with { LikedBy = this.LikedBy.Where(x => x.Id != from.Id) };
+                ? this with { LikedBy = [.. this.LikedBy, from], }
+                : this with { LikedBy = [.. this.LikedBy.Where(x => x.Id != from.Id)] };
 
             /// <returns> A copy of the resource with a bookmark set or unset from the given user. </returns>
             public virtual Resource WithBookmarkFrom(User from, bool value) =>
                 value
                 ? this with { BookmarkedBy = [..this.BookmarkedBy, from], }
-                : this with { BookmarkedBy = this.BookmarkedBy.Where(x => x.Id != from.Id) };
+                : this with { BookmarkedBy = [.. this.BookmarkedBy.Where(x => x.Id != from.Id)] };
 
             /// <returns>
             /// A copy of the resource with an exploit set or unset from the given user.
@@ -135,8 +139,8 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
             /// </returns>
             public virtual Resource WithExploitFrom(User from, bool value) =>
                 value
-                ? this with { ExploitedBy = [..this.ExploitedBy, from], BookmarkedBy = this.BookmarkedBy.Where(x => x.Id != from.Id), }
-                : this with { ExploitedBy = this.ExploitedBy.Where(x => x.Id != from.Id) };
+                ? this with { ExploitedBy = [.. this.ExploitedBy, from], BookmarkedBy = [.. this.BookmarkedBy.Where(x => x.Id != from.Id)], }
+                : this with { ExploitedBy = [.. this.ExploitedBy.Where(x => x.Id != from.Id)] };
 
 
 

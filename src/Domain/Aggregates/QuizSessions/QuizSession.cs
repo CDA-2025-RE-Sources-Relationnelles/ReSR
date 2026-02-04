@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using FluentResponse;
 using FluentResponse.Interfaces;
 using ReSR.Domain.Aggregates.Accounts;
@@ -22,7 +21,7 @@ public record QuizSession(Id Id = default) : IAggregateRoot<QuizSession> {
         public virtual QuizResource Resource { get; internal init; } = null!;
 
         /// <summary> The invited users participation. </summary>
-        public ImmutableList<QuizParticipation> Participations { get; internal init; } = [];
+        public ICollection<QuizParticipation> Participations { get; internal init; } = [];
 
     #endregion
     #region CONSTRUCTORS
@@ -32,7 +31,7 @@ public record QuizSession(Id Id = default) : IAggregateRoot<QuizSession> {
             IEnumerable<User> participants
         ) => new() {
             Resource       = quizResource,
-            Participations = [.. participants.ToHashSet().Select(x => new QuizParticipation(User: x)) ],
+            Participations = [.. participants.ToHashSet().Select(x => new QuizParticipation { User = x }) ],
         };
 
     #endregion
@@ -40,8 +39,8 @@ public record QuizSession(Id Id = default) : IAggregateRoot<QuizSession> {
             
         /// <returns> A copy of the session with the given participation score if the user is a participant. </returns>
         public virtual IResponse<QuizSession> TryWithScore(User user, int value) =>
-            this.Participations.FindIndex(x => x.User.Id == user.Id) is int index
-                ? Response.Success(this with { Participations = this.Participations.SetItem(index, new (user, value)) })
+            this.Participations.ToList().FindIndex(x => x.User.Id == user.Id) is int index
+                ? Response.Success(this with { Participations = [.. this.Participations.Where((u, i) => i != index), new QuizParticipation { User = user, Score = value }] })
                 : Response.Failure<QuizSession>(new InvariantException("Seules les participants d'une session peuvent y participer !"));
 
 
