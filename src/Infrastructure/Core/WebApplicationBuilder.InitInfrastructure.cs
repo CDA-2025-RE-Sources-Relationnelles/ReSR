@@ -10,6 +10,9 @@ using ReSR.Domain.Aggregates.QuizSessions;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Application.Ports;
 using ReSR.Infrastructure.Adapters;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
+using System.Text;
 
 namespace ReSR.Infrastructure.Core;
 public static partial class Extensions {
@@ -23,6 +26,42 @@ public static partial class Extensions {
         builder.Services.AddDbContext<DbContext, ApplicationDbContext>(x =>
             x.UseNpgsql(builder.Configuration.GetConnectionString())
         );
+
+        builder.Services
+            .AddAuthentication()
+            .AddJwtBearer(nameof(User), options => {
+                options.TokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuer           = true,
+                    ValidateAudience         = true,
+                    ValidateLifetime         = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer              = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience            = builder.Configuration["Jwt:Audience"],
+                    ClockSkew                = TimeSpan.Zero,
+                    IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key:User"]!))
+                };
+            }).AddJwtBearer(nameof(Manager), options => {
+                options.TokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuer           = true,
+                    ValidateAudience         = true,
+                    ValidateLifetime         = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer              = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience            = builder.Configuration["Jwt:Audience"],
+                    ClockSkew                = TimeSpan.Zero,
+                    IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key:Manager"]!))
+                };
+            });
+
+        builder.Services.AddAuthorizationBuilder()
+            .SetDefaultPolicy(new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .AddAuthenticationSchemes(nameof(User))
+                .Build())
+            .AddPolicy(nameof(Manager), new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .AddAuthenticationSchemes(nameof(Manager))
+                .Build());
 
         builder.Services.AddScoped<IRepository<Manager>, AccountRepository<Manager>>();
         builder.Services.AddScoped<IRepository<User>,    AccountRepository<User>>();
@@ -39,6 +78,14 @@ public static partial class Extensions {
         builder.Services.AddScoped<IRepository<QuizResource>, ResourceRepository<QuizResource>>();
 
         builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+
+        builder.Services.AddScoped<IAccountAuthService<Manager>, ManagerAuthService>();
+        builder.Services.AddScoped<IAccountAuthService<User>,    UserAuthService>();
+
+        builder.Services.AddSingleton<IPasswordResetCacheService,          PasswordResetCacheService>();
+        builder.Services.AddSingleton<IRegistrationValidationCacheService, RegistrationValidationCacheService>();
+
+        builder.Services.AddScoped<IMailService, MailService>();
 
     }
 }
