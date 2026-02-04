@@ -8,7 +8,7 @@ using ReSR.Domain.Aggregates.Accounts.Events;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Resources.Events;
 using ReSR.Application.EventListeners.Resources;
-using ReSR.Application.Services.Implementations;
+using ReSR.Application.Services.Core.Implementations;
 
 namespace ReSR.Application.Core;
 public static partial class Extensions {

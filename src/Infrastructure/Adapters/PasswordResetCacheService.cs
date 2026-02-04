@@ -1,6 +1,6 @@
-using ReSR.Application.Core.ValueObjects;
 using ReSR.Application.Ports;
 using Microsoft.Extensions.Configuration;
+using ReSR.Application.ValueObjects.Accounts;
 
 namespace ReSR.Infrastructure.Adapters;
 internal class PasswordResetCacheService(
