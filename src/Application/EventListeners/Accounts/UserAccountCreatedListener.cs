@@ -4,7 +4,7 @@ using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Accounts.Events;
 using ReSR.Domain.Core;
 
-namespace ReSR.Application.EventListeners;
+namespace ReSR.Application.EventListeners.Accounts;
 public sealed class UserAccountCreatedListener(
     IMailService mailService
 ) : IDomainEventListener<AccountCreated<User>> {
