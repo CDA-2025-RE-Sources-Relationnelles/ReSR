@@ -11,8 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="ReSR.Domain.Tests" />
     <InternalsVisibleTo Include="ReSR.Infrastructure" />
+    <InternalsVisibleTo Include="ReSR.Domain.Tests" />
+    <InternalsVisibleTo Include="ReSR.Application.Tests" />
   </ItemGroup>
 
 </Project>

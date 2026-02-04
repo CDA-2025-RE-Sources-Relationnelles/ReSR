@@ -9,7 +9,7 @@ internal class PrivateMessageRepository(
 ) : MessageRepository<PrivateMessage>(dbContext, domainEventDispatcher) {
 
     protected override IQueryable<PrivateMessage> GetJoinedTable() =>
-        this.GetJoinedTable()
+        base.GetJoinedTable()
             .Include(x => x.SentTo)
             .Include(x => x.QuotedResource);
 

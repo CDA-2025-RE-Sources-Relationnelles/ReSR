@@ -11,7 +11,7 @@ internal class CategoryRepository(
 ) : Repository<Category>(dbContext, domainEventDispatcher) {
 
     protected override IQueryable<Category> GetJoinedTable() =>
-        this.GetJoinedTable().Include(x => x.Resources);
+        base.GetJoinedTable().Include(x => x.Resources);
 
     protected override Task<IResponse<Category>> TryValidateAsync(Category entity) =>
         base.TryValidateAsync(entity)

@@ -67,13 +67,13 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
 
 
         /// <summary> The amount of likes on this resource. </summary>
-        public virtual uint LikeCount => (uint)this.LikedBy.Count();
+        public virtual uint LikeCount => (uint)this.LikedBy.Count;
 
         /// <summary> The amount of bookmarks on this resource. </summary>
-        public virtual uint BookmarkCount => (uint)this.BookmarkedBy.Count();
+        public virtual uint BookmarkCount => (uint)this.BookmarkedBy.Count;
 
         /// <summary> The amount of exploits on this resource. </summary>
-        public virtual uint ExploitCount => (uint)this.ExploitedBy.Count();
+        public virtual uint ExploitCount => (uint)this.ExploitedBy.Count;
 
 
 

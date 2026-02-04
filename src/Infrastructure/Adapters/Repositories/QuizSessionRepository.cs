@@ -9,7 +9,7 @@ internal class QuizSessionRepository(
 ) : Repository<QuizSession>(dbContext, domainEventDispatcher) {
 
     protected override IQueryable<QuizSession> GetJoinedTable() =>
-        this.GetJoinedTable()
+        base.GetJoinedTable()
             .Include(x => x.Resource)
             .Include(x => x.Participations)
                 .ThenInclude(x => x.User);

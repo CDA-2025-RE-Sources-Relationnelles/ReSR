@@ -11,7 +11,7 @@ internal class ResourceRepository<T>(
 ) : Repository<T>(dbContext, domainEventDispatcher) where T : Resource, IAggregateRoot<T> {
 
     protected override IQueryable<T> GetJoinedTable() =>
-        this.GetJoinedTable()
+        base.GetJoinedTable()
             .Include(x => x.Category)
             .Include(x => x.Owner)
             .Include(x => x.LikedBy)

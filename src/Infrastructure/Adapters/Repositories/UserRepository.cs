@@ -11,7 +11,7 @@ internal class UserRepository(
 ) : AccountRepository<User>(dbContext, domainEventDispatcher) {
 
     protected override IQueryable<User> GetJoinedTable() =>
-        this.GetJoinedTable()
+        base.GetJoinedTable()
             .Include(x => x.LikedUsers)
             .Include(x => x.LikedBy)
             .Include(x => x.Bookmarks)

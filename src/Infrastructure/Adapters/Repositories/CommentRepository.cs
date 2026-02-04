@@ -9,7 +9,7 @@ internal class CommentRepository(
 ) : MessageRepository<Comment>(dbContext, domainEventDispatcher) {
 
     protected override IQueryable<Comment> GetJoinedTable() =>
-        this.GetJoinedTable()
+        base.GetJoinedTable()
             .Include(x => x.CommentedResource)
             .Include(x => x.AnsweredComment)
             .Include(x => x.Reports)

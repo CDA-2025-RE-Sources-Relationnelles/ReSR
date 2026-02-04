@@ -9,6 +9,6 @@ internal class MessageRepository<T>(
 ) : Repository<T>(dbContext, domainEventDispatcher) where T : Message<T> {
 
     protected override IQueryable<T> GetJoinedTable() =>
-        this.GetJoinedTable().Include(x => x.SentBy);
+        base.GetJoinedTable().Include(x => x.SentBy);
 
 }
