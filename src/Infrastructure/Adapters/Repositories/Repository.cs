@@ -6,8 +6,8 @@ using ReSR.Domain.Core;
 using System.Linq.Expressions;
 using ReSR.Application.Core.Exceptions;
 
-namespace ReSR.Infrastructure.Adapters;
-public class Repository<T>(
+namespace ReSR.Infrastructure.Adapters.Repositories;
+internal class Repository<T>(
     DbContext              dbContext,
     IDomainEventDispatcher domainEventDispatcher
 ) : IRepository<T> where T : class, IAggregateRoot<T> {
@@ -21,6 +21,7 @@ public class Repository<T>(
     #region METHODS
 
         protected virtual async Task<IResponse<T>> TryValidateAsync(T entity) => Response.Success(entity);
+        protected virtual IQueryable<T> GetJoinedTable() => this.table;
 
         protected async Task<IResponse<T>> TryDispatchEventsAsync(T entity) {
             
@@ -33,7 +34,7 @@ public class Repository<T>(
                 // We make sure that EF Core keeps track of eventual domain event changes.
                 this.table.Attach(entity);
                 return entity;
-                
+
             });
         }
 
@@ -91,21 +92,21 @@ public class Repository<T>(
         }
 
         public virtual async Task DeleteAllAsync(Expression<Func<T, bool>> predicate) {
-            this.table.RemoveRange(this.table.Where(predicate));
+            this.table.RemoveRange(this.GetJoinedTable().Where(predicate));
             await this.dbContext.SaveChangesAsync();
         }
         
         public virtual async Task<IResponse<T>> TryGetAsync(Id id) =>
-            await this.table.FindAsync(id) is T entity
+            await this.GetJoinedTable().SingleOrDefaultAsync(x => x.Id == id) is T entity
                 ? Response.Success(entity)
                 : Response.Failure<T>(new EntityNotFoundException(typeof(T), id));
 
         public virtual async Task<IResponse<T>> TryGetAsync(Expression<Func<T, bool>> predicate) =>
-            await this.table.SingleOrDefaultAsync(predicate) is T entity
+            await this.GetJoinedTable().SingleOrDefaultAsync(predicate) is T entity
                 ? Response.Success(entity)
                 : Response.Failure<T>(new EntityNotFoundException(typeof(T)));
 
-        public virtual async Task<IEnumerable<T>> GetAllAsync() => await this.table.ToListAsync();
+        public virtual async Task<IEnumerable<T>> GetAllAsync() => await this.GetJoinedTable().ToListAsync();
         public virtual async Task<IEnumerable<T>> GetAllAsync(IEnumerable<Id> ids) {
             var results = new List<T>(ids.Count());
             foreach (var id in ids)
@@ -114,13 +115,13 @@ public class Repository<T>(
             return results;
         }
 
-        public virtual async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate) => await this.table.Where(predicate).ToListAsync();
+        public virtual async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate) => await this.GetJoinedTable().Where(predicate).ToListAsync();
 
         public virtual async Task<bool> ContainsAsync(T entity) => await this.table.ContainsAsync(entity);
         public virtual async Task<bool> ContainsIdAsync(Id id) => await this.table.FindAsync(id) is not null;
 
         public virtual async Task<bool> AnyAsync() => await this.table.AnyAsync();
-        public virtual async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate) => await this.table.AnyAsync(predicate);
+        public virtual async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate) => await this.GetJoinedTable().AnyAsync(predicate);
 
     #endregion
 

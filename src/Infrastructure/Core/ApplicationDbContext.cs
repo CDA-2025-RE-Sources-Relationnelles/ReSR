@@ -3,9 +3,7 @@ using ReSR.Application.Ports;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Categories;
 using ReSR.Domain.Aggregates.Messages;
-using ReSR.Domain.Aggregates.Messages.ValueObjects;
 using ReSR.Domain.Aggregates.QuizSessions;
-using ReSR.Domain.Aggregates.QuizSessions.ValueObjects;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Core;
 

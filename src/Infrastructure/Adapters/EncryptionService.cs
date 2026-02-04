@@ -8,7 +8,7 @@ namespace ReSR.Infrastructure.Adapters;
 #pragma warning disable SYSLIB0023 // Type or member is obsolete
 #pragma warning disable SYSLIB0060 // Type or member is obsolete
 
-public sealed class EncryptionService(string key) : IEncryptionService {
+internal sealed class EncryptionService(string key) : IEncryptionService {
     
     #region PROPERTIES
 
