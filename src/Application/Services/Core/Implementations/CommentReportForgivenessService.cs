@@ -5,7 +5,7 @@ using ReSR.Domain.Core;
 using ReSR.Domain.Aggregates.Messages;
 using FluentResponse;
 
-namespace ReSR.Application.Services.Implementations;
+namespace ReSR.Application.Services.Core.Implementations;
 internal class CommentReportForgivenessService(
     IServiceProvider                         serviceProvider,
     ILogger<CommentReportForgivenessService> logger

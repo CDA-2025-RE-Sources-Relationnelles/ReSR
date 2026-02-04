@@ -4,7 +4,7 @@ using FluentResponse;
 using FluentResponse.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ReSR.Application.Services.Implementations;
+namespace ReSR.Application.Services.Core.Implementations;
 internal class DomainEventsDispatcher(IServiceProvider serviceProvider) : IDomainEventDispatcher {
     
     private static readonly ConcurrentDictionary<Type, Type> ListenerTypeDictionary = new();

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ReSR.Domain.Core;
 
-namespace ReSR.Application.Services.Implementations;
+namespace ReSR.Application.Services.Core.Implementations;
 internal class UserAnonymizationService(
     IServiceProvider                  serviceProvider,
     ILogger<UserAnonymizationService> logger

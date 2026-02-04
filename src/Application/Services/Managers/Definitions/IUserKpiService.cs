@@ -1,7 +1,7 @@
 using ReSR.Application.ValueObjects.Accounts;
 using ReSR.Application.ValueObjects.Core;
 
-namespace ReSR.Application.Services.Definitions;
+namespace ReSR.Application.Services.Managers.Definitions;
 public interface IUserKpiService {
 
     /// <returns>The performance indicators for users that were active in the given date range.</returns>
