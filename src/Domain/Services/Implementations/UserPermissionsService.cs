@@ -6,7 +6,7 @@ using ReSR.Domain.Aggregates.QuizSessions;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
 
-namespace ReSR.Domain.Services;
+namespace ReSR.Domain.Services.Implementations;
 public static class UserPermissionsService {
     
     /// <returns>A successful response if the user has access to the given resource.</returns>
