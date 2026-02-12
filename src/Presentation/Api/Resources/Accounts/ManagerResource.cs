@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Presentation.Api.Controllers;
 
 namespace ReSR.Presentation.Api.Resources.Accounts;
 public class ManagerResource(Manager from) : IResource<ManagerResource, Manager> {

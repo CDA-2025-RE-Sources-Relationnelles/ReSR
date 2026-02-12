@@ -1,5 +1,6 @@
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
+using ReSR.Presentation.Api.Controllers;
 
 namespace ReSR.Presentation.Api.Resources.Resources;
 public class QuizResourceResource(QuizResource from) : ResourceResource(from), IResource<QuizResourceResource, QuizResource> {

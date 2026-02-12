@@ -1,4 +1,5 @@
 using ReSR.Domain.Aggregates.Resources;
+using ReSR.Presentation.Api.Controllers;
 
 namespace ReSR.Presentation.Api.Resources.Resources;
 public class TextResourceResource(TextResource from) : ResourceResource(from), IResource<TextResourceResource, TextResource> {

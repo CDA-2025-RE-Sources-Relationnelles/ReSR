@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.QuizSessions;
+using ReSR.Presentation.Api.Controllers;
 using ReSR.Presentation.Api.Resources.Accounts;
 using ReSR.Presentation.Api.Resources.Resources;
 

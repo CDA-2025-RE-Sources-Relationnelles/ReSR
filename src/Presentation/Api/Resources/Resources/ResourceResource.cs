@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Presentation.Api.Resources.Accounts;
+using ReSR.Presentation.Api.Resources.Categories;
 using ReSR.Presentation.Api.Resources.Messages;
 
 namespace ReSR.Presentation.Api.Resources.Resources;
