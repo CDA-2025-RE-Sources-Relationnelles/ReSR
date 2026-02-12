@@ -10,6 +10,7 @@ public class UserResource(User from) : IResource<UserResource, User> {
         [JsonIgnore]
         public Id Id { get; } = from.Id;
 
+        public string UserName    { get; } = from.Username;
         public string Email       { get; } = from.Email;
         public string Permissions { get; } = from.Permissions.ToString();
         public bool Suspended     { get; } = from.Suspended;
