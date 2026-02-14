@@ -4,7 +4,7 @@ using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Aggregates.QuizSessions;
 using ReSR.Domain.Aggregates.Resources;
 
-namespace ReSR.Application.Core.Exceptions;
+namespace ReSR.Application.Exceptions;
 public class EntityNotFoundException : Exception {
     
     public Type EntityType { get; }

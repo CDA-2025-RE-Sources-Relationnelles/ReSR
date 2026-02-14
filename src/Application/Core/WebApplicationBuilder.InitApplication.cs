@@ -10,6 +10,8 @@ using ReSR.Domain.Aggregates.Resources.Events;
 using ReSR.Application.EventListeners.Resources;
 using ReSR.Application.Services.Core.Implementations;
 using ReSR.Domain.Ports;
+using ReSR.Application.Services.Users.Definitions;
+using ReSR.Application.Services.Users.Implementations;
 
 namespace ReSR.Application.Core;
 public static partial class Extensions {
@@ -52,6 +54,9 @@ public static partial class Extensions {
 
         builder.Services.AddScoped<IDomainEventListener<ResourceRejected>, ResourceRejectedListener>();
         builder.Services.AddScoped<IDomainEventListener<ResourceVerified>, ResourceVerifiedListener>();
+
+
+        builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 
 
         builder.Services.AddHostedService<UserAnonymizationService>();

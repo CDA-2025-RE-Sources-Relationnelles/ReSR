@@ -1,6 +1,5 @@
 using FluentResponse;
 using FluentResponse.Interfaces;
-using ReSR.Application.Core.Exceptions;
 using ReSR.Application.Ports;
 using ReSR.Application.Services.Users.Definitions;
 using ReSR.Application.ValueObjects.Accounts;
@@ -9,16 +8,16 @@ using ReSR.Domain.Ports;
 
 namespace ReSR.Application.Services.Users.Implementations;
 public sealed class UserSessionService(
-    IRepository<User>                   repository,
+    IAccountRepository<User>            repository,
     IAccountAuthService<User>           authService,
     IRegistrationValidationCacheService registrationValidationCacheService,
     IPasswordResetCacheService          passwordResetCacheService,
     IMailService                        mailService
 ) : IUserSessionService {
     
-    public Task<IResponse<Session<User>>> TryAuthAsync(string mailAddress, string password) =>
+    public Task<IResponse<Session<User>>> TryAuthAsync(string email, string password) =>
         repository
-            .TryGetAsync(user => user.Email == mailAddress)
+            .TryGetWithEmailAsync(email)
             .OnSuccessAsync(user => user
                 .TryVerifyPassword(password)
                 .OnSuccessAsync(() => repository.TryUpdateAsync(user.Id, user => user.WithNewActivity()))
@@ -47,7 +46,7 @@ public sealed class UserSessionService(
 
     public Task<IResponse<Session<User>>> TryResetPasswordAsync(string email, string newPassword, Pin pin) =>
         repository
-            .TryGetAsync(x => x.Email == email)
+            .TryGetWithEmailAsync(email)
             .OnSuccessAsync(user =>
             
                 passwordResetCacheService
@@ -99,10 +98,10 @@ public sealed class UserSessionService(
             );
 
     public Task<IResponse> TryRequestRegistrationPINAsync(string email) =>
-        User.TryVerifyUsernameInvariant(email).OnSuccessAsync(async () => {
+        User.TryVerifyEmailInvariant(email).OnSuccessAsync(async () => {
 
-            if (await repository.AnyAsync(x => x.Email == email))
-                return Response.Failure(new EntityConflictException(typeof(User), nameof(User.Email), email));
+            if (await repository.AnyWithEmailAsync(email))
+                return Response.Failure(new ArgumentException("Un compte existe déjà avec cette adresse mail !"));
 
             return await registrationValidationCacheService
                 .TryAdd(email, new Pin())
@@ -119,7 +118,7 @@ public sealed class UserSessionService(
 
     public Task<IResponse> TryRequestPasswordResetPINAsync(string email) =>
         repository
-            .TryGetAsync(x => x.Email == email)
+            .TryGetWithEmailAsync(email)
             .OnSuccessAsync(user =>
 
                 passwordResetCacheService

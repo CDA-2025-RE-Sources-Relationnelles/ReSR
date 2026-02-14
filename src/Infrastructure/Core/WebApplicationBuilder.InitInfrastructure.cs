@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using System.Text;
 using ReSR.Domain.Ports;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ReSR.Infrastructure.Core;
 public static partial class Extensions {
@@ -28,8 +29,10 @@ public static partial class Extensions {
         );
 
         builder.Services
-            .AddAuthentication()
-            .AddJwtBearer(nameof(User), options => {
+            .AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = nameof(User);
+                options.DefaultChallengeScheme    = nameof(User);
+            }).AddJwtBearer(nameof(User), options => {
                 options.TokenValidationParameters = new TokenValidationParameters {
                     ValidateIssuer           = true,
                     ValidateAudience         = true,
@@ -63,8 +66,10 @@ public static partial class Extensions {
                 .AddAuthenticationSchemes(nameof(Manager))
                 .Build());
 
-        builder.Services.AddScoped<IRepository<Manager>, AccountRepository<Manager>>();
-        builder.Services.AddScoped<IRepository<User>,    AccountRepository<User>>();
+        builder.Services.AddScoped<IAccountRepository<Manager>, AccountRepository<Manager>>();
+        builder.Services.AddScoped<IAccountRepository<User>,    AccountRepository<User>>();
+        builder.Services.AddScoped<IRepository<Manager>>(x => x.GetRequiredService<IAccountRepository<Manager>>());
+        builder.Services.AddScoped<IRepository<User>>(x => x.GetRequiredService<IAccountRepository<User>>());
 
         builder.Services.AddScoped<IRepository<Category>, CategoryRepository>();
 

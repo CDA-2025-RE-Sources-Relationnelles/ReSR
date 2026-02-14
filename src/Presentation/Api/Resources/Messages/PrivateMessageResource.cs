@@ -16,10 +16,10 @@ public class PrivateMessageResource(PrivateMessage from) : MessageResource<Priva
         );
 
         public readonly record struct PrivateMessageLinks(
-            ILink  Self,
-            ILink  SentBy,
-            ILink  SentTo,
-            ILink? QuotedResource
+            Link           Self,
+            AnnotatedLink  SentBy,
+            AnnotatedLink  SentTo,
+            AnnotatedLink? QuotedResource
         );
 
     #endregion
@@ -30,8 +30,8 @@ public class PrivateMessageResource(PrivateMessage from) : MessageResource<Priva
         public static PrivateMessageResource From(PrivateMessage from) => from;
         public static IEnumerable<PrivateMessageResource> From(IEnumerable<PrivateMessage> from) => from.Select(From);
 
-        public static ILink GetLink(PrivateMessage from) => new Link(HttpMethod.GET, PrivateMessageController.ROUTE, from.Id);
-        public static IEnumerable<ILink> GetLinks(IEnumerable<PrivateMessage> from) => from.Select(GetLink);
+        public static Link GetLink(PrivateMessage from) => new (HttpMethod.GET, PrivateMessageController.ROUTE, from.Id);
+        public static IEnumerable<Link> GetLinks(IEnumerable<PrivateMessage> from) => from.Select(GetLink);
         
     #endregion
 

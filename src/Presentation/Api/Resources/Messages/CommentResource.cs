@@ -19,11 +19,11 @@ public class CommentResource(Comment from) : MessageResource<Comment>(from), IRe
         );
 
         public readonly record struct CommentLinks(
-            ILink  Self,
-            ILink  SentBy,
-            ILink  CommentedResource,
-            ILink  Answers,
-            ILink? AnsweredComment
+            Link          Self,
+            AnnotatedLink SentBy,
+            AnnotatedLink CommentedResource,
+            Link          Answers,
+            Link?         AnsweredComment
         );
 
     #endregion
@@ -34,8 +34,8 @@ public class CommentResource(Comment from) : MessageResource<Comment>(from), IRe
         public static CommentResource From(Comment from) => from;
         public static IEnumerable<CommentResource> From(IEnumerable<Comment> from) => from.Select(From);
 
-        public static ILink GetLink(Comment from) => new Link(HttpMethod.GET, CommentController.ROUTE, from.Id);
-        public static IEnumerable<ILink> GetLinks(IEnumerable<Comment> from) => from.Select(GetLink);
+        public static Link GetLink(Comment from) => new (HttpMethod.GET, CommentController.ROUTE, from.Id);
+        public static IEnumerable<Link> GetLinks(IEnumerable<Comment> from) => from.Select(GetLink);
         
     #endregion
 

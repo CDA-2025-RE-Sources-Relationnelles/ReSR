@@ -23,13 +23,13 @@ public class QuizSessionResource(QuizSession from) : IResource<QuizSessionResour
         );
 
         public readonly record struct QuizSessionLinks(
-            ILink Self,
-            ILink Resource
+            Link          Self,
+            AnnotatedLink Resource
         );
 
         public readonly record struct QuizParticipation(
-            int?  Score,
-            ILink User
+            int?          Score,
+            AnnotatedLink User
         );
 
     #endregion
@@ -40,8 +40,8 @@ public class QuizSessionResource(QuizSession from) : IResource<QuizSessionResour
         public static QuizSessionResource From(QuizSession from) => from;
         public static IEnumerable<QuizSessionResource> From(IEnumerable<QuizSession> from) => from.Select(From);
 
-        public static ILink GetLink(QuizSession from) => new Link(HttpMethod.GET, QuizSessionController.ROUTE, from.Id);
-        public static IEnumerable<ILink> GetLinks(IEnumerable<QuizSession> from) => from.Select(GetLink);
+        public static Link GetLink(QuizSession from) => new (HttpMethod.GET, QuizSessionController.ROUTE, from.Id);
+        public static IEnumerable<Link> GetLinks(IEnumerable<QuizSession> from) => from.Select(GetLink);
         
     #endregion
 

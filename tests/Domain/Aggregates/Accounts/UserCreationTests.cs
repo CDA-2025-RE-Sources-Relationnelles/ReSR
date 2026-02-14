@@ -10,7 +10,7 @@ public class UserCreationTests {
     public void TryCreate_WithValidData_ShouldSucceed()  {
 
         // Arrange
-        var username = "User";
+        var username = "user";
         var email    = "user@test.com";
         var password = "abcdABCD1234";
 
@@ -34,7 +34,7 @@ public class UserCreationTests {
     public void TryCreate_WithInvalidEmail_ShouldFail() {
 
         // Arrange
-        var username = "User";
+        var username = "user";
         var email    = "notanemail";
         var password = "abcdABCD1234";
 

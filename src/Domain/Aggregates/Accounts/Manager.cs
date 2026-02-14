@@ -21,6 +21,7 @@ public sealed record Manager : Account<Manager>, IAggregateRoot<Manager> {
             string             password,
             ManagerPermissions permissions = ManagerPermissions.AdminRole
         ) => TryVerifyEmailInvariant(email)
+                .OnSuccess(() => TryVerifyPasswordInvariant(password))
                 .OnSuccess(() => Password.TryCreate(password))
                 .OnSuccess(password => new Manager {
                     Email        = email,

@@ -19,8 +19,8 @@ public class CategoryResource(Category resource) : IResource<CategoryResource, C
         );
 
         public readonly record struct CategoryLinks(
-            ILink Self,
-            IEnumerable<ILink> Resources
+            AnnotatedLink Self,
+            IEnumerable<AnnotatedLink> Resources
         );
 
     #endregion
@@ -31,8 +31,8 @@ public class CategoryResource(Category resource) : IResource<CategoryResource, C
         public static CategoryResource From(Category from) => from;
         public static IEnumerable<CategoryResource> From(IEnumerable<Category> from) => from.Select(From);
 
-        public static ILink GetLink(Category from) => new AnnotatedLink(HttpMethod.GET, from.Name, CategoryController.ROUTE, from.Id);
-        public static IEnumerable<ILink> GetLinks(IEnumerable<Category> from) => from.Select(GetLink);
+        public static AnnotatedLink GetLink(Category from) => new (HttpMethod.GET, from.Name, CategoryController.ROUTE, from.Id);
+        public static IEnumerable<AnnotatedLink> GetLinks(IEnumerable<Category> from) => from.Select(GetLink);
         
     #endregion
 

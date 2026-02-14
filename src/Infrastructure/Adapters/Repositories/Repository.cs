@@ -4,8 +4,8 @@ using FluentResponse;
 using FluentResponse.Interfaces;
 using ReSR.Domain.Core;
 using System.Linq.Expressions;
-using ReSR.Application.Core.Exceptions;
 using ReSR.Domain.Ports;
+using ReSR.Application.Exceptions;
 
 namespace ReSR.Infrastructure.Adapters.Repositories;
 internal class Repository<T>(
@@ -98,12 +98,12 @@ internal class Repository<T>(
         }
         
         public virtual async Task<IResponse<T>> TryGetAsync(Id id) =>
-            await this.GetJoinedTable().SingleOrDefaultAsync(x => x.Id == id) is T entity
+            await this.GetJoinedTable().FirstOrDefaultAsync(x => x.Id == id) is T entity
                 ? Response.Success(entity)
                 : Response.Failure<T>(new EntityNotFoundException(typeof(T), id));
 
         public virtual async Task<IResponse<T>> TryGetAsync(Expression<Func<T, bool>> predicate) =>
-            await this.GetJoinedTable().SingleOrDefaultAsync(predicate) is T entity
+            await this.GetJoinedTable().FirstOrDefaultAsync(predicate) is T entity
                 ? Response.Success(entity)
                 : Response.Failure<T>(new EntityNotFoundException(typeof(T)));
 

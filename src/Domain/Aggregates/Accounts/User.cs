@@ -66,6 +66,7 @@ public record User : Account<User>, IAggregateRoot<User> {
             string          password,
             UserPermissions permissions = UserPermissions.None
         ) => TryVerifyUsernameInvariant(username)
+                .OnSuccess(() => TryVerifyPasswordInvariant(password))
                 .OnSuccess(() => TryVerifyEmailInvariant(email))
                 .OnSuccess(() => Password.TryCreate(password))
                 .OnSuccess(password => new User {
@@ -120,10 +121,11 @@ public record User : Account<User>, IAggregateRoot<User> {
             /// <returns> A copy of the user account as anonymized. </returns>
             public virtual User AsAnonymized() =>
                 this with {
+                    Username     = string.Empty,
                     Email        = string.Empty,
                     Password     = Password.FromNoise(),
-                    DomainEvents = this.Email is not null
-                        ? [..this.DomainEvents, new UserAnonymized(this.Id)]
+                    DomainEvents = !this.IsAnonymous
+                        ? [..this.DomainEvents, new UserAnonymized(this.Id, this.Email)]
                         : this.DomainEvents
                 };
 
@@ -147,9 +149,9 @@ public record User : Account<User>, IAggregateRoot<User> {
         #region INVARIANTS
 
             public static IResponse TryVerifyUsernameInvariant(string value) =>
-                value.All(char.IsAsciiLetterOrDigit) && value.Length >= 4
+                value.All(x => char.IsAsciiDigit(x) || char.IsAsciiLetterLower(x) || x == '_') && value.Length >= 4
                 ? Response.Success()
-                : Response.Failure<User>(new InvariantException("Un nom d'utilisateur doit contenir au moins 4 caractères alphanumériques !"));
+                : Response.Failure<User>(new InvariantException("Un nom d'utilisateur doit être composé d'au moins 4 caractères (minuscules, chiffres ou '_') !"));
 
         #endregion
     #endregion
