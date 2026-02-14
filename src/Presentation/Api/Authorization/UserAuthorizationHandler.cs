@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using ReSR.Domain.Aggregates.Accounts;
-using ReSR.Domain.Core;
+using ReSR.Domain.Ports;
 
 namespace ReSR.Presentation.Api.Authorization;
 public class UserAuthorizationRequirement : IAuthorizationRequirement {}

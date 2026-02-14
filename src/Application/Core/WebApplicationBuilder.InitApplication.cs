@@ -9,6 +9,7 @@ using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Resources.Events;
 using ReSR.Application.EventListeners.Resources;
 using ReSR.Application.Services.Core.Implementations;
+using ReSR.Domain.Ports;
 
 namespace ReSR.Application.Core;
 public static partial class Extensions {

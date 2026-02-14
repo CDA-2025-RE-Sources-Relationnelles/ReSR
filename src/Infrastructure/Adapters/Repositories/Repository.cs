@@ -5,6 +5,7 @@ using FluentResponse.Interfaces;
 using ReSR.Domain.Core;
 using System.Linq.Expressions;
 using ReSR.Application.Core.Exceptions;
+using ReSR.Domain.Ports;
 
 namespace ReSR.Infrastructure.Adapters.Repositories;
 internal class Repository<T>(

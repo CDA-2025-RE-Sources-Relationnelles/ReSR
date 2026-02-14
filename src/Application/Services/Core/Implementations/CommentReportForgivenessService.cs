@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using ReSR.Domain.Core;
 using ReSR.Domain.Aggregates.Messages;
 using FluentResponse;
+using ReSR.Domain.Ports;
 
 namespace ReSR.Application.Services.Core.Implementations;
 internal class CommentReportForgivenessService(

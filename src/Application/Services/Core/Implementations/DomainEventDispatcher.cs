@@ -3,6 +3,7 @@ using ReSR.Domain.Core;
 using FluentResponse;
 using FluentResponse.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using ReSR.Domain.Ports;
 
 namespace ReSR.Application.Services.Core.Implementations;
 internal class DomainEventsDispatcher(IServiceProvider serviceProvider) : IDomainEventDispatcher {

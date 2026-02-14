@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
-using ReSR.Domain.Core;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Categories;
 using ReSR.Domain.Aggregates.Messages;
@@ -13,6 +12,7 @@ using ReSR.Infrastructure.Adapters;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using System.Text;
+using ReSR.Domain.Ports;
 
 namespace ReSR.Infrastructure.Core;
 public static partial class Extensions {

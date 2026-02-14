@@ -146,7 +146,7 @@ public record User : Account<User>, IAggregateRoot<User> {
         #endregion
         #region INVARIANTS
 
-            protected static IResponse TryVerifyUsernameInvariant(string value) =>
+            public static IResponse TryVerifyUsernameInvariant(string value) =>
                 value.All(char.IsAsciiLetterOrDigit) && value.Length >= 4
                 ? Response.Success()
                 : Response.Failure<User>(new InvariantException("Un nom d'utilisateur doit contenir au moins 4 caractères alphanumériques !"));
