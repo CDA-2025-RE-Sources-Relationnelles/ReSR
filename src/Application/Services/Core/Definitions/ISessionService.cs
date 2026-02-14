@@ -24,10 +24,10 @@ public interface ISessionService<T> where T : Account<T> {
     /// <param name="id">The account's identifier.</param>
     /// <param name="password">The account's password.</param>
     /// <param name="transform">The account's modifications.</param>
-    public Task<IResponse<Session<Manager>>> TryUpdateAccountAsync(
+    public Task<IResponse<Session<T>>> TryUpdateAccountAsync(
         Id id,
         string password,
-        Func<Manager, IResponse<Manager>> transform
+        Func<T, IResponse<T>> transform
     );
 
     /// <summary>
