@@ -1,6 +1,7 @@
 using FluentResponse.Interfaces;
+using ReSR.Domain.Core;
 
-namespace ReSR.Domain.Core;
+namespace ReSR.Domain.Ports;
 
 /// <summary>
 /// A service for handling domain event handling.

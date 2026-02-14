@@ -1,11 +1,11 @@
 using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Ports;
+using ReSR.Application.Services.Core.Implementations;
 using FluentResponse;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ReSR.Domain.Core;
 using FluentResponse.Interfaces;
-using ReSR.Application.Services.Core.Implementations;
 
 namespace ReSR.Application.Tests.Services;
 public class UserAnonymizationServiceTests {

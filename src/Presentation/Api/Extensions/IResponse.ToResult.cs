@@ -12,7 +12,7 @@ public static partial class Extensions {
         Func<ISuccess, IResult> onSuccess
     ) => self switch {
             ISuccess success => onSuccess(success),
-            IFailure failure => failure.Exception.ToResult(self),
+            IFailure failure => failure.Exception.ToResult(failure),
             _                => throw new InvalidOperationException()
         };
 
@@ -26,7 +26,7 @@ public static partial class Extensions {
         Func<ISuccess<TValue>, IResult> onSuccess
     ) => self switch {
             ISuccess<TValue> success => onSuccess(success),
-            IFailure         failure => failure.Exception.ToResult(self),
+            IFailure         failure => failure.Exception.ToResult(failure),
             _                        => throw new InvalidOperationException()
         };
 }

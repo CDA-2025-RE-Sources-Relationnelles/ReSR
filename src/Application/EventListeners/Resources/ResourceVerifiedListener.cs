@@ -4,7 +4,7 @@ using ReSR.Application.Ports;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.Events;
-using ReSR.Domain.Core;
+using ReSR.Domain.Ports;
 
 namespace ReSR.Application.EventListeners.Resources;
 internal class ResourceVerifiedListener(

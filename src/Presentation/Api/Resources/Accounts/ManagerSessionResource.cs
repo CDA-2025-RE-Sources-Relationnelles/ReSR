@@ -16,8 +16,8 @@ public class ManagerSessionResource(Session<Manager> from) : ManagerResource(fro
         public static ManagerSessionResource From(Session<Manager> from) => from;
         public static IEnumerable<ManagerSessionResource> From(IEnumerable<Session<Manager>> from) => from.Select(From);
 
-        public static ILink GetLink(Session<Manager> from) => GetLink(from.Details);
-        public static IEnumerable<ILink> GetLinks(IEnumerable<Session<Manager>> from) => from.Select(GetLink);
+        public static AnnotatedLink GetLink(Session<Manager> from) => GetLink(from.Details);
+        public static IEnumerable<AnnotatedLink> GetLinks(IEnumerable<Session<Manager>> from) => from.Select(GetLink);
 
     #endregion
 

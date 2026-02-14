@@ -18,8 +18,8 @@ public class QuizResourceResource(QuizResource from) : ResourceResource(from), I
         public static QuizResourceResource From(QuizResource from) => from;
         public static IEnumerable<QuizResourceResource> From(IEnumerable<QuizResource> from) => from.Select(From);
 
-        public static ILink GetLink(QuizResource from) => new AnnotatedLink(HttpMethod.GET, from.Title, QuizResourceController.ROUTE, from.Id);
-        public static IEnumerable<ILink> GetLinks(IEnumerable<QuizResource> from) => from.Select(GetLink);
+        public static AnnotatedLink GetLink(QuizResource from) => new (HttpMethod.GET, from.Title, QuizResourceController.ROUTE, from.Id);
+        public static IEnumerable<AnnotatedLink> GetLinks(IEnumerable<QuizResource> from) => from.Select(GetLink);
         
     #endregion
 

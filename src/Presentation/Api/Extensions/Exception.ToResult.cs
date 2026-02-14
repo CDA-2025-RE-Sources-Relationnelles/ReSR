@@ -1,5 +1,5 @@
 using System.Security;
-using ReSR.Application.Core.Exceptions;
+using ReSR.Application.Exceptions;
 
 namespace ReSR.Presentation.Api.Extensions;
 public static partial class Extensions {

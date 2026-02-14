@@ -3,6 +3,11 @@ using FluentResponse.Interfaces;
 using ReSR.Domain.Core;
 
 namespace ReSR.Domain.Ports;
+
+/// <summary>
+/// An interface for aggregate roots' repositories.
+/// </summary>
+/// <typeparam name="T">The aggregate root's type.</typeparam>
 public interface IRepository<T> where T : IAggregateRoot<T> {
 
     Task<IResponse<T>> TryAddAsync(T entity);

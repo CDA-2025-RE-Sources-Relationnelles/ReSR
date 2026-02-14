@@ -11,7 +11,7 @@ public class UserResource(User from) : IResource<UserResource, User> {
         [JsonIgnore]
         public Id Id { get; } = from.Id;
 
-        public string UserName    { get; } = from.Username;
+        public string Username    { get; } = from.Username;
         public string Email       { get; } = from.Email;
         public string Permissions { get; } = from.Permissions.ToString();
         public bool Suspended     { get; } = from.Suspended;
@@ -27,12 +27,12 @@ public class UserResource(User from) : IResource<UserResource, User> {
         );
 
         public readonly record struct UserLinks(
-            ILink Self,
-            ILink Anonymize,
-            IEnumerable<ILink> Friends,
-            IEnumerable<ILink> LikedUsers,
-            IEnumerable<ILink> Bookmarks,
-            IEnumerable<ILink> OwnedResources
+            AnnotatedLink Self,
+            Link          Anonymize,
+            IEnumerable<AnnotatedLink> Friends,
+            IEnumerable<AnnotatedLink> LikedUsers,
+            IEnumerable<AnnotatedLink> Bookmarks,
+            IEnumerable<AnnotatedLink> OwnedResources
         );
 
     #endregion
@@ -43,8 +43,8 @@ public class UserResource(User from) : IResource<UserResource, User> {
         public static UserResource From(User from) => from;
         public static IEnumerable<UserResource> From(IEnumerable<User> from) => from.Select(From);
 
-        public static ILink GetLink(User from) => new AnnotatedLink(HttpMethod.GET, from.Username, UserController.ROUTE, from.Id);
-        public static IEnumerable<ILink> GetLinks(IEnumerable<User> from) => from.Select(GetLink);
+        public static AnnotatedLink GetLink(User from) => new(HttpMethod.GET, from.Username, UserController.ROUTE, from.Id);
+        public static IEnumerable<AnnotatedLink> GetLinks(IEnumerable<User> from) => from.Select(GetLink);
         
     #endregion
 

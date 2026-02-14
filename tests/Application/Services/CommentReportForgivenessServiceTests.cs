@@ -1,13 +1,13 @@
-using ReSR.Domain.Aggregates.Accounts;
 using FluentResponse;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ReSR.Domain.Core;
+using ReSR.Domain.Ports;
+using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Aggregates.Resources;
-using System.Linq.Expressions;
 using ReSR.Application.Services.Core.Implementations;
+using System.Linq.Expressions;
 
 namespace ReSR.Application.Tests.Services;
 public class CommentReportForgivenessServiceTests {

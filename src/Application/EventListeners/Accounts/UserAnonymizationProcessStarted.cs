@@ -3,7 +3,7 @@ using FluentResponse.Interfaces;
 using ReSR.Application.Ports;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Accounts.Events;
-using ReSR.Domain.Core;
+using ReSR.Domain.Ports;
 
 namespace ReSR.Application.EventListeners.Accounts;
 internal class UserAnonymizationProcessStartedListener(

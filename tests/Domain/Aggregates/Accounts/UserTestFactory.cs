@@ -5,7 +5,7 @@ using ReSR.Domain.Aggregates.Accounts.ValueObjects;
 
 internal static class UserTestFactory {
     public static User CreateValidUser(
-        string          username    = "User",
+        string          username    = "user",
         string          email       = "test@test.com",
         string          password    = "abcdABCD1234",
         UserPermissions permissions = UserPermissions.None

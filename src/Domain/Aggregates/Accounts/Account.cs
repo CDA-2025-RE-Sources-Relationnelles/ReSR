@@ -54,7 +54,7 @@ public abstract record Account<T>(Id Id = default) : IAggregateRoot<T> where T :
             ? Response.Success()
             : Response.Failure<T>(new InvariantException("Un mot de passe doit contenir au moins 4 minuscules, 4 majuscules, et 4 chiffres !"));
 
-        protected static IResponse TryVerifyEmailInvariant(string value) =>
+        public static IResponse TryVerifyEmailInvariant(string value) =>
             MailAddress.TryCreate(value, out var _)
             ? Response.Success()
             : Response.Failure<T>(new InvariantException("Une adresse électronique doit avoir le format 'nom@domaine' !"));

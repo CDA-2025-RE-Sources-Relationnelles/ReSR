@@ -14,10 +14,11 @@ public interface IUserSessionService : ISessionService<User> {
     /// Tries to register as user.
     /// </summary>
     /// <returns>A response containing the user session's token and user details.</returns>
+    /// <param name="email">The user's public identifier.</param>
     /// <param name="email">The user's mail address.</param>
     /// <param name="password">The user's password.</param>
     /// <param name="pin">The registration PIN associated with the user's mail address.</param>
-    public Task<IResponse<Session<User>>> TryRegisterAsync(string email, string password, Pin pin);
+    public Task<IResponse<Session<User>>> TryRegisterAsync(string username, string email, string password, Pin pin);
 
     /// <summary>
     /// Tries to reset a user's password.
@@ -27,16 +28,6 @@ public interface IUserSessionService : ISessionService<User> {
     /// <param name="newPassword">The user's new password.</param>
     /// <param name="pin">The password reset PIN associated with the user's mail address.</param>
     public Task<IResponse<Session<User>>> TryResetPasswordAsync(string email, string newPassword, Pin pin);
-
-    /// <summary>
-    /// Tries to update a user's account.
-    /// </summary>
-    /// <returns>A response containing the user session's token and user details.</returns>
-    /// <param name="id">The user's ID.</param>
-    /// <param name="email">The user's mail address.</param>
-    /// <param name="password">The user's password.</param>
-    /// <param name="transform">The transform method to try updating the user.</param>
-    public Task<IResponse<Session<User>>> TryUpdateAsync(Id id, string password, Func<User, IResponse<User>> transform);
     
     /// <summary>
     /// Tries to anonymize a user.
@@ -44,15 +35,7 @@ public interface IUserSessionService : ISessionService<User> {
     /// <returns>A successful response if the user was anonymized.</returns>
     /// <param name="id">The user's ID.</param>
     /// <param name="password">The user's password.</param>
-    public Task<IResponse> TryAnonymizeAsync(Id id, string password);
-
-    /// <summary>
-    /// Tries to delete a user.
-    /// </summary>
-    /// <returns>A successful response if the user was deleted.</returns>
-    /// <param name="id">The user's ID.</param>
-    /// <param name="password">The user's password.</param>
-    public Task<IResponse> TryDeleteAsync(Id id, string password);
+    public Task<IResponse> TryAnonymizeAccountAsync(Id id, string password);
 
     /// <summary>
     /// Tries to request a user's registration PIN generation.

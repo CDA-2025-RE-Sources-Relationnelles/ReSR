@@ -31,10 +31,10 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         );
 
         public readonly record struct ResourceLinks(
-            ILink  Self,
-            ILink  Category,
-            ILink? Owner,
-            ILink? VerifyingUser
+            AnnotatedLink  Self,
+            AnnotatedLink  Category,
+            AnnotatedLink? Owner,
+            AnnotatedLink? VerifyingUser
         );
 
     #endregion
@@ -49,13 +49,13 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         public static ResourceResource From(Resource from) => from;
         public static IEnumerable<ResourceResource> From(IEnumerable<Resource> from) => from.Select(From);
 
-        public static ILink GetLink(Resource from) => from switch {
+        public static AnnotatedLink GetLink(Resource from) => from switch {
             QuizResource fromActual => QuizResourceResource.GetLink(fromActual),
             TextResource fromActual => TextResourceResource.GetLink(fromActual),
             _ => throw new NotImplementedException()
         };
 
-        public static IEnumerable<ILink> GetLinks(IEnumerable<Resource> from) => from.Select(GetLink);
+        public static IEnumerable<AnnotatedLink> GetLinks(IEnumerable<Resource> from) => from.Select(GetLink);
         
     #endregion
 

@@ -6,6 +6,7 @@ using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Aggregates.QuizSessions;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Core;
+using ReSR.Infrastructure.ValueConverters;
 
 namespace ReSR.Infrastructure.Core;
 public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options) {
@@ -44,6 +45,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
 
             base.OnModelCreating(modelBuilder);
+            var encryptedConverter = new EncryptedConverter(this.encryptionService);
 
             // Automatically ignore aggregate roots' domain events from the mapping.
             foreach (var entityType in modelBuilder.Model
@@ -53,24 +55,15 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
             modelBuilder.Entity<Manager>(e => {
                 e.HasIndex(x => x.Email).IsUnique();
-                e.Property(x => x.Email).HasConversion(
-                    x => this.encryptionService.Encrypt(x),
-                    x => new (this.encryptionService.Decrypt(x))
-                );
+                e.Property(x => x.Email).HasConversion(encryptedConverter);
                 e.Property(x => x.Password).HasConversion(x => x.Hash, x => new (x));
             });
 
             modelBuilder.Entity<User>(e => {
                 e.HasIndex(x => x.Username).IsUnique();
-                e.Property(x => x.Username).HasConversion(
-                    x => this.encryptionService.Encrypt(x),
-                    x => new (this.encryptionService.Decrypt(x))
-                );
+                e.Property(x => x.Username).HasConversion(encryptedConverter);
                 e.HasIndex(x => x.Email).IsUnique();
-                e.Property(x => x.Email).HasConversion(
-                    x => this.encryptionService.Encrypt(x),
-                    x => new (this.encryptionService.Decrypt(x))
-                );
+                e.Property(x => x.Email).HasConversion(encryptedConverter);
                 e.Property(x => x.Password).HasConversion(x => x.Hash, x => new (x));
                 e.HasMany(x => x.LikedUsers).WithMany(x => x.LikedBy).UsingEntity(join => join.ToTable("Friends"));
             });
@@ -94,10 +87,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 e.HasOne(x => x.SentBy);
                 e.HasOne(x => x.SentTo);
                 e.HasOne(x => x.QuotedResource);
-                e.Property(x => x.Content).HasConversion(
-                    x => this.encryptionService.Encrypt(x),
-                    x => new (this.encryptionService.Decrypt(x))
-                );
+                e.Property(x => x.Content).HasConversion(encryptedConverter);
             });
 
             modelBuilder.Entity<QuizSession>(e => {

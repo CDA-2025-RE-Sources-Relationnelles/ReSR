@@ -16,8 +16,8 @@ public class UserSessionResource(Session<User> from) : UserResource(from.Details
         public static UserSessionResource From(Session<User> from) => from;
         public static IEnumerable<UserSessionResource> From(IEnumerable<Session<User>> from) => from.Select(From);
 
-        public static ILink GetLink(Session<User> from) => GetLink(from.Details);
-        public static IEnumerable<ILink> GetLinks(IEnumerable<Session<User>> from) => from.Select(GetLink);
+        public static AnnotatedLink GetLink(Session<User> from) => GetLink(from.Details);
+        public static IEnumerable<AnnotatedLink> GetLinks(IEnumerable<Session<User>> from) => from.Select(GetLink);
 
     #endregion
 

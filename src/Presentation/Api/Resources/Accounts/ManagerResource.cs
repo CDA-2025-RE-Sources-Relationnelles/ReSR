@@ -18,7 +18,7 @@ public class ManagerResource(Manager from) : IResource<ManagerResource, Manager>
         );
 
         public readonly record struct ManagerLinks(
-            ILink Self
+            AnnotatedLink Self
         );
 
     #endregion
@@ -29,8 +29,8 @@ public class ManagerResource(Manager from) : IResource<ManagerResource, Manager>
         public static ManagerResource From(Manager from) => from;
         public static IEnumerable<ManagerResource> From(IEnumerable<Manager> from) => from.Select(From);
 
-        public static ILink GetLink(Manager from) => new AnnotatedLink(HttpMethod.GET, from.Email, ManagerController.ROUTE, from.Id);
-        public static IEnumerable<ILink> GetLinks(IEnumerable<Manager> from) => from.Select(GetLink);
+        public static AnnotatedLink GetLink(Manager from) => new (HttpMethod.GET, from.Email, ManagerController.ROUTE, from.Id);
+        public static IEnumerable<AnnotatedLink> GetLinks(IEnumerable<Manager> from) => from.Select(GetLink);
         
     #endregion
 
