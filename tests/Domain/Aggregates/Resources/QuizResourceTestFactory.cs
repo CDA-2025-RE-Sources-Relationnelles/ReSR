@@ -18,12 +18,12 @@ internal static class QuizResourceTestFactory {
 
     public static QuizResource CreateValidQuiz(IEnumerable<QuizQuestion>? questions = null) {
         var response = QuizResource.TryCreate(
-            title     : "Valid quiz",
-            category  : Category.TryCreate("Valid category").Unwrap(),
-            tags      : ["tag"],
-            content   : "Quiz content",
-            questions : questions ?? [ValidQuestion()],
-            isPrivate : true
+            title         : "Valid quiz",
+            category      : Category.TryCreate("Valid category").Unwrap(),
+            relationships : Relationships.All,
+            content       : "Quiz content",
+            questions     : questions ?? [ValidQuestion()],
+            isPrivate     : true
         );
 
         Assert.IsType<ISuccess<QuizResource>>(response, exactMatch: false);

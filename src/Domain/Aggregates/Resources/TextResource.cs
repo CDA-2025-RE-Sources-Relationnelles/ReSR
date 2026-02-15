@@ -17,21 +17,20 @@ public record TextResource : Resource, IAggregateRoot<TextResource> {
     #region CONSTRUCTORS
 
         public static IResponse<TextResource> TryCreate(
-            string              title,
-            Category            category,
-            IEnumerable<string> tags,
-            string              content,
-            bool                isPrivate = true,
-            User?               owner     = null
+            string        title,
+            Category      category,
+            Relationships relationships,
+            string        content,
+            bool          isPrivate = true,
+            User?         owner     = null
         ) => TryVerifyTitleInvariant(title)
-                .OnSuccess(() => TryVerifyTagsInvariant(tags))
                 .OnSuccess(() => new TextResource {
-                    Title      = title,
-                    Category   = category,
-                    RawTags    = string.Join(';', tags.ToHashSet()),
-                    Content    = content,
-                    Owner      = owner,
-                    Visibility = isPrivate
+                    Title         = title,
+                    Category      = category,
+                    Relationships = relationships,
+                    Content       = content,
+                    Owner         = owner,
+                    Visibility    = isPrivate
                         ? Visibility.Private 
                         : Visibility.WaitingForVerification
                 });
@@ -46,13 +45,10 @@ public record TextResource : Resource, IAggregateRoot<TextResource> {
         #region OVERRIDES
 
             public new IResponse<TextResource> TryWithTitle(string value) =>
-                (IResponse<TextResource>)base.TryWithTitle(value);
+                base.TryWithTitle(value).OnSuccess(x => (TextResource)x);
 
-            public new IResponse<TextResource> TryWithTag(string value) =>
-                (IResponse<TextResource>)base.TryWithTag(value);
-
-            public new TextResource WithoutTag(string value) =>
-                (TextResource)base.WithoutTag(value);
+            public new TextResource WithCategory(Category value) =>
+                (TextResource)base.WithCategory(value);
 
             public new TextResource WithRelationships(Relationships value) =>
                 (TextResource)base.WithRelationships(value);
@@ -76,16 +72,16 @@ public record TextResource : Resource, IAggregateRoot<TextResource> {
                 (TextResource)base.WithSuspension(value);
 
             public new IResponse<TextResource> TryWithNewVerifyingUser(User value) =>
-                (IResponse<TextResource>)base.TryWithNewVerifyingUser(value);
+                base.TryWithNewVerifyingUser(value).OnSuccess(x => (TextResource)x);
 
             public new IResponse<TextResource> TryWithConfirmedVerification() =>
-                (IResponse<TextResource>)base.TryWithConfirmedVerification();
+                base.TryWithConfirmedVerification().OnSuccess(x => (TextResource)x);
 
             public new IResponse<TextResource> TryWithRejectedVerification() =>
-                (IResponse<TextResource>)base.TryWithRejectedVerification();
+                base.TryWithRejectedVerification().OnSuccess(x => (TextResource)x);
 
             public new IResponse<TextResource> TryWithCanceledVerification() =>
-                (IResponse<TextResource>)base.TryWithCanceledVerification();
+                base.TryWithCanceledVerification().OnSuccess(x => (TextResource)x);
 
             public new TextResource WithConsumedEvents(out IEnumerable<IDomainEvent> domainEvents) =>
                 (TextResource)base.WithConsumedEvents(out domainEvents);

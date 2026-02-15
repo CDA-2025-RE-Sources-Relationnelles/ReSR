@@ -2,6 +2,7 @@ using FluentResponse;
 using FluentResponse.Interfaces;
 using ReSR.Domain.Aggregates.Categories;
 using ReSR.Domain.Aggregates.Resources;
+using ReSR.Domain.Aggregates.Resources.ValueObjects;
 
 namespace ReSR.Domain.Tests.Aggregates.Resources;
 public class QuizResourceCreationTests {
@@ -11,11 +12,11 @@ public class QuizResourceCreationTests {
 
         // Act
         var response = QuizResource.TryCreate(
-            title     : "Quiz title",
-            category  : Category.TryCreate("General").Unwrap(),
-            tags      : ["tag1", "tag2"],
-            content   : "Some content",
-            questions : [QuizResourceTestFactory.ValidQuestion()]
+            title         : "Quiz title",
+            category      : Category.TryCreate("General").Unwrap(),
+            relationships : Relationships.All,
+            content       : "Some content",
+            questions     : [QuizResourceTestFactory.ValidQuestion()]
         );
 
         // Assert
@@ -24,7 +25,6 @@ public class QuizResourceCreationTests {
         var quiz = response.Unwrap();
         Assert.Equal("Quiz title", quiz.Title);
         Assert.Equal("Some content", quiz.Content);
-        Assert.Equal("tag1;tag2", quiz.RawTags);
         Assert.Single(quiz.Questions);
     }
 
@@ -33,11 +33,11 @@ public class QuizResourceCreationTests {
 
         // Act
         var response = QuizResource.TryCreate(
-            title     : "Quiz title",
-            category  : Category.TryCreate("General").Unwrap(),
-            tags      : ["tag1", "tag2"],
-            content   : "Some content",
-            questions : []
+            title         : "Quiz title",
+            category      : Category.TryCreate("General").Unwrap(),
+            relationships : Relationships.All,
+            content       : "Some content",
+            questions     : []
         );
 
         // Assert
@@ -48,11 +48,11 @@ public class QuizResourceCreationTests {
     public void TryCreate_WithInvalidQuestion_ShouldFail() {
 
         var response = QuizResource.TryCreate(
-            title     : "Quiz title",
-            category  : Category.TryCreate("General").Unwrap(),
-            tags      : ["tag1", "tag2"],
-            content   : "Some content",
-            questions : [new() {
+            title         : "Quiz title",
+            category      : Category.TryCreate("General").Unwrap(),
+            relationships : Relationships.All,
+            content       : "Some content",
+            questions     : [new() {
                 Score   = 20,
                 Content = "Content",
                 Answers = []

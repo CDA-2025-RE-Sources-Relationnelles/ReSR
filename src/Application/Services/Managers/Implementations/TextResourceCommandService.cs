@@ -1,0 +1,56 @@
+using FluentResponse;
+using FluentResponse.Interfaces;
+using Microsoft.Extensions.Logging;
+using ReSR.Application.Services.Managers.Definitions;
+using ReSR.Domain.Aggregates.Categories;
+using ReSR.Domain.Aggregates.Resources;
+using ReSR.Domain.Aggregates.Resources.ValueObjects;
+using ReSR.Domain.Ports;
+
+namespace ReSR.Application.Services.Managers.Implementations;
+internal class TextResourceCommandService(
+    IRepository<TextResource> repository,
+    IRepository<Category> categoryRepository,
+    ILogger<TextResourceCommandService> logger
+) : ITextResourceCommandService {
+
+    public Task<IResponse<TextResource>> TryCreateAsync(
+        string        title,
+        Id            categoryId,
+        Relationships relationships,
+        string        content
+    ) => categoryRepository
+        .TryGetAsync(categoryId)
+        .OnSuccessAsync(category => TextResource.TryCreate(title, category, relationships, content))
+        .OnSuccessAsync(repository.TryAddAsync)
+        .OnSuccessAsync(x => logger.LogInformation("Text resource created by manager: {@Manager} !", x));
+
+    public Task<IResponse<TextResource>> TryUpdateAsync(
+        Id id,
+        string?        title         = null,
+        Id?            categoryId    = null,
+        Relationships? relationships = null,
+        string?        content       = null
+    ) => repository.TryUpdateAsync(id, async resource => {
+
+        var response = Response.Success(resource);
+
+        if (title is not null) response = response.OnSuccess(x => x.TryWithTitle(title));
+        if (categoryId is not null) response = await response.OnSuccessAsync(x =>
+            categoryRepository
+                .TryGetAsync(categoryId.Value)
+                .OnSuccessAsync(category => x.WithCategory(category))
+        );
+        if (relationships is not null) response = response.OnSuccess(x => x.WithRelationships(relationships.Value));
+        if (content is not null) response = response.OnSuccess(x => x.WithContent(content));
+
+        return response;
+
+    }).OnSuccessAsync(x => logger.LogInformation("Text resource updated by manager: {@TextResource} !", x));
+
+    public Task<IResponse> TryDeleteAsync(Id id) =>
+        repository
+            .TryDeleteAsync(id)
+            .OnSuccessAsync(() => logger.LogInformation("Text resource with id {@Id} deleted by manager !", id));
+
+}

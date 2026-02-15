@@ -13,6 +13,7 @@ public interface IRepository<T> where T : IAggregateRoot<T> {
     Task<IResponse<T>> TryAddAsync(T entity);
     Task<IResponse<T>> TryUpdateAsync(Id id, Func<T, T> changes);
     Task<IResponse<T>> TryUpdateAsync(Id id, Func<T, IResponse<T>> changes);
+    Task<IResponse<T>> TryUpdateAsync(Id id, Func<T, Task<IResponse<T>>> changes);
     Task<IResponse> TryDeleteAsync(T entity);
     Task<IResponse> TryDeleteAsync(Id id);
     Task<IResponse> TryDeleteAsync(Expression<Func<T, bool>> predicate);

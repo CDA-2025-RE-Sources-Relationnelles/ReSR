@@ -1,6 +1,6 @@
-using FluentResponse;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ReSR.Application.Services.Managers.Definitions;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Accounts.ValueObjects;
 using ReSR.Domain.Ports;
@@ -11,7 +11,8 @@ namespace ReSR.Presentation.Api.Managers.Controllers;
 [ApiController]
 [Route(ROUTE)]
 public class ManagerController(
-    IRepository<Manager> repository
+    IRepository<Manager> repository,
+    IManagerCommandService commandService
 ) : ControllerBase {
 
     public const string ROUTE = "/manage/managers";
@@ -52,9 +53,8 @@ public class ManagerController(
         [EndpointSummary("Only accessible for managers with write permissions.")]
         [EndpointDescription("Creates a new manager.")]
         public Task<IResult> PostManagerAsync(CreateManagerDto dto) =>
-            Manager
-                .TryCreate(dto.Email, dto.Password, Enum.TryParse<ManagerPermissions>(dto.Permissions, true, out var permissions) ? permissions : ManagerPermissions.AdminRole)
-                .OnSuccessAsync(repository.TryAddAsync)
+            commandService
+                .TryCreateAsync(dto.Email, dto.Password, Enum.TryParse<ManagerPermissions>(dto.Permissions, true, out var permissions) ? permissions : ManagerPermissions.AdminRole)
                 .ToResourceAsync<Manager, ManagerResource>(Results.Ok);
 
         [HttpPatch("{managerId}")]
@@ -62,24 +62,16 @@ public class ManagerController(
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the manager.")]
         public Task<IResult> PatchManagerAsync(Id managerId, UpdateManagerDto dto) =>
-            repository.TryUpdateAsync(managerId, manager => {
-
-                var response = FluentResponse.Response.Success(manager);
-
-                if (dto.Email is not null) response = response.OnSuccess(x => x.TryWithMailAddress(dto.Email));
-                if (dto.Password is not null) response = response.OnSuccess(x => x.TryWithPassword(dto.Password));
-                if (Enum.TryParse<ManagerPermissions>(dto.Permissions, true, out var permissions)) response = response.OnSuccess(x => x.WithPermissions(permissions));
-
-                return response;
-
-            }).ToResourceAsync<Manager, ManagerResource>(Results.Ok);
+            commandService
+                .TryUpdateAsync(managerId, dto.Email, dto.Password, Enum.TryParse<ManagerPermissions>(dto.Permissions, true, out var permissions) ? permissions : null)
+                .ToResourceAsync<Manager, ManagerResource>(Results.Ok);
 
         [HttpDelete("{managerId}")]
         [Authorize(Roles = nameof(ManagerPermissions.WriteManagers), AuthenticationSchemes = nameof(Manager))]
         [EndpointSummary("Only accessible for managers with write permissions.")]
         [EndpointDescription("Tries to delete the manager.")]
         public Task<IResult> DeleteManagerAsync(Id managerId) =>
-            repository.TryDeleteAsync(managerId).ToResultAsync(Results.Ok);
+            commandService.TryDeleteAsync(managerId).ToResultAsync(Results.Ok);
 
     #endregion
 }

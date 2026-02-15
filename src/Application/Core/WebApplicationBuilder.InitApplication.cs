@@ -13,6 +13,7 @@ using ReSR.Application.Services.Users.Definitions;
 using ReSR.Application.Services.Users.Implementations;
 using ReSR.Application.Services.Core.Definitions;
 using ReSR.Application.Services.Managers.Implementations;
+using ReSR.Application.Services.Managers.Definitions;
 
 namespace ReSR.Application.Core;
 public static partial class Extensions {
@@ -59,6 +60,13 @@ public static partial class Extensions {
 
         builder.Services.AddScoped<IUserSessionService, UserSessionService>();
         builder.Services.AddScoped<ISessionService<Manager>, ManagerSessionService>();
+
+
+        builder.Services.AddScoped<IManagerCommandService, ManagerCommandService>();
+
+        builder.Services.AddScoped<ICategoryCommandService, CategoryCommandService>();
+
+        builder.Services.AddScoped<ITextResourceCommandService, TextResourceCommandService>();
 
 
         builder.Services.AddHostedService<UserAnonymizationService>();

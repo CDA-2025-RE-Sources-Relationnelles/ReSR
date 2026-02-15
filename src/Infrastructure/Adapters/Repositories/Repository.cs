@@ -74,6 +74,18 @@ internal class Repository<T>(
                 })
             ).OnSuccessAsync(TryDispatchEventsAsync);
 
+        public virtual Task<IResponse<T>> TryUpdateAsync(Id id, Func<T, Task<IResponse<T>>> changes) =>
+            this.TryGetAsync(id).OnSuccessAsync(oldEntity =>
+                changes(oldEntity).OnSuccessAsync(this.TryValidateAsync).OnSuccessAsync(async entity => {
+
+                    this.table.Entry(oldEntity).State = EntityState.Detached;
+                    this.table.Attach(entity);
+                    this.table.Entry(entity).State = EntityState.Modified;
+                    await this.dbContext.SaveChangesAsync();
+                
+                })
+            ).OnSuccessAsync(TryDispatchEventsAsync);
+
         public virtual async Task<IResponse> TryDeleteAsync(T entity) {
             this.table.Remove(entity);
             return await this.dbContext.SaveChangesAsync() is not 0

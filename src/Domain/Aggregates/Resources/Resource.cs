@@ -31,13 +31,6 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
         
 
 
-        /// <summary> The resource's tags separated by a ';'. </summary>
-        internal string RawTags { get; init; } = string.Empty;
-
-        /// <summary> The resource's tags. </summary>
-        public virtual IEnumerable<string> Tags => this.RawTags.Split(';', options: StringSplitOptions.RemoveEmptyEntries);
-
-
         /// <summary> The instant at which the resource was published. </summary>
         public DateTime PublishedAt { get; internal init; } = DateTime.UtcNow;
 
@@ -88,22 +81,11 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
                     Title    = value,
                 });
 
-            /// <returns> A copy of the resource with an additionnal tag if valid. </returns>
-            public virtual IResponse<Resource> TryWithTag(string value) =>
-                TryVerifyTagInvariant(value).OnSuccess(() => this with {
-                    EditedAt = DateTime.UtcNow,
-                    RawTags  = this.Tags.Contains(value)
-                        ? RawTags
-                        : string.Join(';', [..this.Tags, value])
-                });
-
-            /// <returns> A copy of the resource without a given tag. </returns>
-            public virtual Resource WithoutTag(string value) =>
+            /// <returns> A copy of the resource with a new category. </returns>
+            public virtual Resource WithCategory(Category value) =>
                 this with {
                     EditedAt = DateTime.UtcNow,
-                    RawTags  = this.Tags.Contains(value)
-                        ? string.Join(';', this.Tags.Where(x => x != value))
-                        : RawTags
+                    Category = value,
                 };
 
             /// <returns> A copy of the resource with the given relationships. </returns>
@@ -200,20 +182,6 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
                 value.Trim().Length >= 4
                 ? Response.Success()
                 : Response.Failure(new InvariantException("Un titre de ressource doit contenir au moins 4 caractères !"));
-
-            protected static IResponse TryVerifyTagsInvariant(IEnumerable<string> values) {
-                foreach (var tag in values) {
-                    var response = TryVerifyTagInvariant(tag);
-                    if (response is IFailure) return response;
-                }
-
-                return Response.Success();
-            }
-
-            protected static IResponse TryVerifyTagInvariant(string value) =>
-                value.All(x => char.IsAsciiLetterOrDigit(x) || x == '-') && !string.IsNullOrWhiteSpace(value)
-                ? Response.Success()
-                : Response.Failure(new InvariantException("Un libellé de ressource ne doit contenir que des lettres minuscule, chiffres ou tirets ('-') !"));
 
         #endregion
         #region DOMAIN EVENTS

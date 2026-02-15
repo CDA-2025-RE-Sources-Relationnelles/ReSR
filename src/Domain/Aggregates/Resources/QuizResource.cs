@@ -22,22 +22,21 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
         public static IResponse<QuizResource> TryCreate(
             string                    title,
             Category                  category,
-            IEnumerable<string>       tags,
+            Relationships             relationships,
             string                    content,
             IEnumerable<QuizQuestion> questions,
             bool                      isPrivate = true,
             User?                     owner     = null
         ) => TryVerifyTitleInvariant(title)
-                .OnSuccess(() => TryVerifyTagsInvariant(tags))
                 .OnSuccess(() => TryVerifyQuizQuestionsInvariant(questions))
                 .OnSuccess(() => new QuizResource {
-                    Title      = title,
-                    Category   = category,
-                    RawTags    = string.Join(';', tags.ToHashSet()),
-                    Content    = content,
-                    Questions  = [.. questions],
-                    Owner      = owner,
-                    Visibility = isPrivate
+                    Title         = title,
+                    Category      = category,
+                    Relationships = relationships,
+                    Content       = content,
+                    Questions     = [.. questions],
+                    Owner         = owner,
+                    Visibility    = isPrivate
                         ? Visibility.Private 
                         : Visibility.WaitingForVerification
                 });
@@ -48,6 +47,9 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
         /// <returns> A copy of the resource with the given content. </returns>
         public virtual QuizResource WithContent(string value) =>
             this with { Content = value };
+
+        public new TextResource WithCategory(Category value) =>
+            (TextResource)base.WithCategory(value);
 
         /// <returns> A copy of the resource with the given additional question if valid. </returns>
         public virtual IResponse<QuizResource> WithNewQuestion(QuizQuestion value) =>
@@ -88,13 +90,7 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
         #region OVERRIDES
 
             public new IResponse<QuizResource> TryWithTitle(string value) =>
-                (IResponse<QuizResource>)base.TryWithTitle(value);
-
-            public new IResponse<QuizResource> TryWithTag(string value) =>
-                (IResponse<QuizResource>)base.TryWithTag(value);
-
-            public new QuizResource WithoutTag(string value) =>
-                (QuizResource)base.WithoutTag(value);
+                base.TryWithTitle(value).OnSuccess(x => (QuizResource)x);
 
             public new QuizResource WithRelationships(Relationships value) =>
                 (QuizResource)base.WithRelationships(value);
@@ -118,16 +114,16 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
                 (QuizResource)base.WithSuspension(value);
 
             public new IResponse<QuizResource> TryWithNewVerifyingUser(User value) =>
-                (IResponse<QuizResource>)base.TryWithNewVerifyingUser(value);
+                base.TryWithNewVerifyingUser(value).OnSuccess(x => (QuizResource)x);
 
             public new IResponse<QuizResource> TryWithConfirmedVerification() =>
-                (IResponse<QuizResource>)base.TryWithConfirmedVerification();
+                base.TryWithConfirmedVerification().OnSuccess(x => (QuizResource)x);
 
             public new IResponse<QuizResource> TryWithRejectedVerification() =>
-                (IResponse<QuizResource>)base.TryWithRejectedVerification();
+                base.TryWithRejectedVerification().OnSuccess(x => (QuizResource)x);
 
             public new IResponse<QuizResource> TryWithCanceledVerification() =>
-                (IResponse<QuizResource>)base.TryWithCanceledVerification();
+                base.TryWithCanceledVerification().OnSuccess(x => (QuizResource)x);
 
             public new QuizResource WithConsumedEvents(out IEnumerable<IDomainEvent> domainEvents) =>
                 (QuizResource)base.WithConsumedEvents(out domainEvents);
