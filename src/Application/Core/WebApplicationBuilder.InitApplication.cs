@@ -2,7 +2,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using ReSR.Domain.Core;
 using ReSR.Application.EventListeners.Accounts;
 using ReSR.Domain.Aggregates.Accounts.Events;
 using ReSR.Domain.Aggregates.Accounts;
@@ -12,6 +11,8 @@ using ReSR.Application.Services.Core.Implementations;
 using ReSR.Domain.Ports;
 using ReSR.Application.Services.Users.Definitions;
 using ReSR.Application.Services.Users.Implementations;
+using ReSR.Application.Services.Core.Definitions;
+using ReSR.Application.Services.Managers.Implementations;
 
 namespace ReSR.Application.Core;
 public static partial class Extensions {
@@ -57,6 +58,7 @@ public static partial class Extensions {
 
 
         builder.Services.AddScoped<IUserSessionService, UserSessionService>();
+        builder.Services.AddScoped<ISessionService<Manager>, ManagerSessionService>();
 
 
         builder.Services.AddHostedService<UserAnonymizationService>();

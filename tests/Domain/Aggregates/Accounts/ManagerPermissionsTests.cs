@@ -11,7 +11,7 @@ public class ManagerPermissionsTests {
         var manager = ManagerTestFactory.CreateValidManager();
 
         // Act
-        var response = manager.TryVerifyPermissions(ManagerPermissions.ViewCategoies);
+        var response = manager.TryVerifyPermissions(ManagerPermissions.ReadCategories);
 
         // Assert
         Assert.IsType<ISuccess>(response, exactMatch: false);
@@ -37,7 +37,7 @@ public class ManagerPermissionsTests {
         var manager = ManagerTestFactory.CreateValidManager(permissions: ManagerPermissions.None);
 
         // Act
-        var response = manager.TryVerifyPermissions(ManagerPermissions.ViewCategoies    );
+        var response = manager.TryVerifyPermissions(ManagerPermissions.ReadCategories);
 
         // Assert
         Assert.IsType<IFailure>(response, exactMatch: false);

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using FluentResponse.Interfaces;
 using FluentResponse;
+using ReSR.Domain.Extensions;
 
 namespace ReSR.Infrastructure.Adapters;
 internal class ManagerAuthService(
@@ -43,12 +44,12 @@ internal class ManagerAuthService(
     #region METHODS
 
         public IResponse<string> TryGenerateToken(Manager account) {
-            Claim[] claims = [
+            IEnumerable<Claim> claims = [
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Sub, account.Id.ToString()),
                 new Claim(ClaimTypes.Email,            account.Email),
-                new Claim(ClaimTypes.Role,             account.Permissions.ToString()),
             ];
+            claims = claims.Concat(account.Permissions.GetUniqueValues().Select(x => new Claim(ClaimTypes.Role, x.ToString())));
 
 
             JwtSecurityToken token = new (

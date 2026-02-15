@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ReSR.Application.Ports;
 using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Extensions;
 
 namespace ReSR.Infrastructure.Adapters;
 internal class UserAuthService(
@@ -46,12 +47,13 @@ internal class UserAuthService(
             if (account.IsAnonymous)
                 return Response.Failure<string>(new InvalidOperationException("Impossible de générer un token pour un compte anonymisé !"));
 
-            Claim[] claims = [
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, account.Id.ToString()),
-                new Claim(ClaimTypes.Email,            account.Email),
-                new Claim(ClaimTypes.Role,             account.Permissions.ToString()),
+            IEnumerable<Claim> claims = [
+                new Claim(JwtRegisteredClaimNames.Jti,  Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub,  account.Username),
+                new Claim(JwtRegisteredClaimNames.Name, account.Id.ToString()),
+                new Claim(ClaimTypes.Email,             account.Email)
             ];
+            claims = claims.Concat(account.Permissions.GetUniqueValues().Select(x => new Claim(ClaimTypes.Role, x.ToString())));
 
 
             JwtSecurityToken token = new (

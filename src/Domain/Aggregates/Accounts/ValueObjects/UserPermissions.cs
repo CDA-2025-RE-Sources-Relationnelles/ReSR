@@ -2,7 +2,7 @@ namespace ReSR.Domain.Aggregates.Accounts.ValueObjects;
 [Flags]
 public enum UserPermissions : byte {
     None,
-    VerifyComments  = 0b001,
-    VerifyResources = 0b010,
-    ModeratorRole   = 0b111,
+    VerifyComments  = 0b01,
+    VerifyResources = 0b10,
+    ModeratorRole   = 0b11,
 }

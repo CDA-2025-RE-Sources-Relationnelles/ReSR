@@ -16,7 +16,7 @@ internal static partial class FlagsManipulation {
     }
     
 
-    internal static IEnumerable<F> GetUniqueValues<F>(this F flags) where F: Enum {
+    public static IEnumerable<F> GetUniqueValues<F>(this F flags) where F: Enum {
 
         ulong flag = 1;
         foreach (F value in Enum.GetValues(typeof(F))) {
