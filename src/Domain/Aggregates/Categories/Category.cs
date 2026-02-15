@@ -16,7 +16,7 @@ public record Category(Id Id = default) : IAggregateRoot<Category> {
         public string Name { get; internal init; } = null!;
 
         /// <summary> The resources associated with this category. </summary>
-        public virtual ICollection<Resource> Resources { get; internal init; } = null!;
+        public virtual ICollection<Resource> Resources { get; internal init; } = [];
 
     #endregion
     #region CONSTRUCTORS

@@ -40,7 +40,7 @@ public class ManagerController(
         public Task<IResult> GetManagersAsync() =>
             repository.GetAllAsync().ToResourceAsync<Manager, ManagerResource>(Results.Ok);
 
-        [HttpGet("{managerId}", Name = nameof(GetManagersAsync))]
+        [HttpGet("{managerId}")]
         [Authorize(Roles = nameof(ManagerPermissions.ReadManagers), AuthenticationSchemes = nameof(Manager))]
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the manager.")]
