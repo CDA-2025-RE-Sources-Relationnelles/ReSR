@@ -32,7 +32,7 @@ public record TextResource : Resource, IAggregateRoot<TextResource> {
                     Owner         = owner,
                     Visibility    = isPrivate
                         ? Visibility.Private 
-                        : Visibility.WaitingForVerification
+                        : owner is not null ? Visibility.WaitingForVerification : Visibility.Public
                 });
 
     #endregion

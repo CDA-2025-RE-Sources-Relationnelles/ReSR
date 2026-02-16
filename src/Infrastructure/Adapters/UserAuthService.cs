@@ -37,7 +37,7 @@ internal class UserAuthService(
             authenticationTokenExpiry : TimeSpan.Parse(configuration["Jwt:Expiry:User"]!),
             tokenIssuer               : configuration["Jwt:Issuer"]!,
             tokenAudience             : configuration["Jwt:Audience"]!,
-            encodingKey               : configuration["Jwt:Key:User"]!
+            encodingKey               : configuration["Jwt:Key"]!
         ) {}
 
     #endregion
@@ -51,7 +51,8 @@ internal class UserAuthService(
                 new Claim(JwtRegisteredClaimNames.Jti,  Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Sub,  account.Username),
                 new Claim(JwtRegisteredClaimNames.Name, account.Id.ToString()),
-                new Claim(ClaimTypes.Email,             account.Email)
+                new Claim(ClaimTypes.Email,             account.Email),
+                new Claim(ClaimTypes.Role,              nameof(User))
             ];
             claims = claims.Concat(account.Permissions.GetUniqueValues().Select(x => new Claim(ClaimTypes.Role, x.ToString())));
 

@@ -42,8 +42,8 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
     #region METHODS
 
         public static implicit operator ResourceResource(Resource from) => from switch {
-            QuizResource fromActual => fromActual,
-            TextResource fromActual => fromActual,
+            QuizResource fromActual => QuizResourceResource.From(fromActual),
+            TextResource fromActual => TextResourceResource.From(fromActual),
             _ => throw new NotImplementedException()
         };
 

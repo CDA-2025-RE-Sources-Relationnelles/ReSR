@@ -46,14 +46,14 @@ public class ManagerSessionController(
                 .ToResourceAsync<Session<Manager>, ManagerSessionResource>(Results.Ok);
 
         [HttpGet("{managerId}", Name = nameof(GetManagerAsync))]
-        [Authorize(Policy = "LimitedManagerAccess", AuthenticationSchemes = nameof(Manager))]
+        [Authorize(Policy = "LimitedManagerAccess")]
         [EndpointSummary("Only accessible for this manager.")]
         [EndpointDescription("Queries the manager.")]
         public Task<IResult> GetManagerAsync(Id managerId) =>
             repository.TryGetAsync(managerId).ToResourceAsync<Manager, ManagerResource>(Results.Ok);
 
         [HttpPatch("{managerId}")]
-        [Authorize(Policy = "LimitedManagerAccess", AuthenticationSchemes = nameof(Manager))]
+        [Authorize(Policy = "LimitedManagerAccess")]
         [EndpointSummary("Only accessible for this manager.")]
         [EndpointDescription("Tries to update the manager.")]
         public Task<IResult> UpdateAsync(Id managerId, UpdateManagerAccountDto dto) =>
@@ -68,7 +68,7 @@ public class ManagerSessionController(
             }).ToResourceAsync<Session<Manager>, ManagerSessionResource>(Results.Ok);
 
         [HttpDelete("{managerId}")]
-        [Authorize(Policy = "LimitedManagerAccess", AuthenticationSchemes = nameof(Manager))]
+        [Authorize(Policy = "LimitedManagerAccess")]
         [EndpointSummary("Only accessible for this manager.")]
         [EndpointDescription("Tries to delete the manager.")]
         public Task<IResult> DeleteAsync(Id managerId, DeleteManagerAccountDto dto) =>

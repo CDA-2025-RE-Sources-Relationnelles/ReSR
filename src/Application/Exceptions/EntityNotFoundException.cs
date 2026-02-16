@@ -11,7 +11,19 @@ public class EntityNotFoundException : Exception {
     public Id?  Id         { get; }
 
     public EntityNotFoundException(Type type, Id id)
-        : base($"Il n'y a pas d'entité de type '{type.Name}' avec l'identifiant '{id}' !") {
+        : base($"Il n'y a pas { type switch {
+            Type when type == typeof(User) => "de compte",
+            Type when type == typeof(Manager) => "de compte manager",
+            Type when type == typeof(Category) => "de catégorie",
+            Type when type == typeof(PrivateMessage) => "de message privé",
+            Type when type == typeof(Comment) => "de commentaire",
+            Type when type == typeof(QuizSession) => "de session de quiz",
+            Type when type == typeof(Category) => "de catégorie",
+            Type when type == typeof(Resource) => "de ressource",
+            Type when type == typeof(TextResource) => "de ressource textuelle",
+            Type when type == typeof(QuizResource) => "de ressource quiz",
+            _ => $"d'entité de type '{type.Name}'"
+        }} avec l'identifiant '{id}' !") {
             this.EntityType = type;
             this.Id         = id;
         }

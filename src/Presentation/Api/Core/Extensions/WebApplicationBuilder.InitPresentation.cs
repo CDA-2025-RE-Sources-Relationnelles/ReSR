@@ -2,6 +2,7 @@ using System.Threading.RateLimiting;
 using FluentResponse;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
+using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Presentation.Api.Managers.Authorization;
 using ReSR.Presentation.Api.Users.Authorization;
 
@@ -18,9 +19,12 @@ public static partial class Extensions {
         builder.Services.AddOpenApi();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddHttpContextAccessor();
+
         builder.Services.AddAuthorizationBuilder()
-            .AddPolicy("LimitedUserAccess", policy => policy.Requirements.Add(new UserAuthorizationRequirement()))
-            .AddPolicy("LimitedManagerAccess", policy => policy.Requirements.Add(new ManagerAuthorizationRequirement()));
+            .AddPolicy("LimitedUserAccess", policy => { policy.RequireRole(nameof(User)); policy.Requirements.Add(new UserAuthorizationRequirement()); })
+            .AddPolicy("LimitedManagerAccess", policy => { policy.RequireRole(nameof(Manager)); policy.Requirements.Add(new ManagerAuthorizationRequirement()); })
+            .AddPolicy("FrontOffice", policy => policy.RequireRole(nameof(User)))
+            .AddPolicy("BackOffice", policy => policy.RequireRole(nameof(Manager)));
 
         builder.Services.AddCors(options => {
             options.AddPolicy("AllowAll",

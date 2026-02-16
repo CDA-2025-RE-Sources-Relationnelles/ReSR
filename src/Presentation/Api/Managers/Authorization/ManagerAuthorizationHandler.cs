@@ -2,7 +2,6 @@ using System.Security.Claims;
 using FluentResponse.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using ReSR.Domain.Aggregates.Accounts;
-using ReSR.Domain.Aggregates.Accounts.ValueObjects;
 using ReSR.Domain.Ports;
 
 namespace ReSR.Presentation.Api.Managers.Authorization;

@@ -36,7 +36,7 @@ internal class ManagerCommandService(
 
         return response;
 
-    }).OnSuccessAsync(x => logger.LogInformation("Manager updated by manager: {@Category} !", x));
+    }).OnSuccessAsync(x => logger.LogInformation("Manager updated by manager: {@Manager} !", x));
 
     public Task<IResponse> TryDeleteAsync(Id id) =>
         repository

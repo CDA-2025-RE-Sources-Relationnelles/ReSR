@@ -63,10 +63,12 @@ public static partial class Extensions {
 
 
         builder.Services.AddScoped<IManagerCommandService, ManagerCommandService>();
+        builder.Services.AddScoped<IUserCommandService, UserCommandService>();
 
         builder.Services.AddScoped<ICategoryCommandService, CategoryCommandService>();
 
         builder.Services.AddScoped<ITextResourceCommandService, TextResourceCommandService>();
+        builder.Services.AddScoped<IQuizResourceCommandService, QuizResourceCommandService>();
 
 
         builder.Services.AddHostedService<UserAnonymizationService>();

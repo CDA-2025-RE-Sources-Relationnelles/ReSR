@@ -10,6 +10,7 @@ using ReSR.Presentation.Api.Managers.ValueObjects.Accounts;
 namespace ReSR.Presentation.Api.Managers.Controllers;
 [ApiController]
 [Route(ROUTE)]
+[Authorize(Policy = "BackOffice")]
 public class ManagerController(
     IRepository<Manager> repository,
     IManagerCommandService commandService
@@ -20,14 +21,14 @@ public class ManagerController(
     #region DTOS
 
         public readonly record struct CreateManagerDto(
-            string Password,
             string Email,
+            string Password,
             string Permissions
         );
 
         public readonly record struct UpdateManagerDto(
-            string? Password = null,
             string? Email = null,
+            string? Password = null,
             string? Permissions = null
         );
 
@@ -35,21 +36,21 @@ public class ManagerController(
     #region ROUTES
 
         [HttpGet]
-        [Authorize(Roles = nameof(ManagerPermissions.ReadManagers), AuthenticationSchemes = nameof(Manager))]
+        [Authorize(Roles = nameof(ManagerPermissions.ReadManagers))]
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the managers.")]
         public Task<IResult> GetManagersAsync() =>
             repository.GetAllAsync().ToResourceAsync<Manager, ManagerResource>(Results.Ok);
 
         [HttpGet("{managerId}")]
-        [Authorize(Roles = nameof(ManagerPermissions.ReadManagers), AuthenticationSchemes = nameof(Manager))]
+        [Authorize(Roles = nameof(ManagerPermissions.ReadManagers))]
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the manager.")]
         public Task<IResult> GetManagerAsync(Id managerId) =>
             repository.TryGetAsync(managerId).ToResourceAsync<Manager, ManagerResource>(Results.Ok);
 
         [HttpPost]
-        [Authorize(Roles = nameof(ManagerPermissions.WriteManagers), AuthenticationSchemes = nameof(Manager))]
+        [Authorize(Roles = nameof(ManagerPermissions.WriteManagers))]
         [EndpointSummary("Only accessible for managers with write permissions.")]
         [EndpointDescription("Creates a new manager.")]
         public Task<IResult> PostManagerAsync(CreateManagerDto dto) =>
@@ -58,16 +59,16 @@ public class ManagerController(
                 .ToResourceAsync<Manager, ManagerResource>(Results.Ok);
 
         [HttpPatch("{managerId}")]
-        [Authorize(Roles = nameof(ManagerPermissions.WriteManagers), AuthenticationSchemes = nameof(Manager))]
+        [Authorize(Roles = nameof(ManagerPermissions.WriteManagers))]
         [EndpointSummary("Only accessible for managers with read permissions.")]
-        [EndpointDescription("Queries the manager.")]
+        [EndpointDescription("Tries to update the manager.")]
         public Task<IResult> PatchManagerAsync(Id managerId, UpdateManagerDto dto) =>
             commandService
                 .TryUpdateAsync(managerId, dto.Email, dto.Password, Enum.TryParse<ManagerPermissions>(dto.Permissions, true, out var permissions) ? permissions : null)
                 .ToResourceAsync<Manager, ManagerResource>(Results.Ok);
 
         [HttpDelete("{managerId}")]
-        [Authorize(Roles = nameof(ManagerPermissions.WriteManagers), AuthenticationSchemes = nameof(Manager))]
+        [Authorize(Roles = nameof(ManagerPermissions.WriteManagers))]
         [EndpointSummary("Only accessible for managers with write permissions.")]
         [EndpointDescription("Tries to delete the manager.")]
         public Task<IResult> DeleteManagerAsync(Id managerId) =>

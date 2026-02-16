@@ -24,7 +24,7 @@ internal class ManagerAuthService(
         private readonly string   tokenAudience             = tokenAudience;
 
         private readonly SigningCredentials credentials = new (
-            key       : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(encodingKey)),
+            key       : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(encodingKey)) { KeyId = "manager-v1" },
             algorithm : SecurityAlgorithms.HmacSha256
         );
 
@@ -37,7 +37,7 @@ internal class ManagerAuthService(
             authenticationTokenExpiry : TimeSpan.Parse(configuration["Jwt:Expiry:Manager"]!),
             tokenIssuer               : configuration["Jwt:Issuer"]!,
             tokenAudience             : configuration["Jwt:Audience"]!,
-            encodingKey               : configuration["Jwt:Key:Manager"]!
+            encodingKey               : configuration["Jwt:Key"]!
         ) {}
 
     #endregion
@@ -48,6 +48,7 @@ internal class ManagerAuthService(
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Sub, account.Id.ToString()),
                 new Claim(ClaimTypes.Email,            account.Email),
+                new Claim(ClaimTypes.Role,             nameof(Manager))
             ];
             claims = claims.Concat(account.Permissions.GetUniqueValues().Select(x => new Claim(ClaimTypes.Role, x.ToString())));
 

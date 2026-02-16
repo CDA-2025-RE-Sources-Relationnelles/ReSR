@@ -28,43 +28,29 @@ public static partial class Extensions {
             x.UseNpgsql(builder.Configuration.GetConnectionString())
         );
 
-        builder.Services
-            .AddAuthentication(options => {
-                options.DefaultAuthenticateScheme = nameof(User);
-                options.DefaultChallengeScheme    = nameof(User);
-            }).AddJwtBearer(nameof(User), options => {
-                options.TokenValidationParameters = new TokenValidationParameters {
-                    ValidateIssuer           = true,
-                    ValidateAudience         = true,
-                    ValidateLifetime         = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer              = builder.Configuration["Jwt:Issuer"],
-                    ValidAudience            = builder.Configuration["Jwt:Audience"],
-                    ClockSkew                = TimeSpan.Zero,
-                    IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key:User"]!))
-                };
-            }).AddJwtBearer(nameof(Manager), options => {
-                options.TokenValidationParameters = new TokenValidationParameters {
-                    ValidateIssuer           = true,
-                    ValidateAudience         = true,
-                    ValidateLifetime         = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer              = builder.Configuration["Jwt:Issuer"],
-                    ValidAudience            = builder.Configuration["Jwt:Audience"],
-                    ClockSkew                = TimeSpan.Zero,
-                    IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key:Manager"]!))
-                };
-            });
+        builder.Services.AddAuthentication(options => {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options => {
+            options.TokenValidationParameters = new TokenValidationParameters {
+                ValidateIssuer           = true,
+                ValidateAudience         = true,
+                ValidateLifetime         = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer              = builder.Configuration["Jwt:Issuer"]!,
+                ValidAudience            = builder.Configuration["Jwt:Audience"]!,
+                IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            };
 
-        builder.Services.AddAuthorizationBuilder()
-            .SetDefaultPolicy(new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .AddAuthenticationSchemes(nameof(User))
-                .Build())
-            .AddPolicy(nameof(Manager), new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .AddAuthenticationSchemes(nameof(Manager))
-                .Build());
+            options.Events = new JwtBearerEvents {
+                OnChallenge = context => {
+                    context.HandleResponse();
+                    context.Response.Redirect("/");
+                    return Task.CompletedTask;
+                }
+            };
+        });
+
 
         builder.Services.AddScoped<IAccountRepository<Manager>, AccountRepository<Manager>>();
         builder.Services.AddScoped<IAccountRepository<User>,    AccountRepository<User>>();

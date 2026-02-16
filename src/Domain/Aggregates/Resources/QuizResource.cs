@@ -14,7 +14,7 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
         public string Content { get; internal init; } = null!;
 
         /// <summary> The resource's quiz questions. </summary>
-        public ICollection<QuizQuestion> Questions { get; internal init; } = [];
+        public ICollection<QuizQuestion> Questions { get; internal set; } = [];
 
     #endregion
     #region CONSTRUCTORS
@@ -38,7 +38,7 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
                     Owner         = owner,
                     Visibility    = isPrivate
                         ? Visibility.Private 
-                        : Visibility.WaitingForVerification
+                        : owner is not null ? Visibility.WaitingForVerification : Visibility.Public
                 });
 
     #endregion
@@ -48,24 +48,45 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
         public virtual QuizResource WithContent(string value) =>
             this with { Content = value };
 
-        public new TextResource WithCategory(Category value) =>
-            (TextResource)base.WithCategory(value);
+        public new QuizResource WithCategory(Category value) =>
+            (QuizResource)base.WithCategory(value);
 
         /// <returns> A copy of the resource with the given additional question if valid. </returns>
         public virtual IResponse<QuizResource> WithNewQuestion(QuizQuestion value) =>
             TryVerifyQuizQuestionInvariant(value)
-                .OnSuccess(() => this with { Questions = [.. this.Questions, value] })
-                .OnSuccess(x => TryVerifyQuizQuestionsInvariant(x.Questions).OnSuccess(() => x));
+                .OnSuccess(() => {
+                    List<QuizQuestion> questions = [.. this.Questions, value];
+                    return TryVerifyQuizQuestionsInvariant(questions).OnSuccess(() => {
+                        this.Questions = questions;
+                        return this;
+                    });
+                });
 
         /// <returns> A copy of the resource with the given additional question if valid. </returns>
         public virtual IResponse<QuizResource> WithQuestion(int index, QuizQuestion value) =>
-            TryVerifyQuizQuestionInvariant(value).OnSuccess(() => this with { Questions = [.. this.Questions.Select((x, i) => i == index ? value : x)] });
+            TryVerifyQuizQuestionInvariant(value)
+                .OnSuccess(() => this.Questions.Count > index ? Response.Success() : Response.Failure($"Aucune question avec l'indice '{index}' !"))
+                .OnSuccess(() => {
+                    List<QuizQuestion> questions = [.. this.Questions];
+                    questions[index] = value;
+                    this.Questions = questions;
+                    return this;
+                });
 
         /// <returns> A copy of the resource without the question at the given index. </returns>
         public virtual IResponse<QuizResource> WithoutQuestion(int index) =>
-            Response.Success(this with { Questions = [.. this.Questions.Where((_, i) => index != i)] })
-                .OnSuccess(x => TryVerifyQuizQuestionsInvariant(x.Questions).OnSuccess(() => x));
+            (this.Questions.Count > index
+                ? Response.Success()
+                : Response.Failure($"Aucune question avec l'indice '{index}' !"))
+            .OnSuccess(() => {
 
+                List<QuizQuestion> questions = [.. this.Questions];
+                questions.RemoveAt(index);
+                return TryVerifyQuizQuestionsInvariant(questions).OnSuccess(() => {
+                    this.Questions = questions;
+                    return this;
+                });
+            });
 
 
         protected static IResponse TryVerifyQuizQuestionsInvariant(IEnumerable<QuizQuestion> values) {
