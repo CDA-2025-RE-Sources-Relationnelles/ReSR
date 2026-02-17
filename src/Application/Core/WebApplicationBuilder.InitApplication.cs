@@ -71,6 +71,9 @@ public static partial class Extensions {
         builder.Services.AddScoped<IQuizResourceCommandService, QuizResourceCommandService>();
 
 
+        builder.Services.AddScoped<IUserKpiService, UserKpiService>();
+
+
         builder.Services.AddHostedService<UserAnonymizationService>();
         builder.Services.AddHostedService<CommentReportForgivenessService>();
 

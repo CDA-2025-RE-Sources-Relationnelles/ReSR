@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authorization;
 using System.Text;
 using ReSR.Domain.Ports;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ReSR.Application.ValueObjects.Accounts;
+using ReSR.Application.ValueObjects.Resources;
 
 namespace ReSR.Infrastructure.Core;
 public static partial class Extensions {
@@ -68,15 +70,21 @@ public static partial class Extensions {
         builder.Services.AddScoped<IRepository<TextResource>, ResourceRepository<TextResource>>();
         builder.Services.AddScoped<IRepository<QuizResource>, ResourceRepository<QuizResource>>();
 
+
         builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 
         builder.Services.AddScoped<IAccountAuthService<Manager>, ManagerAuthService>();
         builder.Services.AddScoped<IAccountAuthService<User>,    UserAuthService>();
 
+
         builder.Services.AddSingleton<IPasswordResetCacheService,          PasswordResetCacheService>();
         builder.Services.AddSingleton<IRegistrationValidationCacheService, RegistrationValidationCacheService>();
 
+
         builder.Services.AddScoped<IMailService, MailService>();
+
+        builder.Services.AddScoped<IExportService<UserKpi>, CsvExportService<UserKpi>>();
+        builder.Services.AddScoped<IExportService<ResourceKpi>, CsvExportService<ResourceKpi>>();
 
     }
 }

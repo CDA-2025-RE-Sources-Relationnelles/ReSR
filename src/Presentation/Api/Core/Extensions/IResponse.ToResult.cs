@@ -1,3 +1,4 @@
+using FluentResponse;
 using FluentResponse.Interfaces;
 
 namespace ReSR.Presentation.Api.Core.Extensions;
@@ -29,4 +30,15 @@ public static partial class Extensions {
             IFailure         failure => failure.Exception.ToResult(failure),
             _                        => throw new InvalidOperationException()
         };
+
+        
+    /// <summary>
+    /// Converts a value to an HTTP response.
+    /// </summary>
+    /// <typeparam name="TValue">Value type.</typeparam>
+    /// <returns>An HTTP response.</returns>
+    public static IResult ToResult<TValue>(
+        this TValue self,
+        Func<ISuccess<TValue>, IResult> onSuccess
+    ) => onSuccess((ISuccess<TValue>)Response.Success(self));
 }
