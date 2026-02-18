@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace ReSR.Domain.Aggregates.Resources.ValueObjects;
 [Flags]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Relationships {
     None                = 0b000000,
     Self                = 0b000001,

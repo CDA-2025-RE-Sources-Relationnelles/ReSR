@@ -13,6 +13,7 @@ internal class UserKpiService(
         DateTime? ignoreOlder = lastActivityFilter switch {
             DateRange.Daily     => DateTime.UtcNow.AddDays(-1),
             DateRange.Weekly    => DateTime.UtcNow.AddDays(-7),
+            DateRange.Monthly   => DateTime.UtcNow.AddMonths(-1),
             DateRange.Quarterly => DateTime.UtcNow.AddMonths(-3),
             DateRange.Yearly    => DateTime.UtcNow.AddYears(-1),
             _ => null,
@@ -39,5 +40,37 @@ internal class UserKpiService(
             BookmarkCount   : users.Sum(x => x.Bookmarks.Count),
             ResourceCount   : users.Sum(x => x.OwnedResources.Count)
         );
+    }
+
+    public async IAsyncEnumerable<UserKpi> GetReportAsync() {
+
+        var users = await repository.GetAllAsync();
+        foreach (var dateRange in new DateRange[] { DateRange.Monthly, DateRange.Quarterly, DateRange.Yearly }) {
+
+            DateTime ignoreOlder = dateRange switch {
+                DateRange.Monthly   => DateTime.UtcNow.AddMonths(-1),
+                DateRange.Quarterly => DateTime.UtcNow.AddMonths(-3),
+                DateRange.Yearly    => DateTime.UtcNow.AddYears(-1),
+                _ => DateTime.UnixEpoch
+            };
+
+            var section = users.Where(x => x.LastActivity >= ignoreOlder);
+            var friendships = new HashSet<(Id, Id)>();
+            foreach (var user in section)
+                foreach (var friend in user.Friends) {
+                    Id a = Math.Min(user.Id, friend.Id);
+                    Id b = Math.Max(user.Id, friend.Id);
+
+                    friendships.Add((a, b));
+                }
+
+            yield return new UserKpi(
+                DateRange       : dateRange,
+                Count           : section.Count(),
+                FriendshipCount : friendships.Count,
+                BookmarkCount   : section.Sum(x => x.Bookmarks.Count),
+                ResourceCount   : section.Sum(x => x.OwnedResources.Count)
+            );
+        }
     }
 }

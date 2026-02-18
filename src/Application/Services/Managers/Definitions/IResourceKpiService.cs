@@ -9,11 +9,14 @@ public interface IResourceKpiService {
     /// <param name="lastEditionFilter">A date range used to filter resources based on their last edition.</param>
     /// <param name="relationshipsFilter">Relationship type flags to filter resources based on their targeted relationship.</param>
     /// <param name="visibilityFilter">A visibility type used to filter resources based on their content visibility.</param>
-    /// <param name="categoryIdFilter">A category type identifier used to filter resources based on their content category.</param>
+    /// <param name="categoryNameFilter">A category name used to filter resources based on their content category.</param>
     public Task<ResourceKpi> GetAsync(
-        DateRange     lastEditionFilter   = DateRange.Any,
+        DateRange     lastEditionFilter   = DateRange.AllTime,
         Relationships relationshipsFilter = Relationships.All,
         Visibility    visibilityFilter    = Visibility.Public,
-        Id?           categoryIdFilter    = null
+        string?       categoryNameFilter    = null
     );
+
+    /// <returns>The global report of performance indicators for resources.</returns>
+    public IAsyncEnumerable<ResourceKpi> GetReportAsync();
 }

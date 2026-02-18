@@ -5,7 +5,8 @@ namespace ReSR.Application.ValueObjects.Core;
 public enum DateRange {
     Daily,
     Weekly,
+    Monthly,
     Quarterly,
     Yearly,
-    Any,
+    AllTime,
 }

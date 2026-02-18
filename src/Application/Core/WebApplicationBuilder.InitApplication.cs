@@ -72,6 +72,7 @@ public static partial class Extensions {
 
 
         builder.Services.AddScoped<IUserKpiService, UserKpiService>();
+        builder.Services.AddScoped<IResourceKpiService, ResourceKpiService>();
 
 
         builder.Services.AddHostedService<UserAnonymizationService>();
