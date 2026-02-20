@@ -22,7 +22,7 @@ internal class QuizResourceCommandService(
         IEnumerable<QuizQuestion> questions
     ) => categoryRepository
         .TryGetAsync(categoryId)
-        .OnSuccessAsync(category => QuizResource.TryCreate(title, category, relationships, content, questions))
+        .OnSuccessAsync(category => QuizResource.TryCreate(title, category, relationships, content, questions, isPrivate: false))
         .OnSuccessAsync(repository.TryAddAsync)
         .OnSuccessAsync(x => logger.LogInformation("Quiz resource created by manager: {@QuizResource} !", x));
 

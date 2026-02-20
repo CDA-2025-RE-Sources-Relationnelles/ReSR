@@ -45,10 +45,11 @@ internal class ManagerAuthService(
 
         public IResponse<string> TryGenerateToken(Manager account) {
             IEnumerable<Claim> claims = [
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, account.Id.ToString()),
-                new Claim(ClaimTypes.Email,            account.Email),
-                new Claim(ClaimTypes.Role,             nameof(Manager))
+                new Claim(JwtRegisteredClaimNames.Jti,  Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub,  account.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Name, account.Email),
+                new Claim(ClaimTypes.Email,             account.Email),
+                new Claim(ClaimTypes.Role,              nameof(Manager))
             ];
             claims = claims.Concat(account.Permissions.GetUniqueValues().Select(x => new Claim(ClaimTypes.Role, x.ToString())));
 

@@ -75,6 +75,9 @@ public static partial class Extensions {
         builder.Services.AddScoped<IResourceKpiService, ResourceKpiService>();
 
 
+        builder.Services.AddScoped<IResourceService, ResourceService>();
+
+
         builder.Services.AddHostedService<UserAnonymizationService>();
         builder.Services.AddHostedService<CommentReportForgivenessService>();
 

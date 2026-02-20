@@ -17,7 +17,7 @@ public class ResourceController(
 
     public const string ROUTE = "/manage/resources";
 
-        #region ROUTES
+    #region ROUTES
 
         [HttpGet]
         [Authorize(Roles = nameof(ManagerPermissions.ReadContent))]

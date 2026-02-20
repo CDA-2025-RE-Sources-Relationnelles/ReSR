@@ -27,13 +27,16 @@ internal class Repository<T>(
         protected async Task<IResponse<T>> TryDispatchEventsAsync(T entity) {
             
             // We make sure that EF Core treats the entity as read only.
+            var previouslyAttached = this.table.Entry(entity).State != EntityState.Detached;
             this.table.Entry(entity).State = EntityState.Detached;
             entity = entity.WithConsumedEvents(out var domainEvents);
 
             return await domainEventDispatcher.DispatchAsync(domainEvents).OnSuccessAsync(() => {
 
                 // We make sure that EF Core keeps track of eventual domain event changes.
-                this.table.Attach(entity);
+                if (previouslyAttached)
+                    this.table.Attach(entity);
+                    
                 return entity;
 
             });

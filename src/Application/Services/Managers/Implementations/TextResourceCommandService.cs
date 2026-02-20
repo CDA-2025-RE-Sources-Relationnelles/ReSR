@@ -21,7 +21,7 @@ internal class TextResourceCommandService(
         string        content
     ) => categoryRepository
         .TryGetAsync(categoryId)
-        .OnSuccessAsync(category => TextResource.TryCreate(title, category, relationships, content))
+        .OnSuccessAsync(category => TextResource.TryCreate(title, category, relationships, content, isPrivate: false))
         .OnSuccessAsync(repository.TryAddAsync)
         .OnSuccessAsync(x => logger.LogInformation("Text resource created by manager: {@TextResource} !", x));
 

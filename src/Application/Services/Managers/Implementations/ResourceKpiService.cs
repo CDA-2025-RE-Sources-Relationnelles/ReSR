@@ -1,3 +1,4 @@
+using FluentResponse;
 using ReSR.Application.Services.Managers.Definitions;
 using ReSR.Application.ValueObjects.Core;
 using ReSR.Application.ValueObjects.Resources;
@@ -16,7 +17,7 @@ internal class ResourceKpiService(
         DateRange lastEditionFilter,
         Relationships relationshipsFilter,
         Visibility visibilityFilter,
-        string? categoryNameFilter
+        Id? categoryIdFilter
     ) {
         DateTime? ignoreOlder = lastEditionFilter switch {
             DateRange.Daily     => DateTime.UtcNow.AddDays(-1),
@@ -29,20 +30,20 @@ internal class ResourceKpiService(
 
         var resources = ignoreOlder is null
             ? await resourceRepository.GetAllAsync(x =>
-                x.Relationships.HasFlag(relationshipsFilter) &&
-                x.Visibility.HasFlag(visibilityFilter) &&
-                (categoryNameFilter == null || x.Category.Name == categoryNameFilter)
+                (x.Relationships & relationshipsFilter) == x.Relationships &&
+                (x.Visibility & visibilityFilter) == x.Visibility &&
+                (categoryIdFilter == null || x.Category.Id == categoryIdFilter)
             ) : await resourceRepository.GetAllAsync(x =>
                 x.EditedAt >= ignoreOlder &&
-                x.Relationships.HasFlag(relationshipsFilter) &&
-                x.Visibility.HasFlag(visibilityFilter) &&
-                (categoryNameFilter == null || x.Category.Name == categoryNameFilter)
+                (x.Relationships & relationshipsFilter) == x.Relationships &&
+                (x.Visibility & visibilityFilter) == x.Visibility &&
+                (categoryIdFilter == null || x.Category.Id == categoryIdFilter)
             );
 
         return new ResourceKpi(
             DateRange     : lastEditionFilter,
             Relationship  : relationshipsFilter,
-            CategoryName  : categoryNameFilter,
+            CategoryName  : categoryIdFilter is not null ? await categoryRepository.TryGetAsync(categoryIdFilter.Value).UnwrapAsync<Category, string?>(x => x.Name, _ => null) : null,
             Count         : resources.Count(),
             LikeCount     : resources.Sum(x => x.LikeCount),
             BookmarkCount : resources.Sum(x => x.BookmarkCount),

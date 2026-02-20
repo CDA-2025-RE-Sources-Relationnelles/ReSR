@@ -41,24 +41,24 @@ public class KpiController(
 
         [HttpGet(ROUTE + "/resources/{dateRange}")]
         [Authorize]
-        [EndpointDescription("Generates users KPI.")]
+        [EndpointDescription("Generates resources KPI.")]
         public Task<IResult> GetResourceKpiAsync(
             string  dateRange,
             string? relationshipsFilter = null,
             string? visibilityFilter    = null,
-            string? categoryNameFilter  = null
+            Id?     categoryIdFilter    = null
         ) =>
             resourceKpiService
                 .GetAsync(
                     Enum.TryParse<DateRange>(dateRange, true, out var dateRangeParsed) ? dateRangeParsed : DateRange.AllTime,
                     Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.All,
                     Enum.TryParse<Visibility>(visibilityFilter, true, out var visibilityFilterParsed) ? visibilityFilterParsed : Visibility.Public,
-                    categoryNameFilter
+                    categoryIdFilter
                 ).ToResultAsync(Results.Ok);
 
         [HttpGet(ROUTE + "/resources/download")]
         [Authorize]
-        [EndpointDescription("Generates users KPI.")]
+        [EndpointDescription("Generates resources KPI.")]
         public async Task<IResult> DownloadResourceKpiAsync() =>
             resouceKpiExportService
                 .Export(await resourceKpiService.GetReportAsync().ToListAsync())

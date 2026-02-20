@@ -49,8 +49,8 @@ internal class UserAuthService(
 
             IEnumerable<Claim> claims = [
                 new Claim(JwtRegisteredClaimNames.Jti,  Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub,  account.Username),
-                new Claim(JwtRegisteredClaimNames.Name, account.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub,  account.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Name, account.Username),
                 new Claim(ClaimTypes.Email,             account.Email),
                 new Claim(ClaimTypes.Role,              nameof(User))
             ];
