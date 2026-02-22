@@ -19,7 +19,7 @@ public class TextResourceController(
 ) : ControllerBase {
 
     public const string ROUTE = "/text-resources";
-        #region DTOS
+    #region DTOS
 
         public readonly record struct CreateUserTextResourceDto(
             string Title,
@@ -86,7 +86,7 @@ public class TextResourceController(
         [HttpPost("{resourceId}/comments")]
         [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
         [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
-        [EndpointDescription("Posts a commen to the text resource")]
+        [EndpointDescription("Posts a comment to the text resource")]
         public Task<IResult> PostTextResourceComment(Id resourceId, PostTextResourceCommentDto dto) =>
             resourceService.TryPostComment(resourceId, User.GetUserId()!.Value, dto.Content).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
 

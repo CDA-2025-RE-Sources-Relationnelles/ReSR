@@ -78,7 +78,7 @@ public static partial class Extensions {
 
         builder.Services.AddScoped<IResourceService<Resource>, ResourceService<Resource>>();
         builder.Services.AddScoped<ITextResourceService, TextResourceService>();
-        builder.Services.AddScoped<IResourceService<QuizResource>, ResourceService<QuizResource>>();
+        builder.Services.AddScoped<IQuizResourceService, QuizResourceService>();
 
 
         builder.Services.AddHostedService<UserAnonymizationService>();
