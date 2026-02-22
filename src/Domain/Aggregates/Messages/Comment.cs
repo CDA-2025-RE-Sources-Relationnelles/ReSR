@@ -21,10 +21,10 @@ public record Comment : Message<Comment> {
         public virtual Comment? AnsweredComment { get; internal init; }
 
         /// <summary> The comment's answers. </summary>
-        public virtual ICollection<Comment> Answers { get; internal init; } = [];
+        public virtual ICollection<Comment> Answers { get; internal set; } = [];
 
         /// <summary> The reports registered for this comment. </summary>
-        public ICollection<Report> Reports { get; internal init; } = [];
+        public ICollection<Report> Reports { get; internal set; } = [];
 
     #endregion
     #region CONSTRUCTORS
@@ -46,10 +46,22 @@ public record Comment : Message<Comment> {
     #region METHODS
 
         /// <returns> A copy of the comment with the given report if it wasn't already reported by the user. </returns>
-        public virtual IResponse<Comment> TryWithReport(User by, string content) =>
-            !this.Reports.Any(x => x.ReportedBy.Id == by.Id)
-                ? Response.Success(this with { Reports = [.. this.Reports, new Report { ReportedBy = by, Content = content }] })
-                : Response.Failure<Comment>(new InvariantException("Un commentaire ne peut être signalé qu'une fois par utilisateur !"));
+        public virtual IResponse<Comment> TryWithReport(User by, string content) {
+            if (!this.Reports.Any(x => x.ReportedBy.Id == by.Id)) {
+
+                List<Report> reports = [.. this.Reports, new Report { ReportedBy = by, Content = content }];
+                this.Reports = reports;
+                return Response.Success(this);
+
+            } else return Response.Failure<Comment>(new InvariantException("Un commentaire ne peut être signalé qu'une fois par utilisateur !"));
+        }
+
+        public virtual Comment WithoutReports() {
+            List<Report> reports = [.. this.Reports];
+            reports.Clear();
+            this.Reports = reports;
+            return this;
+        }
 
         /// <returns> A copy of the comment without reports from the given user. </returns>
         public virtual Comment WithoutReport(User by) =>

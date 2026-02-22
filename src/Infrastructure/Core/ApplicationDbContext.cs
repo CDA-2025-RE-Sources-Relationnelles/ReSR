@@ -77,7 +77,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             modelBuilder.Entity<Comment>(e => {
                 e.HasOne(x => x.SentBy);
                 e.HasOne(x => x.CommentedResource).WithMany(x => x.Comments);
-                e.HasMany(x => x.Answers).WithOne(x => x.AnsweredComment);
+                e.HasOne(x => x.AnsweredComment).WithMany(x => x.Answers).OnDelete(DeleteBehavior.Cascade);
                 e.OwnsMany(x => x.Reports, x => {
                     x.HasOne(x => x.ReportedBy);
                 });

@@ -13,24 +13,26 @@ public interface ICommentService {
     /// </summary>
     /// <returns>The posted comment.</returns>
     /// <param name="byUserId">The identifier of the user sending the message.</param>
-    /// <param name="toResourceId">The identifier of the commented resource.</param>
     /// <param name="content">The message's content.</param>
     /// <param name="toCommentId">The identifier of the answered comment, if any.</param>
-    public Task<IResponse<Comment>> TryPostAsync(Id byUserId, Id toResourceId, string content, Id? toCommentId = null);
+    public Task<IResponse<Comment>> TryAnswerAsync(Id toCommentId, Id byUserId, string content);
+
+    public Task<IEnumerable<Comment>> GetAllReportedAsync();
 
     /// <summary>
     /// Tries to reject a comment's verification.
     /// </summary>
     /// <returns>A successful response if the comment was rejected.</returns>
-    /// <param name="verifier">The identifier of the verifying user.</param>
-    /// <param name="commentId">The identifier of the verified comment.</param>
-    public Task<IResponse> TryRejectAsync(Id commentId, Id verifier);
+    /// <param name="id">The identifier of the verified comment.</param>
+    public Task<IResponse> TryRejectAsync(Id id);
 
     /// <summary>
     /// Tries to confirm a comment's verification.
     /// </summary>
     /// <returns>A successful response if the comment was verified.</returns>
-    /// <param name="verifier">The identifier of the verifying user.</param>
-    /// <param name="commentId">The identifier of the verified comment.</param>
-    public Task<IResponse<Comment>> TryVerifyAsync(Id commentId, Id verifier);
+    /// <param name="id">The identifier of the verified comment.</param>
+    public Task<IResponse<Comment>> TryVerifyAsync(Id id);
+
+    public Task<IResponse<Comment>> TryReportAsync(Id id, Id userId, string content);
+
 }

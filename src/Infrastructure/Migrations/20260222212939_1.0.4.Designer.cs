@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReSR.Infrastructure.Core;
@@ -11,9 +12,11 @@ using ReSR.Infrastructure.Core;
 namespace ReSR.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260222212939_1.0.4")]
+    partial class _104
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -225,9 +228,6 @@ namespace ReSR.Infrastructure.Migrations
                     b.Property<DateTime>("EditedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long?>("OwnerId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("PublishedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -238,6 +238,9 @@ namespace ReSR.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Visibility")
                         .HasColumnType("integer");
 
@@ -245,7 +248,7 @@ namespace ReSR.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("UserId");
 
                     b.HasIndex("Title", "CategoryId")
                         .IsUnique();
@@ -493,13 +496,13 @@ namespace ReSR.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ReSR.Domain.Aggregates.Accounts.User", "Owner")
-                        .WithMany("OwnedResources")
-                        .HasForeignKey("OwnerId");
+                    b.HasOne("ReSR.Domain.Aggregates.Accounts.User", "User")
+                        .WithMany("Resources")
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Category");
 
-                    b.Navigation("Owner");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ResourceUser", b =>
@@ -626,7 +629,7 @@ namespace ReSR.Infrastructure.Migrations
 
             modelBuilder.Entity("ReSR.Domain.Aggregates.Accounts.User", b =>
                 {
-                    b.Navigation("OwnedResources");
+                    b.Navigation("Resources");
                 });
 
             modelBuilder.Entity("ReSR.Domain.Aggregates.Categories.Category", b =>

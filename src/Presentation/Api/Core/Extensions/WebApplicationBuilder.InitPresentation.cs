@@ -25,6 +25,7 @@ public static partial class Extensions {
             .AddPolicy(nameof(ManagerSessionAuthorizationRequirement), policy => { policy.RequireRole(nameof(Manager)); policy.Requirements.Add(new ManagerSessionAuthorizationRequirement()); })
             .AddPolicy(nameof(ResourceWriteAuthorizationRequirement), policy => { policy.RequireRole(nameof(User)); policy.Requirements.Add(new ResourceWriteAuthorizationRequirement()); })
             .AddPolicy(nameof(ResourceReadAuthorizationRequirement), policy => { policy.Requirements.Add(new ResourceReadAuthorizationRequirement()); })
+            .AddPolicy(nameof(CommentReadAuthorizationRequirement), policy => { policy.Requirements.Add(new CommentReadAuthorizationRequirement()); })
             .AddPolicy("BackOffice", policy => policy.RequireRole(nameof(Manager)))
             .AddDefaultPolicy("FrontOffice", policy => policy.RequireRole(nameof(User)));
 
@@ -64,6 +65,7 @@ public static partial class Extensions {
         builder.Services.AddScoped<IAuthorizationHandler, UserSessionAuthorizationHandler>();
         builder.Services.AddScoped<IAuthorizationHandler, ResourceWriteAuthorizationHandler>();
         builder.Services.AddScoped<IAuthorizationHandler, ResourceReadAuthorizationHandler>();
+        builder.Services.AddScoped<IAuthorizationHandler, CommentReadAuthorizationHandler>();
         builder.Services.AddScoped<IAuthorizationHandler, ManagerSessionAuthorizationHandler>();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options => {

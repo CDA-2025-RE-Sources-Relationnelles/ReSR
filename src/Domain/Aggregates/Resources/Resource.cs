@@ -40,16 +40,16 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
 
 
         /// <summary> The resource's owner, if any. </summary>
-        public virtual User? Owner { get; internal init; }
+        public User? Owner { get; internal init; }
 
         /// <summary> The users that liked this resource. </summary>
-        public virtual ICollection<User> LikedBy { get; internal init; } = new HashSet<User>();
+        public virtual ICollection<User> LikedBy { get; internal init; } = [];
 
         /// <summary> The users that bookmarked this resource. </summary>
-        public virtual ICollection<User> BookmarkedBy { get; internal init; } = new HashSet<User>();
+        public virtual ICollection<User> BookmarkedBy { get; internal init; } = [];
 
         /// <summary> The users that exploited this resource. </summary>
-        public virtual ICollection<User> ExploitedBy { get; internal init; } = new HashSet<User>();
+        public virtual ICollection<User> ExploitedBy { get; internal init; } = [];
 
         /// <summary> The resource's comments. </summary>
         public virtual ICollection<Comment> Comments { get; internal init; } = [];

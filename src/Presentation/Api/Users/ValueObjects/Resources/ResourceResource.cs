@@ -3,7 +3,6 @@ using ReSR.Domain.Aggregates.Resources;
 using ReSR.Presentation.Api.Core.ValueObjects;
 using ReSR.Presentation.Api.Users.ValueObjects.Accounts;
 using ReSR.Presentation.Api.Users.ValueObjects.Categories;
-using ReSR.Presentation.Api.Users.ValueObjects.Messages;
 
 namespace ReSR.Presentation.Api.Users.ValueObjects.Resources;
 public abstract class ResourceResource(Resource from) : IResource<ResourceResource, Resource> {
@@ -21,8 +20,6 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         public uint   LikeCount     { get; } = from.LikeCount;
         public uint   BookmarkCount { get; } = from.BookmarkCount;
         public uint   ExploitCount  { get; } = from.ExploitCount;
-
-        public IEnumerable<CommentResource> Comments { get; } = CommentResource.From(from.Comments.Where(x => x.AnsweredComment is null));
 
         public ResourceLinks Links { get; } = new(
             Self     : GetLink(from),

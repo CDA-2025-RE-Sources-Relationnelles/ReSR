@@ -12,7 +12,7 @@ public class CategoryController(
 ) : ControllerBase {
 
     public const string ROUTE = "/categories";
-     #region ROUTES
+    #region ROUTES
 
         [HttpGet]
         [EndpointDescription("Queries the categories.")]

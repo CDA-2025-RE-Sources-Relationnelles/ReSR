@@ -3,20 +3,22 @@ using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
 using ReSR.Presentation.Api.Users.ValueObjects.Accounts;
 using ReSR.Presentation.Api.Users.ValueObjects.Resources;
+using ReSR.Domain.Aggregates.Messages.ValueObjects;
 
 namespace ReSR.Presentation.Api.Users.ValueObjects.Messages;
 public class CommentResource(Comment from) : MessageResource<Comment>(from), IResource<CommentResource, Comment> {
     
     #region PROPERTIES
 
-        public IEnumerable<CommentResource> Answers { get; } = From(from.Answers);
+        public IEnumerable<string> Reports { get; } = from.Reports.Select(x => x.Content);
 
         public CommentLinks Links { get; } = new(
             Self              : GetLink(from),
             SentBy            : UserResource.GetLink(from.SentBy),
             CommentedResource : ResourceResource.GetLink(from.CommentedResource),
             Answers           : GetLink(from).WithSubRoute("answers"),
-            AnsweredComment   : from.AnsweredComment is not null ? GetLink(from.AnsweredComment) : null
+            AnsweredComment   : from.AnsweredComment is not null ? GetLink(from.AnsweredComment) : null,
+            Report            : GetLink(from).WithSubRoute("report").WithMethod(Core.ValueObjects.HttpMethod.POST)
         );
 
         public readonly record struct CommentLinks(
@@ -24,7 +26,8 @@ public class CommentResource(Comment from) : MessageResource<Comment>(from), IRe
             AnnotatedLink SentBy,
             AnnotatedLink CommentedResource,
             Link          Answers,
-            Link?         AnsweredComment
+            Link?         AnsweredComment,
+            Link          Report
         );
 
     #endregion

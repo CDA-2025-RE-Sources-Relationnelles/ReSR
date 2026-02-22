@@ -29,18 +29,20 @@ public class ResourceService<T>(
         (x.Relationships & relationshipsFilter) == x.Relationships
     );
 
-    public async Task<IEnumerable<T>> TryGetAllPrivate(
+    public Task<IResponse<IEnumerable<T>>> GetAllPrivate(
         Id userId,
         Id? categoryIdFilter,
         Relationships relationshipsFilter
-    ) => (await resourceRepository.GetAllAsync(x =>
-        x.Visibility == Visibility.Private &&
-        (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
-        (x.Relationships & relationshipsFilter) == x.Relationships &&
-        x.Owner != null
-    )).Where(x => x.Owner!.Id == userId || x.Owner.Friends.Any(x => x.Id == userId));
+    ) => userRepository.TryGetAsync(userId).OnSuccessAsync(async user =>
+        (await resourceRepository.GetAllAsync(x =>
+            x.Visibility == Visibility.Private &&
+            (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
+            (x.Relationships & relationshipsFilter) == x.Relationships &&
+            x.Owner != null
+        )).Where(x => x.Owner!.Id == userId || user.Friends.Any(y => y.Id == x.Owner.Id))
+    );
 
-    public Task<IEnumerable<T>> TryGetAllWaitingForVerification(Id userId) => resourceRepository.GetAllAsync(x =>
+    public Task<IEnumerable<T>> GetAllWaitingForVerification() => resourceRepository.GetAllAsync(x =>
         x.Visibility == Visibility.WaitingForVerification
     );
 
@@ -50,11 +52,10 @@ public class ResourceService<T>(
     public Task<IResponse<T>> TryRejectVerification(Id resourceId) =>
         resourceRepository.TryUpdateAsync(resourceId, x => x.TryWithRejectedVerification().OnSuccess(x => (T)x));
 
-    public Task<IResponse<T>> TryPostComment(Id resourceId, Id posterId, string content) =>
+    public Task<IResponse<Comment>> TryPostComment(Id resourceId, Id posterId, string content) =>
         resourceRepository.TryGetAsync(resourceId).OnSuccessAsync(resource =>
             userRepository.TryGetAsync(posterId).OnSuccessAsync(poster =>
                 Comment.TryCreate(poster, content, resource)
             )
-        ).OnSuccessAsync(commentRepository.TryAddAsync)
-        .OnSuccessAsync(comment => (T)comment.CommentedResource);
+        ).OnSuccessAsync(commentRepository.TryAddAsync);
 }

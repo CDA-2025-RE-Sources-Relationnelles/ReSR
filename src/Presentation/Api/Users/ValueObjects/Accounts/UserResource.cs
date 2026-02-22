@@ -21,8 +21,10 @@ public class UserResource(User from) : IResource<UserResource, User> {
         public UserLinks Links { get; } = new(
             Self           : GetLink(from),
             Anonymize      : GetLink(from).WithSubRoute("anonymize").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            LikeProfile    : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            UnlikeProfile  : GetLink(from).WithSubRoute("unlike-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            LikedByUsers   : GetLinks(from.LikedBy),
             Friends        : GetLinks(from.Friends),
-            LikedUsers     : GetLinks(from.LikedUsers),
             Bookmarks      : ResourceResource.GetLinks(from.Bookmarks),
             OwnedResources : ResourceResource.GetLinks(from.OwnedResources)
         );
@@ -30,8 +32,10 @@ public class UserResource(User from) : IResource<UserResource, User> {
         public readonly record struct UserLinks(
             AnnotatedLink Self,
             Link          Anonymize,
+            Link          LikeProfile,
+            Link          UnlikeProfile,
+            IEnumerable<AnnotatedLink> LikedByUsers,
             IEnumerable<AnnotatedLink> Friends,
-            IEnumerable<AnnotatedLink> LikedUsers,
             IEnumerable<AnnotatedLink> Bookmarks,
             IEnumerable<AnnotatedLink> OwnedResources
         );

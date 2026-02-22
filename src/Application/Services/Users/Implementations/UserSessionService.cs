@@ -134,4 +134,13 @@ public sealed class UserSessionService(
                     )
             );
 
+    public Task<IResponse<User>> TryLikeProfile(Id id, Id fromId) =>
+        repository.TryGetAsync(fromId).OnSuccessAsync(from =>
+            repository.TryUpdateAsync(id, x => x.TryWithLikeFrom(from))
+        );
+
+    public Task<IResponse<User>> TryUnlikeProfile(Id id, Id fromId) =>
+        repository.TryGetAsync(fromId).OnSuccessAsync(from =>
+            repository.TryUpdateAsync(id, x => x.WithoutLikeFrom(from))
+        );
 }

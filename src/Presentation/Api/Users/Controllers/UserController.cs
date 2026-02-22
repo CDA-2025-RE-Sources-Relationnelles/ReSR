@@ -7,6 +7,7 @@ using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Ports;
 using ReSR.Presentation.Api.Core.Extensions;
 using ReSR.Presentation.Api.Users.Authorization;
+using ReSR.Presentation.Api.Users.Extensions;
 using ReSR.Presentation.Api.Users.ValueObjects.Accounts;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
@@ -114,6 +115,24 @@ public class UserController(
             sessionService
                 .TryAnonymizeAccountAsync(userId, dto.Password)
                 .ToResultAsync(Results.Ok);
+
+        [HttpPost("{userId}/like-profile")]
+        [Authorize]
+        [EndpointSummary("Only accessible for authenticated users.")]
+        [EndpointDescription("Tries to like the user profile.")]
+        public Task<IResult> LikeAsync(Id userId) =>
+            sessionService
+                .TryLikeProfile(userId, User.GetUserId()!.Value)
+                .ToResourceAsync<User, UserResource>(Results.Ok);
+
+        [HttpPost("{userId}/unlike-profile")]
+        [Authorize]
+        [EndpointSummary("Only accessible for authenticated users.")]
+        [EndpointDescription("Tries to unlike the user profile.")]
+        public Task<IResult> UnlikeAsync(Id userId) =>
+            sessionService
+                .TryUnlikeProfile(userId, User.GetUserId()!.Value)
+                .ToResourceAsync<User, UserResource>(Results.Ok);
 
         [HttpDelete("{userId}")]
         [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]

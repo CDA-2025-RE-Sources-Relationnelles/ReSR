@@ -1,4 +1,5 @@
 using FluentResponse.Interfaces;
+using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
 
@@ -23,20 +24,19 @@ public interface IResourceService<T> where T: Resource {
     /// <param name="userId">The identifier of the user.</param>
     /// <param name="categoryIdFilter">The identifier of the category filter used in the query.</param>
     /// <param name="relationshipsFilter">The relationships filter used in the query.</param>
-    public Task<IEnumerable<T>> TryGetAllPrivate(
+    public Task<IResponse<IEnumerable<T>>> GetAllPrivate(
         Id            userId,
         Id?           categoryIdFilter    = null,
         Relationships relationshipsFilter = Relationships.All
     );
 
     /// <summary>
-    /// Tries to retrieve all resources waiting for verification for a given user.
+    /// Tries to retrieve all resources waiting for verification.
     /// </summary>
-    /// <returns>The resources that are not being verified, or being verified by the user.</returns>
-    /// <param name="userId">The identifier of the user.</param>
-    public Task<IEnumerable<T>> TryGetAllWaitingForVerification(Id userId);
+    /// <returns>The resources that are to be verified by moderators.</returns>
+    public Task<IEnumerable<T>> GetAllWaitingForVerification();
 
     public Task<IResponse<T>> TryConfirmVerification(Id id);
     public Task<IResponse<T>> TryRejectVerification(Id id);
-    public Task<IResponse<T>> TryPostComment(Id resourceId, Id posterId, string content);
+    public Task<IResponse<Comment>> TryPostComment(Id resourceId, Id posterId, string content);
 }

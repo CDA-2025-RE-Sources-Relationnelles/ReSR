@@ -20,13 +20,13 @@ public record User : Account<User>, IAggregateRoot<User> {
 
 
         /// <summary> The collection of users liked by this user. </summary>
-        public virtual IEnumerable<User> LikedUsers { get; internal set; } = [];
+        public virtual ICollection<User> LikedUsers { get; internal set; } = [];
 
         /// <summary> The collection of users that liked this user. </summary>
-        public virtual IEnumerable<User> LikedBy { get; internal set; } = [];
+        public virtual ICollection<User> LikedBy { get; internal set; } = [];
 
         /// <summary> The collection of mutually liked users. </summary>
-        public virtual IEnumerable<User> Friends => this.LikedUsers.Union(this.LikedBy);
+        public virtual IEnumerable<User> Friends => this.LikedUsers.Intersect(this.LikedBy);
 
 
 
@@ -38,7 +38,7 @@ public record User : Account<User>, IAggregateRoot<User> {
 
 
         /// <summary> The user's bookmarked resources. </summary>
-        public virtual ICollection<Resource> Bookmarks     { get; internal init; } = [];
+        public virtual ICollection<Resource> Bookmarks { get; internal init; } = [];
 
         /// <summary> The user's published resources. </summary>
         public virtual ICollection<Resource> OwnedResources { get; internal init; } = [];
@@ -93,12 +93,15 @@ public record User : Account<User>, IAggregateRoot<User> {
                     if (!this.LikedBy.Any(x => x.Id == from.Id)) {
 
                         List<User> likedBy = [.. this.LikedBy, from];
+                        bool nowFriends = !this.Friends.Any(x => x.Id == from.Id);
                         this.LikedBy = likedBy;
                         return Response.Success(this with {
-                            DomainEvents = [..this.DomainEvents, new UserMutuallyLiked(this.Id, from.Id)]
+                            DomainEvents = nowFriends
+                                ? [..this.DomainEvents, new UserMutuallyLiked(this.Id, from.Id)]
+                                : this.DomainEvents
                         });
 
-                    } else return Response.Success(this);
+                    } else return Response.Failure<User>(new InvariantException("L'utilisateur est déjà aimé par l'autre utilisateur !"));
                 } else return Response.Failure<User>(new InvariantException("Un utilisateur ne peut pas aimer son propre profil !"));
             }
 

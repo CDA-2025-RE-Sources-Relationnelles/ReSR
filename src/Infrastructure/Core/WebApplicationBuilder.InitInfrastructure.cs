@@ -55,7 +55,7 @@ public static partial class Extensions {
 
 
         builder.Services.AddScoped<IAccountRepository<Manager>, AccountRepository<Manager>>();
-        builder.Services.AddScoped<IAccountRepository<User>,    AccountRepository<User>>();
+        builder.Services.AddScoped<IAccountRepository<User>,    UserRepository>();
         builder.Services.AddScoped<IRepository<Manager>>(x => x.GetRequiredService<IAccountRepository<Manager>>());
         builder.Services.AddScoped<IRepository<User>>(x => x.GetRequiredService<IAccountRepository<User>>());
 

@@ -1,7 +1,9 @@
+using FluentResponse;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReSR.Application.Services.Users.Definitions;
 using ReSR.Domain.Aggregates.Accounts.ValueObjects;
+using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
 using ReSR.Domain.Ports;
@@ -9,6 +11,7 @@ using ReSR.Presentation.Api.Core.Extensions;
 using ReSR.Presentation.Api.Managers.ValueObjects.Resources;
 using ReSR.Presentation.Api.Users.Authorization;
 using ReSR.Presentation.Api.Users.Extensions;
+using ReSR.Presentation.Api.Users.ValueObjects.Messages;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
 [ApiController]
@@ -117,7 +120,14 @@ public class QuizResourceController(
         [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
         [EndpointDescription("Posts a comment to the quiz resource")]
         public Task<IResult> PostQuizResourceComment(Id resourceId, PostQuizResourceCommentDto dto) =>
-            resourceService.TryPostComment(resourceId, User.GetUserId()!.Value, dto.Content).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+            resourceService.TryPostComment(resourceId, User.GetUserId()!.Value, dto.Content).ToResourceAsync<Comment, CommentResource>(Results.Ok);
+
+        [HttpGet("{resourceId}/comments")]
+        [Authorize(Policy = nameof(ResourceReadAuthorizationRequirement))]
+        [EndpointDescription("Queries commens from the text resource")]
+        public Task<IResult> GetAllQuizResourceComments(Id resourceId) =>
+            repository.TryGetAsync(resourceId).OnSuccessAsync(x => x.Comments.Where(x => x.AnsweredComment is null)).ToResourceAsync<Comment, CommentResource>(Results.Ok);
+
 
         [HttpPost("{resourceId}/confirm-verification")]
         [Authorize(Roles = nameof(UserPermissions.VerifyResources))]

@@ -12,7 +12,8 @@ internal class CommentRepository(
         base.GetJoinedTable()
             .Include(x => x.CommentedResource)
             .Include(x => x.AnsweredComment)
-            .Include(x => x.Reports)
-                .ThenInclude(x => x.ReportedBy);
+            .Include(x => x.Reports).ThenInclude(x => x.ReportedBy)
+            .Include(x => x.Answers).ThenInclude(x => x.CommentedResource)
+            .Include(x => x.Answers).ThenInclude(x => x.Reports).ThenInclude(x => x.ReportedBy);
 
 }

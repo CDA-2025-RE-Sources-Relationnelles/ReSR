@@ -16,7 +16,28 @@ public class ResourceController(
 ) : ControllerBase {
 
     public const string ROUTE = "/resources";
+    #region DTOS
 
+        public readonly record struct CreateUserTextResourceDto(
+            string Title,
+            Id     CategoryId,
+            string Relationships,
+            string Content,
+            bool   IsPrivate
+        );
+
+        public readonly record struct UpdateUserTextResourceDto(
+            string? Title         = null,
+            Id?     CategoryId    = null,
+            string? Relationships = null,
+            string? Content       = null
+        );
+
+        public readonly record struct PostTextResourceCommentDto(
+            string Content
+        );
+
+    #endregion
     #region ROUTES
 
         [HttpGet(ROUTE + "/public")]
@@ -37,7 +58,7 @@ public class ResourceController(
         public Task<IResult> GetPrivateResourcesAsync(
             string? relationshipsFilter = null,
             Id?     categoryIdFilter    = null
-        ) => resourceService.TryGetAllPrivate(
+        ) => resourceService.GetAllPrivate(
             userId: User.GetUserId()!.Value,
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.All
@@ -50,7 +71,7 @@ public class ResourceController(
         [EndpointDescription("Queries the resources waiting for verification.")]
         public Task<IResult> GetResourcesWaitingForVerificationAsync() =>
             resourceService
-                .TryGetAllWaitingForVerification(User.GetUserId()!.Value)
+                .GetAllWaitingForVerification()
                 .ToResourceAsync<Resource, ResourceResource>(Results.Ok);
 
     #endregion
