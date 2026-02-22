@@ -120,18 +120,9 @@ public class UserController(
         [Authorize]
         [EndpointSummary("Only accessible for authenticated users.")]
         [EndpointDescription("Tries to like the user profile.")]
-        public Task<IResult> LikeAsync(Id userId) =>
+        public Task<IResult> LikeAsync(Id userId, bool value = true) =>
             sessionService
-                .TryLikeProfile(userId, User.GetUserId()!.Value)
-                .ToResourceAsync<User, UserResource>(Results.Ok);
-
-        [HttpPost("{userId}/unlike-profile")]
-        [Authorize]
-        [EndpointSummary("Only accessible for authenticated users.")]
-        [EndpointDescription("Tries to unlike the user profile.")]
-        public Task<IResult> UnlikeAsync(Id userId) =>
-            sessionService
-                .TryUnlikeProfile(userId, User.GetUserId()!.Value)
+                .TryLikeProfile(userId, User.GetUserId()!.Value, value)
                 .ToResourceAsync<User, UserResource>(Results.Ok);
 
         [HttpDelete("{userId}")]

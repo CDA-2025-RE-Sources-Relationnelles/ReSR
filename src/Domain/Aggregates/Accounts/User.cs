@@ -87,30 +87,29 @@ public record User : Account<User>, IAggregateRoot<User> {
                 this with { Permissions = value };
 
 
-            /// <returns> A copy of the user account with a like frm the given user. </returns>
-            public virtual IResponse<User> TryWithLikeFrom(User from) {
-                if (from.Id != this.Id) {
-                    if (!this.LikedBy.Any(x => x.Id == from.Id)) {
+            /// <returns> A copy of the user account with a like from the given user. </returns>
+            public virtual IResponse<User> TryWithLikeFrom(User from, bool value = true) {
+                if(value)
+                    if (from.Id != this.Id) {
+                        if (!this.LikedBy.Any(x => x.Id == from.Id)) {
 
-                        List<User> likedBy = [.. this.LikedBy, from];
-                        bool nowFriends = !this.Friends.Any(x => x.Id == from.Id);
-                        this.LikedBy = likedBy;
-                        return Response.Success(this with {
-                            DomainEvents = nowFriends
-                                ? [..this.DomainEvents, new UserMutuallyLiked(this.Id, from.Id)]
-                                : this.DomainEvents
-                        });
+                            List<User> likedBy = [.. this.LikedBy, from];
+                            bool nowFriends = !this.Friends.Any(x => x.Id == from.Id);
+                            this.LikedBy = likedBy;
+                            return Response.Success(this with {
+                                DomainEvents = nowFriends
+                                    ? [..this.DomainEvents, new UserMutuallyLiked(this.Id, from.Id)]
+                                    : this.DomainEvents
+                            });
 
-                    } else return Response.Failure<User>(new InvariantException("L'utilisateur est déjà aimé par l'autre utilisateur !"));
-                } else return Response.Failure<User>(new InvariantException("Un utilisateur ne peut pas aimer son propre profil !"));
-            }
-
-            /// <returns> A copy of the user account with a like frm the given user. </returns>
-            public virtual User WithoutLikeFrom(User from) {
-                List<User> likedBy = [.. this.LikedBy];
-                likedBy.Remove(from);
-                this.LikedBy = likedBy;
-                return this;
+                        } else return Response.Success(this);
+                    } else return Response.Failure<User>(new InvariantException("Un utilisateur ne peut pas aimer son propre profil !"));
+                else {
+                    List<User> likedBy = [.. this.LikedBy];
+                    likedBy.Remove(from);
+                    this.LikedBy = likedBy;
+                    return Response.Success(this);
+                }
             }
 
 

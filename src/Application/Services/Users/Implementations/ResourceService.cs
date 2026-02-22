@@ -20,7 +20,7 @@ public class ResourceService<T>(
     protected readonly IRepository<User> userRepository = userRepository;
     protected readonly IRepository<Comment> commentRepository = commentRepository;
 
-    public Task<IEnumerable<T>> GetAllPublic(
+    public Task<IEnumerable<T>> GetAllPublicAsync(
         Id? categoryIdFilter,
         Relationships relationshipsFilter
     ) => resourceRepository.GetAllAsync(x =>
@@ -29,7 +29,7 @@ public class ResourceService<T>(
         (x.Relationships & relationshipsFilter) == x.Relationships
     );
 
-    public Task<IResponse<IEnumerable<T>>> GetAllPrivate(
+    public Task<IResponse<IEnumerable<T>>> GetAllPrivateAsync(
         Id userId,
         Id? categoryIdFilter,
         Relationships relationshipsFilter
@@ -42,20 +42,35 @@ public class ResourceService<T>(
         )).Where(x => x.Owner!.Id == userId || user.Friends.Any(y => y.Id == x.Owner.Id))
     );
 
-    public Task<IEnumerable<T>> GetAllWaitingForVerification() => resourceRepository.GetAllAsync(x =>
+    public Task<IEnumerable<T>> GetAllWaitingForVerificationAsync() => resourceRepository.GetAllAsync(x =>
         x.Visibility == Visibility.WaitingForVerification
     );
 
-    public Task<IResponse<T>> TryConfirmVerification(Id resourceId) =>
+    public Task<IResponse<T>> TryConfirmVerificationAsync(Id resourceId) =>
         resourceRepository.TryUpdateAsync(resourceId, x => x.TryWithConfirmedVerification().OnSuccess(x => (T)x));
 
-    public Task<IResponse<T>> TryRejectVerification(Id resourceId) =>
+    public Task<IResponse<T>> TryRejectVerificationAsync(Id resourceId) =>
         resourceRepository.TryUpdateAsync(resourceId, x => x.TryWithRejectedVerification().OnSuccess(x => (T)x));
 
-    public Task<IResponse<Comment>> TryPostComment(Id resourceId, Id posterId, string content) =>
+    public Task<IResponse<Comment>> TryPostCommentAsync(Id resourceId, Id posterId, string content) =>
         resourceRepository.TryGetAsync(resourceId).OnSuccessAsync(resource =>
             userRepository.TryGetAsync(posterId).OnSuccessAsync(poster =>
                 Comment.TryCreate(poster, content, resource)
             )
         ).OnSuccessAsync(commentRepository.TryAddAsync);
+
+    public Task<IResponse<T>> TryLikeAsync(Id id, Id fromId, bool value) =>
+        userRepository.TryGetAsync(fromId).OnSuccessAsync(from =>
+            resourceRepository.TryUpdateAsync(id, x => (T)x.WithLikeFrom(from, value))
+        );
+
+    public Task<IResponse<T>> TryBookmarkAsync(Id id, Id fromId, bool value) =>
+        userRepository.TryGetAsync(fromId).OnSuccessAsync(from =>
+            resourceRepository.TryUpdateAsync(id, x => (T)x.WithBookmarkFrom(from, value))
+        );
+
+    public Task<IResponse<T>> TryExploitAsync(Id id, Id fromId, bool value) =>
+        userRepository.TryGetAsync(fromId).OnSuccessAsync(from =>
+            resourceRepository.TryUpdateAsync(id, x => (T)x.WithExploitFrom(from, value))
+        );
 }

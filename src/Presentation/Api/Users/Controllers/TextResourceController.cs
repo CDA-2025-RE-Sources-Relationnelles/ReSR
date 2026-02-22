@@ -86,12 +86,33 @@ public class TextResourceController(
         public Task<IResult> DeleteTextResourceAsync(Id resourceId) =>
             repository.TryDeleteAsync(resourceId).ToResultAsync(Results.Ok);
 
+        [HttpPost("{resourceId}/like")]
+        [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
+        [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
+        [EndpointDescription("Likes the text resource")]
+        public Task<IResult> LikeTextResourceAsync(Id resourceId, bool value = true) =>
+            resourceService.TryLikeAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+
+        [HttpPost("{resourceId}/bookmark")]
+        [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
+        [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
+        [EndpointDescription("Likes the text resource")]
+        public Task<IResult> BookmarkTextResourceAsync(Id resourceId, bool value = true) =>
+            resourceService.TryBookmarkAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+
+        [HttpPost("{resourceId}/exploit")]
+        [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
+        [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
+        [EndpointDescription("Likes the text resource")]
+        public Task<IResult> ExploitTextResourceAsync(Id resourceId, bool value = true) =>
+            resourceService.TryExploitAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+
         [HttpPost("{resourceId}/comments")]
         [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
         [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
         [EndpointDescription("Posts a comment to the text resource")]
         public Task<IResult> PostTextResourceComment(Id resourceId, PostTextResourceCommentDto dto) =>
-            resourceService.TryPostComment(resourceId, User.GetUserId()!.Value, dto.Content).ToResourceAsync<Comment, CommentResource>(Results.Ok);
+            resourceService.TryPostCommentAsync(resourceId, User.GetUserId()!.Value, dto.Content).ToResourceAsync<Comment, CommentResource>(Results.Ok);
 
         [HttpGet("{resourceId}/comments")]
         [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
@@ -105,14 +126,14 @@ public class TextResourceController(
         [EndpointSummary("Only accessible for authenticated users with resource verification permissions.")]
         [EndpointDescription("Confirms the text resource verification.")]
         public Task<IResult> ConfirmTextResourceVerification(Id resourceId) =>
-            resourceService.TryConfirmVerification(resourceId).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            resourceService.TryConfirmVerificationAsync(resourceId).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
 
         [HttpPost("{resourceId}/reject-verification")]
         [Authorize(Roles = nameof(UserPermissions.VerifyResources))]
         [EndpointSummary("Only accessible for authenticated users with resource verification permissions.")]
         [EndpointDescription("Cancels the text resource verification.")]
         public Task<IResult> RejectTextResourceVerification(Id resourceId) =>
-            resourceService.TryRejectVerification(resourceId).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            resourceService.TryRejectVerificationAsync(resourceId).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
 
     #endregion
     

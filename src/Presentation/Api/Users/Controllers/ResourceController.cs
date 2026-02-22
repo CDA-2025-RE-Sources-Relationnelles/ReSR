@@ -45,7 +45,7 @@ public class ResourceController(
         public Task<IResult> GetPublicResourcesAsync(
             string? relationshipsFilter = null,
             Id?     categoryIdFilter    = null
-        ) => resourceService.GetAllPublic(
+        ) => resourceService.GetAllPublicAsync(
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.All
         ).ToResourceAsync<Resource, ResourceResource>(Results.Ok);
@@ -58,7 +58,7 @@ public class ResourceController(
         public Task<IResult> GetPrivateResourcesAsync(
             string? relationshipsFilter = null,
             Id?     categoryIdFilter    = null
-        ) => resourceService.GetAllPrivate(
+        ) => resourceService.GetAllPrivateAsync(
             userId: User.GetUserId()!.Value,
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.All
@@ -71,7 +71,7 @@ public class ResourceController(
         [EndpointDescription("Queries the resources waiting for verification.")]
         public Task<IResult> GetResourcesWaitingForVerificationAsync() =>
             resourceService
-                .GetAllWaitingForVerification()
+                .GetAllWaitingForVerificationAsync()
                 .ToResourceAsync<Resource, ResourceResource>(Results.Ok);
 
     #endregion

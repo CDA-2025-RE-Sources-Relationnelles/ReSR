@@ -50,6 +50,5 @@ public interface IUserSessionService : ISessionService<User> {
     /// <returns>A successful response if the PIN was generated.</returns>
     /// <param name="email">The user's mail address.</param>
     public Task<IResponse> TryRequestPasswordResetPINAsync(string email);
-    public Task<IResponse<User>> TryLikeProfile(Id id, Id fromId);
-    public Task<IResponse<User>> TryUnlikeProfile(Id id, Id fromId);
+    public Task<IResponse<User>> TryLikeProfile(Id id, Id fromId, bool value = true);
 }

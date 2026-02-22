@@ -12,7 +12,7 @@ public interface IResourceService<T> where T: Resource {
     /// <returns>The publicly available resources.</returns>
     /// <param name="categoryIdFilter">The identifier of the category filter used in the query.</param>
     /// <param name="relationshipsFilter">The relationships filter used in the query.</param>
-    public Task<IEnumerable<T>> GetAllPublic(
+    public Task<IEnumerable<T>> GetAllPublicAsync(
         Id?           categoryIdFilter    = null,
         Relationships relationshipsFilter = Relationships.All
     );
@@ -24,7 +24,7 @@ public interface IResourceService<T> where T: Resource {
     /// <param name="userId">The identifier of the user.</param>
     /// <param name="categoryIdFilter">The identifier of the category filter used in the query.</param>
     /// <param name="relationshipsFilter">The relationships filter used in the query.</param>
-    public Task<IResponse<IEnumerable<T>>> GetAllPrivate(
+    public Task<IResponse<IEnumerable<T>>> GetAllPrivateAsync(
         Id            userId,
         Id?           categoryIdFilter    = null,
         Relationships relationshipsFilter = Relationships.All
@@ -34,9 +34,13 @@ public interface IResourceService<T> where T: Resource {
     /// Tries to retrieve all resources waiting for verification.
     /// </summary>
     /// <returns>The resources that are to be verified by moderators.</returns>
-    public Task<IEnumerable<T>> GetAllWaitingForVerification();
+    public Task<IEnumerable<T>> GetAllWaitingForVerificationAsync();
 
-    public Task<IResponse<T>> TryConfirmVerification(Id id);
-    public Task<IResponse<T>> TryRejectVerification(Id id);
-    public Task<IResponse<Comment>> TryPostComment(Id resourceId, Id posterId, string content);
+    public Task<IResponse<T>> TryConfirmVerificationAsync(Id id);
+    public Task<IResponse<T>> TryRejectVerificationAsync(Id id);
+    public Task<IResponse<Comment>> TryPostCommentAsync(Id resourceId, Id posterId, string content);
+
+    public Task<IResponse<T>> TryLikeAsync(Id id, Id fromId, bool value = true);
+    public Task<IResponse<T>> TryBookmarkAsync(Id id, Id fromId, bool value = true);
+    public Task<IResponse<T>> TryExploitAsync(Id id, Id fromId, bool value = true);
 }

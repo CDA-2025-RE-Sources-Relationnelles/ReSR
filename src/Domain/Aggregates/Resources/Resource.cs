@@ -43,13 +43,13 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
         public User? Owner { get; internal init; }
 
         /// <summary> The users that liked this resource. </summary>
-        public virtual ICollection<User> LikedBy { get; internal init; } = [];
+        public virtual ICollection<User> LikedBy { get; internal set; } = [];
 
         /// <summary> The users that bookmarked this resource. </summary>
-        public virtual ICollection<User> BookmarkedBy { get; internal init; } = [];
+        public virtual ICollection<User> BookmarkedBy { get; internal set; } = [];
 
         /// <summary> The users that exploited this resource. </summary>
-        public virtual ICollection<User> ExploitedBy { get; internal init; } = [];
+        public virtual ICollection<User> ExploitedBy { get; internal set; } = [];
 
         /// <summary> The resource's comments. </summary>
         public virtual ICollection<Comment> Comments { get; internal init; } = [];
@@ -101,25 +101,49 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
 
 
             /// <returns> A copy of the resource with a like set or unset from the given user. </returns>
-            public virtual Resource WithLikeFrom(User from, bool value) =>
-                value
-                ? this with { LikedBy = [.. this.LikedBy, from], }
-                : this with { LikedBy = [.. this.LikedBy.Where(x => x.Id != from.Id)] };
+            public virtual Resource WithLikeFrom(User from, bool value) {
+                if(value) {
+                    if (!this.LikedBy.Any(x => x.Id == from.Id))
+                        this.LikedBy = [.. this.LikedBy, from];
+                } else {
+                    List<User> likedBy = [.. this.LikedBy];
+                    likedBy.Remove(from);
+                    this.LikedBy = likedBy;
+                }
+
+                return this;
+            }
 
             /// <returns> A copy of the resource with a bookmark set or unset from the given user. </returns>
-            public virtual Resource WithBookmarkFrom(User from, bool value) =>
-                value
-                ? this with { BookmarkedBy = [..this.BookmarkedBy, from], }
-                : this with { BookmarkedBy = [.. this.BookmarkedBy.Where(x => x.Id != from.Id)] };
+            public virtual Resource WithBookmarkFrom(User from, bool value) {
+                if(value) {
+                    if (!this.BookmarkedBy.Any(x => x.Id == from.Id))
+                        this.BookmarkedBy = [.. this.BookmarkedBy, from];
+                } else {
+                    List<User> bookmarkedBy = [.. this.BookmarkedBy];
+                    bookmarkedBy.Remove(from);
+                    this.BookmarkedBy = bookmarkedBy;
+                }
+
+                return this;
+            }
 
             /// <returns>
             /// A copy of the resource with an exploit set or unset from the given user.
             /// If the user had bookmarked the resource, it will be removed from their bookmarked resource list.
             /// </returns>
-            public virtual Resource WithExploitFrom(User from, bool value) =>
-                value
-                ? this with { ExploitedBy = [.. this.ExploitedBy, from], BookmarkedBy = [.. this.BookmarkedBy.Where(x => x.Id != from.Id)], }
-                : this with { ExploitedBy = [.. this.ExploitedBy.Where(x => x.Id != from.Id)] };
+            public virtual Resource WithExploitFrom(User from, bool value) {
+                if(value) {
+                    if (!this.ExploitedBy.Any(x => x.Id == from.Id))
+                        this.ExploitedBy = [.. this.ExploitedBy, from];
+                } else {
+                    List<User> exploitedBy = [.. this.ExploitedBy];
+                    exploitedBy.Remove(from);
+                    this.ExploitedBy = exploitedBy;
+                }
+
+                return this;
+            }
 
 
 
