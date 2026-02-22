@@ -3,7 +3,7 @@ using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
 
 namespace ReSR.Application.Services.Users.Definitions;
-public interface IResourceService {
+public interface IResourceService<T> where T: Resource {
 
     /// <summary>
     /// Retrieves all public resources.
@@ -11,7 +11,7 @@ public interface IResourceService {
     /// <returns>The publicly available resources.</returns>
     /// <param name="categoryIdFilter">The identifier of the category filter used in the query.</param>
     /// <param name="relationshipsFilter">The relationships filter used in the query.</param>
-    public Task<IEnumerable<Resource>> GetAllPublic(
+    public Task<IEnumerable<T>> GetAllPublic(
         Id?           categoryIdFilter    = null,
         Relationships relationshipsFilter = Relationships.All
     );
@@ -23,7 +23,7 @@ public interface IResourceService {
     /// <param name="userId">The identifier of the user.</param>
     /// <param name="categoryIdFilter">The identifier of the category filter used in the query.</param>
     /// <param name="relationshipsFilter">The relationships filter used in the query.</param>
-    public Task<IEnumerable<Resource>> TryGetAllPrivate(
+    public Task<IEnumerable<T>> TryGetAllPrivate(
         Id            userId,
         Id?           categoryIdFilter    = null,
         Relationships relationshipsFilter = Relationships.All
@@ -34,6 +34,9 @@ public interface IResourceService {
     /// </summary>
     /// <returns>The resources that are not being verified, or being verified by the user.</returns>
     /// <param name="userId">The identifier of the user.</param>
-    public Task<IEnumerable<Resource>> TryGetAllWaitingForVerification(Id userId);
+    public Task<IEnumerable<T>> TryGetAllWaitingForVerification(Id userId);
 
+    public Task<IResponse<T>> TryConfirmVerification(Id id);
+    public Task<IResponse<T>> TryRejectVerification(Id id);
+    public Task<IResponse<T>> TryPostComment(Id resourceId, Id posterId, string content);
 }

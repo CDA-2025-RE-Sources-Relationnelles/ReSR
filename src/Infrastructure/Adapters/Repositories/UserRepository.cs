@@ -1,7 +1,6 @@
 using FluentResponse;
 using FluentResponse.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using ReSR.Application.Ports;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Core;
 using ReSR.Domain.Ports;
@@ -17,8 +16,7 @@ internal class UserRepository(
             .Include(x => x.LikedUsers)
             .Include(x => x.LikedBy)
             .Include(x => x.Bookmarks)
-            .Include(x => x.OwnedResources)
-            .Include(x => x.ResourcesToVerify);
+            .Include(x => x.OwnedResources);
             
     protected override Task<IResponse<User>> TryValidateAsync(User entity) =>
         base.TryValidateAsync(entity)

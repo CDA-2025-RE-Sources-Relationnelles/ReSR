@@ -14,6 +14,7 @@ using ReSR.Application.Services.Users.Implementations;
 using ReSR.Application.Services.Core.Definitions;
 using ReSR.Application.Services.Managers.Implementations;
 using ReSR.Application.Services.Managers.Definitions;
+using ReSR.Domain.Aggregates.Resources;
 
 namespace ReSR.Application.Core;
 public static partial class Extensions {
@@ -75,7 +76,9 @@ public static partial class Extensions {
         builder.Services.AddScoped<IResourceKpiService, ResourceKpiService>();
 
 
-        builder.Services.AddScoped<IResourceService, ResourceService>();
+        builder.Services.AddScoped<IResourceService<Resource>, ResourceService<Resource>>();
+        builder.Services.AddScoped<ITextResourceService, TextResourceService>();
+        builder.Services.AddScoped<IResourceService<QuizResource>, ResourceService<QuizResource>>();
 
 
         builder.Services.AddHostedService<UserAnonymizationService>();

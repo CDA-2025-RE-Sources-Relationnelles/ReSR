@@ -25,17 +25,15 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         public IEnumerable<CommentResource> Comments { get; } = CommentResource.From(from.Comments.Where(x => x.AnsweredComment is null));
 
         public ResourceLinks Links { get; } = new(
-            Self          : GetLink(from),
-            Category      : CategoryResource.GetLink(from.Category),
-            Owner         : from.Owner is not null ? UserResource.GetLink(from.Owner) : null,
-            VerifyingUser : from.VerifyingUser is not null ? UserResource.GetLink(from.VerifyingUser) : null
+            Self     : GetLink(from),
+            Category : CategoryResource.GetLink(from.Category),
+            Owner    : from.Owner is not null ? UserResource.GetLink(from.Owner) : null
         );
 
         public readonly record struct ResourceLinks(
             AnnotatedLink  Self,
             AnnotatedLink  Category,
-            AnnotatedLink? Owner,
-            AnnotatedLink? VerifyingUser
+            AnnotatedLink? Owner
         );
 
     #endregion

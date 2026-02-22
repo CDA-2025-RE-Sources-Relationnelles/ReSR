@@ -6,6 +6,7 @@ using ReSR.Application.ValueObjects.Accounts;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Ports;
 using ReSR.Presentation.Api.Core.Extensions;
+using ReSR.Presentation.Api.Users.Authorization;
 using ReSR.Presentation.Api.Users.ValueObjects.Accounts;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
@@ -82,14 +83,14 @@ public class UserController(
                 .ToResourceAsync<Session<User>, UserSessionResource>(Results.Ok);
 
         [HttpGet("{userId}", Name = nameof(GetUserAsync))]
-        [Authorize(Policy = "LimitedUserAccess")]
+        [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]
         [EndpointSummary("Only accessible for this user")]
         [EndpointDescription("Queries the user.")]
         public Task<IResult> GetUserAsync(Id userId) =>
             queryService.TryGetAsync(userId).ToResourceAsync<User, UserResource>(Results.Ok);
 
         [HttpPatch("{userId}")]
-        [Authorize(Policy = "LimitedUserAccess")]
+        [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]
         [EndpointSummary("Only accessible for this user")]
         [EndpointDescription("Tries to update the user.")]
         public Task<IResult> UpdateAsync(Id userId, UpdateAccountDto dto) =>
@@ -106,7 +107,7 @@ public class UserController(
                 }).ToResourceAsync<Session<User>, UserSessionResource>(Results.Ok);
 
         [HttpPost("{userId}/anonymize")]
-        [Authorize(Policy = "LimitedUserAccess")]
+        [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]
         [EndpointSummary("Only accessible for this user")]
         [EndpointDescription("Tries to anonymize the user.")]
         public Task<IResult> AnonymizeAsync(Id userId, CloseAccountDto dto) =>
@@ -115,7 +116,7 @@ public class UserController(
                 .ToResultAsync(Results.Ok);
 
         [HttpDelete("{userId}")]
-        [Authorize(Policy = "LimitedUserAccess")]
+        [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]
         [EndpointSummary("Only accessible for this user")]
         [EndpointDescription("Tries to delete the user.")]
         public Task<IResult> DeleteAsync(Id userId, CloseAccountDto dto) =>

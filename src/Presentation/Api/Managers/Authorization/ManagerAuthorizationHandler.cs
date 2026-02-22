@@ -5,14 +5,14 @@ using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Ports;
 
 namespace ReSR.Presentation.Api.Managers.Authorization;
-public class ManagerAuthorizationRequirement : IAuthorizationRequirement {}
-public class ManagerAuthorizationHandler(
+public class ManagerSessionAuthorizationRequirement : IAuthorizationRequirement {}
+public class ManagerSessionAuthorizationHandler(
     IRepository<User> repository
-) : AuthorizationHandler<ManagerAuthorizationRequirement> {
+) : AuthorizationHandler<ManagerSessionAuthorizationRequirement> {
 
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext     context,
-        ManagerAuthorizationRequirement requirement
+        ManagerSessionAuthorizationRequirement requirement
     ) {
 
         if (

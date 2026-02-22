@@ -43,9 +43,6 @@ public record User : Account<User>, IAggregateRoot<User> {
         /// <summary> The user's published resources. </summary>
         public virtual ICollection<Resource> OwnedResources { get; internal init; } = [];
 
-        /// <summary> The user's resource verification assignments. </summary>
-        public virtual ICollection<Resource> ResourcesToVerify { get; internal init; } = [];
-
         /// <summary> Whether or not the user's account has been temporaly deactivated. </summary>
         public bool Suspended { get; internal init; }
 

@@ -51,9 +51,6 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
         /// <summary> The users that exploited this resource. </summary>
         public virtual ICollection<User> ExploitedBy { get; internal init; } = new HashSet<User>();
 
-        /// <summary> The users that is verifying this resource before being publicly available. </summary>
-        public virtual User? VerifyingUser { get; internal init; }
-
         /// <summary> The resource's comments. </summary>
         public virtual ICollection<Comment> Comments { get; internal init; } = [];
 
@@ -145,35 +142,20 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
 
 
 
-            /// <returns> A copy of the resource with the given user as verifier if none. </returns>
-            public virtual IResponse<Resource> TryWithNewVerifyingUser(User value) =>
-                this.VerifyingUser is null
-                ? Response.Success(this with { VerifyingUser = value })
-                : Response.Failure<Resource>(new InvariantException($"La ressource est déjà en train d'être vérifiée par {this.VerifyingUser.Email} !"));
-
-            /// <returns> A copy of the resource with confirmed verification if being verified. </returns>
             public virtual IResponse<Resource> TryWithConfirmedVerification() =>
-                this.VerifyingUser is not null
-                ? Response.Success(this with {
-                    VerifyingUser = null,
-                    Visibility    = Visibility.Public,
-                    DomainEvents  = [..this.DomainEvents, new ResourceVerified(this.Id)]
-                }) : Response.Failure<Resource>(new InvariantException($"La ressource n'est vérifiée par aucun utilisateur !"));
+                this.Visibility == Visibility.WaitingForVerification
+                    ? Response.Success(this with {
+                        Visibility    = Visibility.Public,
+                        DomainEvents  = [..this.DomainEvents, new ResourceVerified(this.Id)]
+                    }) : Response.Failure<Resource>(new InvariantException($"La ressource n'est pas à vérifier !"));
 
             /// <returns> A copy of the resource with rejected verification if being verified. </returns>
             public virtual IResponse<Resource> TryWithRejectedVerification() =>
-                this.VerifyingUser is not null
+                this.Visibility == Visibility.WaitingForVerification
                 ? Response.Success(this with {
-                    VerifyingUser = null,
                     Visibility    = Visibility.Suspended,
                     DomainEvents  = [..this.DomainEvents, new ResourceRejected(this.Id)]
-                }) : Response.Failure<Resource>(new InvariantException($"La ressource n'est vérifiée par aucun utilisateur !"));
-
-            /// <returns> A copy of the resource with canceled verification if being verified. </returns>
-            public virtual IResponse<Resource> TryWithCanceledVerification() =>
-                this.VerifyingUser is not null
-                ? Response.Success(this with { VerifyingUser = null })
-                : Response.Failure<Resource>(new InvariantException($"La ressource n'est vérifiée par aucun utilisateur !"));
+                }) : Response.Failure<Resource>(new InvariantException($"La ressource n'est pas à vérifier !"));
 
         #endregion
         #region INVARIANTS

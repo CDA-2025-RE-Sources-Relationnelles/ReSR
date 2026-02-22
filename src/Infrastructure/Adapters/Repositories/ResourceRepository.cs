@@ -18,12 +18,11 @@ internal class ResourceRepository<T>(
             .Include(x => x.LikedBy)
             .Include(x => x.BookmarkedBy)
             .Include(x => x.ExploitedBy)
-            .Include(x => x.VerifyingUser)
             .Include(x => x.Comments);
 
     protected override Task<IResponse<T>> TryValidateAsync(T entity) =>
         base.TryValidateAsync(entity)
-            .OnSuccessAsync(async _ => !await this.AnyAsync(x => x.Id != entity.Id && x.Title == entity.Title && x.Category.Id == entity.Category.Id)
+            .OnSuccessAsync(async _ => !await this.dbContext.Set<Resource>().AnyAsync(x => x.Id != entity.Id && x.Title == entity.Title && x.Category.Id == entity.Category.Id)
                 ? Response.Success()
                 : Response.Failure(new InvariantException($"Il ne peut y avoir plusieurs ressources avec le titre '{entity.Title}' dans la catégorie '{entity.Category.Name}' !")))
             .OnSuccessAsync(() => entity);

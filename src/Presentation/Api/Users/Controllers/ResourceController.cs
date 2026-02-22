@@ -12,7 +12,7 @@ namespace ReSR.Presentation.Api.Users.Controllers;
 [ApiController]
 [Route(ROUTE)]
 public class ResourceController(
-    IResourceService resourceService
+    IResourceService<Resource> resourceService
 ) : ControllerBase {
 
     public const string ROUTE = "/resources";
@@ -31,7 +31,7 @@ public class ResourceController(
 
 
         [HttpGet(ROUTE + "/private")]
-        [Authorize(Policy = "FrontOffice")]
+        [Authorize]
         [EndpointSummary("Only accessible for authenticated users.")]
         [EndpointDescription("Queries the user's private resources.")]
         public Task<IResult> GetPrivateResourcesAsync(
@@ -46,7 +46,7 @@ public class ResourceController(
             
         [HttpGet(ROUTE + "/waiting-for-verification")]
         [EndpointSummary("Only accessible for authenticated users with resource verification permissions.")]
-        [Authorize(Roles = nameof(UserPermissions.VerifyResources), Policy = "FrontOffice")]
+        [Authorize(Roles = nameof(UserPermissions.VerifyResources))]
         [EndpointDescription("Queries the resources waiting for verification.")]
         public Task<IResult> GetResourcesWaitingForVerificationAsync() =>
             resourceService
@@ -54,6 +54,5 @@ public class ResourceController(
                 .ToResourceAsync<Resource, ResourceResource>(Results.Ok);
 
     #endregion
-    
     
 }

@@ -71,17 +71,11 @@ public record TextResource : Resource, IAggregateRoot<TextResource> {
             public new TextResource WithSuspension(bool value = true) =>
                 (TextResource)base.WithSuspension(value);
 
-            public new IResponse<TextResource> TryWithNewVerifyingUser(User value) =>
-                base.TryWithNewVerifyingUser(value).OnSuccess(x => (TextResource)x);
-
             public new IResponse<TextResource> TryWithConfirmedVerification() =>
                 base.TryWithConfirmedVerification().OnSuccess(x => (TextResource)x);
 
             public new IResponse<TextResource> TryWithRejectedVerification() =>
                 base.TryWithRejectedVerification().OnSuccess(x => (TextResource)x);
-
-            public new IResponse<TextResource> TryWithCanceledVerification() =>
-                base.TryWithCanceledVerification().OnSuccess(x => (TextResource)x);
 
             public new TextResource WithConsumedEvents(out IEnumerable<IDomainEvent> domainEvents) =>
                 (TextResource)base.WithConsumedEvents(out domainEvents);

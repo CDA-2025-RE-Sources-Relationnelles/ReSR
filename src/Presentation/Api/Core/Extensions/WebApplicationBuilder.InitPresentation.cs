@@ -21,10 +21,12 @@ public static partial class Extensions {
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddAuthorizationBuilder()
-            .AddPolicy("LimitedUserAccess", policy => { policy.RequireRole(nameof(User)); policy.Requirements.Add(new UserAuthorizationRequirement()); })
-            .AddPolicy("LimitedManagerAccess", policy => { policy.RequireRole(nameof(Manager)); policy.Requirements.Add(new ManagerAuthorizationRequirement()); })
-            .AddPolicy("FrontOffice", policy => policy.RequireRole(nameof(User)))
-            .AddPolicy("BackOffice", policy => policy.RequireRole(nameof(Manager)));
+            .AddPolicy(nameof(UserSessionAuthorizationRequirement), policy => { policy.RequireRole(nameof(User)); policy.Requirements.Add(new UserSessionAuthorizationRequirement()); })
+            .AddPolicy(nameof(ManagerSessionAuthorizationRequirement), policy => { policy.RequireRole(nameof(Manager)); policy.Requirements.Add(new ManagerSessionAuthorizationRequirement()); })
+            .AddPolicy(nameof(ResourceWriteAuthorizationRequirement), policy => { policy.RequireRole(nameof(User)); policy.Requirements.Add(new ResourceWriteAuthorizationRequirement()); })
+            .AddPolicy(nameof(ResourceReadAuthorizationRequirement), policy => { policy.Requirements.Add(new ResourceReadAuthorizationRequirement()); })
+            .AddPolicy("BackOffice", policy => policy.RequireRole(nameof(Manager)))
+            .AddDefaultPolicy("FrontOffice", policy => policy.RequireRole(nameof(User)));
 
         builder.Services.AddCors(options => {
             options.AddPolicy("AllowAll",
@@ -59,7 +61,10 @@ public static partial class Extensions {
             };
         });
 
-        builder.Services.AddScoped<IAuthorizationHandler, UserAuthorizationHandler>();
+        builder.Services.AddScoped<IAuthorizationHandler, UserSessionAuthorizationHandler>();
+        builder.Services.AddScoped<IAuthorizationHandler, ResourceWriteAuthorizationHandler>();
+        builder.Services.AddScoped<IAuthorizationHandler, ResourceReadAuthorizationHandler>();
+        builder.Services.AddScoped<IAuthorizationHandler, ManagerSessionAuthorizationHandler>();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options => {
 

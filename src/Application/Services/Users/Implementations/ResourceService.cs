@@ -1,36 +1,60 @@
+using FluentResponse;
+using FluentResponse.Interfaces;
 using ReSR.Application.Services.Users.Definitions;
+using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
+using ReSR.Domain.Core;
 using ReSR.Domain.Ports;
 
 namespace ReSR.Application.Services.Users.Implementations;
 
-public sealed class ResourceService(
-    IRepository<Resource> repository
-) : IResourceService {
+public class ResourceService<T>(
+    IRepository<T> resourceRepository,
+    IRepository<User> userRepository,
+    IRepository<Comment> commentRepository
+) : IResourceService<T> where T : Resource, IAggregateRoot<T> {
 
-    public Task<IEnumerable<Resource>> GetAllPublic(
+    protected readonly IRepository<T> resourceRepository = resourceRepository;
+    protected readonly IRepository<User> userRepository = userRepository;
+    protected readonly IRepository<Comment> commentRepository = commentRepository;
+
+    public Task<IEnumerable<T>> GetAllPublic(
         Id? categoryIdFilter,
         Relationships relationshipsFilter
-    ) => repository.GetAllAsync(x =>
+    ) => resourceRepository.GetAllAsync(x =>
         x.Visibility == Visibility.Public &&
         (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
         (x.Relationships & relationshipsFilter) == x.Relationships
     );
 
-    public async Task<IEnumerable<Resource>> TryGetAllPrivate(
+    public async Task<IEnumerable<T>> TryGetAllPrivate(
         Id userId,
         Id? categoryIdFilter,
         Relationships relationshipsFilter
-    ) => (await repository.GetAllAsync(x =>
+    ) => (await resourceRepository.GetAllAsync(x =>
         x.Visibility == Visibility.Private &&
         (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
         (x.Relationships & relationshipsFilter) == x.Relationships &&
         x.Owner != null
     )).Where(x => x.Owner!.Id == userId || x.Owner.Friends.Any(x => x.Id == userId));
 
-    public Task<IEnumerable<Resource>> TryGetAllWaitingForVerification(Id userId) => repository.GetAllAsync(x =>
-        x.Visibility == Visibility.WaitingForVerification &&
-        (x.VerifyingUser == null || x.VerifyingUser.Id == userId)
+    public Task<IEnumerable<T>> TryGetAllWaitingForVerification(Id userId) => resourceRepository.GetAllAsync(x =>
+        x.Visibility == Visibility.WaitingForVerification
     );
+
+    public Task<IResponse<T>> TryConfirmVerification(Id resourceId) =>
+        resourceRepository.TryUpdateAsync(resourceId, x => x.TryWithConfirmedVerification().OnSuccess(x => (T)x));
+
+    public Task<IResponse<T>> TryRejectVerification(Id resourceId) =>
+        resourceRepository.TryUpdateAsync(resourceId, x => x.TryWithRejectedVerification().OnSuccess(x => (T)x));
+
+    public Task<IResponse<T>> TryPostComment(Id resourceId, Id posterId, string content) =>
+        resourceRepository.TryGetAsync(resourceId).OnSuccessAsync(resource =>
+            userRepository.TryGetAsync(posterId).OnSuccessAsync(poster =>
+                Comment.TryCreate(poster, content, resource)
+            )
+        ).OnSuccessAsync(commentRepository.TryAddAsync)
+        .OnSuccessAsync(comment => (T)comment.CommentedResource);
 }

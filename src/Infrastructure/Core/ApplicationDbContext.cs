@@ -97,7 +97,6 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             modelBuilder.Entity<Resource>(e => {
                 e.HasIndex(nameof(Resource.Title), nameof(Resource.Category)+nameof(Category.Id)).IsUnique();
                 e.HasOne(x => x.Owner).WithMany(x => x.OwnedResources);
-                e.HasOne(x => x.VerifyingUser).WithMany(x => x.ResourcesToVerify);
                 e.HasMany(x => x.LikedBy).WithMany().UsingEntity(join => join.ToTable("Likes"));
                 e.HasMany(x => x.BookmarkedBy).WithMany(x => x.Bookmarks).UsingEntity(join => join.ToTable("Bookmarks"));
                 e.HasMany(x => x.ExploitedBy).WithMany().UsingEntity(join => join.ToTable("Exploits"));

@@ -134,17 +134,11 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
             public new QuizResource WithSuspension(bool value = true) =>
                 (QuizResource)base.WithSuspension(value);
 
-            public new IResponse<QuizResource> TryWithNewVerifyingUser(User value) =>
-                base.TryWithNewVerifyingUser(value).OnSuccess(x => (QuizResource)x);
-
             public new IResponse<QuizResource> TryWithConfirmedVerification() =>
                 base.TryWithConfirmedVerification().OnSuccess(x => (QuizResource)x);
 
             public new IResponse<QuizResource> TryWithRejectedVerification() =>
                 base.TryWithRejectedVerification().OnSuccess(x => (QuizResource)x);
-
-            public new IResponse<QuizResource> TryWithCanceledVerification() =>
-                base.TryWithCanceledVerification().OnSuccess(x => (QuizResource)x);
 
             public new QuizResource WithConsumedEvents(out IEnumerable<IDomainEvent> domainEvents) =>
                 (QuizResource)base.WithConsumedEvents(out domainEvents);
