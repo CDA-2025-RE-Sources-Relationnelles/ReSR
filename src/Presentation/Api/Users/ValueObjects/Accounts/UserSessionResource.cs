@@ -3,7 +3,7 @@ using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Presentation.Api.Core.ValueObjects;
 
 namespace ReSR.Presentation.Api.Users.ValueObjects.Accounts;
-public class UserSessionResource(Session<User> from) : UserResource(from.Details), IResource<UserSessionResource, Session<User>> {
+public class UserSessionResource(Session<User> from) : UserPrivateResource(from.Details), IResource<UserSessionResource, Session<User>> {
 
     #region PROPERTIES
 

@@ -15,7 +15,7 @@ public class QuizSessionResource(QuizSession from) : IResource<QuizSessionResour
         public string                         OpenedAt      { get; } = from.OpenedAt.ToString();
         public IEnumerable<QuizParticipation> Participation { get; } = from.Participations.Select(x => new QuizParticipation(
             Score : x.Score,
-            User  : UserResource.GetLink(x.User)
+            User  : UserPrivateResource.GetLink(x.User)
         ));
 
         public QuizSessionLinks Links { get; } = new(

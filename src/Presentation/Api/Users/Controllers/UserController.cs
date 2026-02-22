@@ -84,11 +84,11 @@ public class UserController(
                 .ToResourceAsync<Session<User>, UserSessionResource>(Results.Ok);
 
         [HttpGet("{userId}", Name = nameof(GetUserAsync))]
-        [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]
-        [EndpointSummary("Only accessible for this user")]
         [EndpointDescription("Queries the user.")]
         public Task<IResult> GetUserAsync(Id userId) =>
-            queryService.TryGetAsync(userId).ToResourceAsync<User, UserResource>(Results.Ok);
+            User.GetUserId() is Id id && id == userId
+                ? queryService.TryGetAsync(userId).ToResourceAsync<User, UserPrivateResource>(Results.Ok)
+                : queryService.TryGetAsync(userId).ToResourceAsync<User, UserPublicResource>(Results.Ok);
 
         [HttpPatch("{userId}")]
         [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]
@@ -123,7 +123,7 @@ public class UserController(
         public Task<IResult> LikeAsync(Id userId, bool value = true) =>
             sessionService
                 .TryLikeProfile(userId, User.GetUserId()!.Value, value)
-                .ToResourceAsync<User, UserResource>(Results.Ok);
+                .ToResourceAsync<User, UserPublicResource>(Results.Ok);
 
         [HttpDelete("{userId}")]
         [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]

@@ -11,8 +11,8 @@ public class PrivateMessageResource(PrivateMessage from) : MessageResource<Priva
 
         public PrivateMessageLinks Links { get; } = new(
             Self           : GetLink(from),
-            SentBy         : UserResource.GetLink(from.SentBy),
-            SentTo         : UserResource.GetLink(from.SentTo),
+            SentBy         : UserPrivateResource.GetLink(from.SentBy),
+            SentTo         : UserPrivateResource.GetLink(from.SentTo),
             QuotedResource : from.QuotedResource is not null ? ResourceResource.GetLink(from.QuotedResource) : null
         );
 

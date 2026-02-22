@@ -24,7 +24,7 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         public ResourceLinks Links { get; } = new(
             Self     : GetLink(from),
             Category : CategoryResource.GetLink(from.Category),
-            Owner    : from.Owner is not null ? UserResource.GetLink(from.Owner) : null,
+            Owner    : from.Owner is not null ? UserPrivateResource.GetLink(from.Owner) : null,
             Comments : GetLink(from).WithSubRoute("comments")
         );
 

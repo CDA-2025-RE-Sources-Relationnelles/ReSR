@@ -14,7 +14,7 @@ public class CommentResource(Comment from) : MessageResource<Comment>(from), IRe
 
         public CommentLinks Links { get; } = new(
             Self              : GetLink(from),
-            SentBy            : UserResource.GetLink(from.SentBy),
+            SentBy            : UserPrivateResource.GetLink(from.SentBy),
             CommentedResource : ResourceResource.GetLink(from.CommentedResource),
             Answers           : GetLink(from).WithSubRoute("answers"),
             AnsweredComment   : from.AnsweredComment is not null ? GetLink(from.AnsweredComment) : null,
