@@ -89,12 +89,16 @@ public record User : Account<User>, IAggregateRoot<User> {
 
             /// <returns> A copy of the user account with a like frm the given user. </returns>
             public virtual IResponse<User> TryWithLikeFrom(User from) {
-                if (from.Id != this.Id && !this.LikedBy.Contains(from)) {
-                    List<User> likedBy = [.. this.LikedBy, from];
-                    this.LikedBy = likedBy;
-                    return Response.Success(this with {
-                        DomainEvents = [..this.DomainEvents, new UserMutuallyLiked(this.Id, from.Id)]
-                    });
+                if (from.Id != this.Id) {
+                    if (!this.LikedBy.Any(x => x.Id == from.Id)) {
+
+                        List<User> likedBy = [.. this.LikedBy, from];
+                        this.LikedBy = likedBy;
+                        return Response.Success(this with {
+                            DomainEvents = [..this.DomainEvents, new UserMutuallyLiked(this.Id, from.Id)]
+                        });
+
+                    } else return Response.Success(this);
                 } else return Response.Failure<User>(new InvariantException("Un utilisateur ne peut pas aimer son propre profil !"));
             }
 

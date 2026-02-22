@@ -21,7 +21,7 @@ public record QuizSession(Id Id = default) : IAggregateRoot<QuizSession> {
         public virtual QuizResource Resource { get; internal init; } = null!;
 
         /// <summary> The invited users participation. </summary>
-        public ICollection<QuizParticipation> Participations { get; internal init; } = [];
+        public ICollection<QuizParticipation> Participations { get; internal set; } = [];
 
     #endregion
     #region CONSTRUCTORS
@@ -38,11 +38,15 @@ public record QuizSession(Id Id = default) : IAggregateRoot<QuizSession> {
     #region METHODS
             
         /// <returns> A copy of the session with the given participation score if the user is a participant. </returns>
-        public virtual IResponse<QuizSession> TryWithScore(User user, int value) =>
-            this.Participations.ToList().FindIndex(x => x.User.Id == user.Id) is int index
-                ? Response.Success(this with { Participations = [.. this.Participations.Where((u, i) => i != index), new QuizParticipation { User = user, Score = value }] })
-                : Response.Failure<QuizSession>(new InvariantException("Seules les participants d'une session peuvent y participer !"));
+        public virtual IResponse<QuizSession> TryWithScore(User user, int value) {
+            if (this.Participations.Any(x => x.User.Id == user.Id)) {
 
+                List<QuizParticipation> participations = [.. this.Participations, new QuizParticipation { User = user, Score = value }];
+                this.Participations = participations;
+                return Response.Success(this);
+
+            } else return Response.Failure<QuizSession>(new InvariantException("Seuls les participants invités à une session peuvent y participer !"));
+        }
 
         public IEnumerable<IDomainEvent> DomainEvents { get; protected init; } = [];
         public QuizSession WithConsumedEvents(out IEnumerable<IDomainEvent> domainEvents) {
