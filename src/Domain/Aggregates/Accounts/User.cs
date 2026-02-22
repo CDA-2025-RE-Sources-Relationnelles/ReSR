@@ -20,10 +20,10 @@ public record User : Account<User>, IAggregateRoot<User> {
 
 
         /// <summary> The collection of users liked by this user. </summary>
-        public virtual IEnumerable<User> LikedUsers { get; internal init; } = new HashSet<User>();
+        public virtual IEnumerable<User> LikedUsers { get; internal set; } = [];
 
         /// <summary> The collection of users that liked this user. </summary>
-        public virtual IEnumerable<User> LikedBy { get; internal init; } = new HashSet<User>();
+        public virtual IEnumerable<User> LikedBy { get; internal set; } = [];
 
         /// <summary> The collection of mutually liked users. </summary>
         public virtual IEnumerable<User> Friends => this.LikedUsers.Union(this.LikedBy);
@@ -87,17 +87,24 @@ public record User : Account<User>, IAggregateRoot<User> {
                 this with { Permissions = value };
 
 
+            /// <returns> A copy of the user account with a like frm the given user. </returns>
+            public virtual IResponse<User> TryWithLikeFrom(User from) {
+                if (from.Id != this.Id && !this.LikedBy.Contains(from)) {
+                    List<User> likedBy = [.. this.LikedBy, from];
+                    this.LikedBy = likedBy;
+                    return Response.Success(this with {
+                        DomainEvents = [..this.DomainEvents, new UserMutuallyLiked(this.Id, from.Id)]
+                    });
+                } else return Response.Failure<User>(new InvariantException("Un utilisateur ne peut pas aimer son propre profil !"));
+            }
 
             /// <returns> A copy of the user account with a like frm the given user. </returns>
-            public virtual User WithLikeFrom(User from, bool value) =>
-                value
-                ? this with {
-                    LikedBy = [..this.LikedBy, from],
-                    DomainEvents = !this.LikedBy.Contains(from)
-                        ? [..this.DomainEvents, new UserMutuallyLiked(this.Id, from.Id)]
-                        : this.DomainEvents
-                } : this with { LikedBy = this.LikedBy.Where(x => x.Id != from.Id) };
-
+            public virtual User WithoutLikeFrom(User from) {
+                List<User> likedBy = [.. this.LikedBy];
+                likedBy.Remove(from);
+                this.LikedBy = likedBy;
+                return this;
+            }
 
 
             /// <returns> A copy of the user account with a new activity. </returns>
