@@ -8,7 +8,7 @@ using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
 using ReSR.Domain.Ports;
 using ReSR.Presentation.Api.Core.Extensions;
-using ReSR.Presentation.Api.Managers.ValueObjects.Resources;
+using ReSR.Presentation.Api.Users.ValueObjects.Resources;
 using ReSR.Presentation.Api.Users.Authorization;
 using ReSR.Presentation.Api.Users.Extensions;
 using ReSR.Presentation.Api.Users.ValueObjects.Messages;

@@ -1,6 +1,5 @@
 using FluentResponse;
 using FluentResponse.Interfaces;
-using Microsoft.Extensions.Logging;
 using ReSR.Application.Services.Users.Definitions;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Categories;

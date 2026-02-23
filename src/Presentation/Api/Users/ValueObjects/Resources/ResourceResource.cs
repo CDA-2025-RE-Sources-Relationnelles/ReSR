@@ -21,26 +21,32 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         public uint   BookmarkCount { get; } = from.BookmarkCount;
         public uint   ExploitCount  { get; } = from.ExploitCount;
 
-        public ResourceLinks Links { get; } = new(
+        public virtual ResourceLinks Links { get; } = new(
             Self     : GetLink(from),
             Category : CategoryResource.GetLink(from.Category),
             Owner    : from.Owner is not null ? UserPrivateResource.GetLink(from.Owner) : null,
-            Comments : GetLink(from).WithSubRoute("comments")
+            Comments : GetLink(from).WithSubRoute("comments"),
+            Like     : GetLink(from).WithSubRoute("like").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            Bookmark : GetLink(from).WithSubRoute("bookmark").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            Exploit  : GetLink(from).WithSubRoute("exploit").WithMethod(Core.ValueObjects.HttpMethod.POST)
         );
 
         public readonly record struct ResourceLinks(
             AnnotatedLink  Self,
             AnnotatedLink  Category,
-            AnnotatedLink? Owner,
-            Link           Comments
+            Link           Comments,
+            Link           Like,
+            Link           Bookmark,
+            Link           Exploit,
+            AnnotatedLink? Owner
         );
 
     #endregion
     #region METHODS
 
         public static implicit operator ResourceResource(Resource from) => from switch {
-            QuizResource fromActual => fromActual,
-            TextResource fromActual => fromActual,
+            QuizResource fromActual => QuizResourceResource.From(fromActual),
+            TextResource fromActual => TextResourceResource.From(fromActual),
             _ => throw new NotImplementedException()
         };
 

@@ -5,8 +5,8 @@ using ReSR.Domain.Aggregates.Accounts.ValueObjects;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
 using ReSR.Presentation.Api.Core.Extensions;
-using ReSR.Presentation.Api.Managers.ValueObjects.Resources;
 using ReSR.Presentation.Api.Users.Extensions;
+using ReSR.Presentation.Api.Users.ValueObjects.Resources;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
 [ApiController]
@@ -58,7 +58,7 @@ public class ResourceController(
         public Task<IResult> GetPrivateResourcesAsync(
             string? relationshipsFilter = null,
             Id?     categoryIdFilter    = null
-        ) => resourceService.GetAllPrivateAsync(
+        ) => resourceService.TryGetAllPrivateAsync(
             userId: User.GetUserId()!.Value,
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.All

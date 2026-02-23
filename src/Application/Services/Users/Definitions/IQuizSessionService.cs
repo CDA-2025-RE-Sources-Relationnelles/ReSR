@@ -8,14 +8,7 @@ namespace ReSR.Application.Services.Users.Definitions;
 /// </summary>
 public interface IQuizSessionService {
 
-    /// <summary>
-    /// Tries to start a quiz session.
-    /// </summary>
-    /// <returns>The started session.</returns>
-    /// <param name="byUserId">The identifier of the user starting the session.</param>
-    /// <param name="participants">The identifier of the users allowed to participate.</param>
-    /// <param name="quizResourceId">The identifier of the quiz resource used for the session.</param>
-    public Task<IResponse<QuizSession>> TryStartAsync(Id byUserId, IEnumerable<Id> participants, Id quizResourceId);
+    public Task<IResponse<IEnumerable<QuizSession>>> TryGetAllAsync(Id userId);
 
     /// <summary>
     /// Tries to participate to a quiz session.

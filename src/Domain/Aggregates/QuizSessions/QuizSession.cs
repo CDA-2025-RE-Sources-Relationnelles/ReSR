@@ -41,7 +41,9 @@ public record QuizSession(Id Id = default) : IAggregateRoot<QuizSession> {
         public virtual IResponse<QuizSession> TryWithScore(User user, int value) {
             if (this.Participations.Any(x => x.User.Id == user.Id)) {
 
-                List<QuizParticipation> participations = [.. this.Participations, new QuizParticipation { User = user, Score = value }];
+                List<QuizParticipation> participations = [.. this.Participations];
+                participations.Remove(participations.First(x => x.User.Id == user.Id));
+                participations.Add(new () { User = user, Score = value });
                 this.Participations = participations;
                 return Response.Success(this);
 

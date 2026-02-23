@@ -1,4 +1,5 @@
 using FluentResponse.Interfaces;
+using ReSR.Domain.Aggregates.QuizSessions;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
 
@@ -37,5 +38,11 @@ public interface IQuizResourceService : IResourceService<QuizResource> {
     public Task<IResponse<QuizResource>> TryRemoveQuestionAsync(
         Id id,
         int index
+    );
+
+    public Task<IResponse<QuizSession>> TryStartSessionAsync(
+        Id id,
+        Id userId,
+        IEnumerable<Id> participantsId
     );
 }

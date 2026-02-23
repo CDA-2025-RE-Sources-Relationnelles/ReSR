@@ -4,14 +4,16 @@ using Microsoft.AspNetCore.Mvc;
 using ReSR.Application.Services.Users.Definitions;
 using ReSR.Domain.Aggregates.Accounts.ValueObjects;
 using ReSR.Domain.Aggregates.Messages;
+using ReSR.Domain.Aggregates.QuizSessions;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
 using ReSR.Domain.Ports;
 using ReSR.Presentation.Api.Core.Extensions;
-using ReSR.Presentation.Api.Managers.ValueObjects.Resources;
+using ReSR.Presentation.Api.Users.ValueObjects.Resources;
 using ReSR.Presentation.Api.Users.Authorization;
 using ReSR.Presentation.Api.Users.Extensions;
 using ReSR.Presentation.Api.Users.ValueObjects.Messages;
+using ReSR.Presentation.Api.Users.ValueObjects.QuizSessions;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
 [ApiController]
@@ -42,6 +44,10 @@ public class QuizResourceController(
 
         public readonly record struct PostQuizResourceCommentDto(
             string Content
+        );
+
+        public readonly record struct StartQuizSessionDto(
+            IEnumerable<Id> ParticipantsId
         );
 
     #endregion
@@ -135,6 +141,17 @@ public class QuizResourceController(
         [EndpointDescription("Likes the quiz resource")]
         public Task<IResult> ExploitQuizResourceAsync(Id resourceId, bool value = true) =>
             resourceService.TryExploitAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+
+        [HttpPost("{resourceId}/start-session")]
+        [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
+        [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
+        [EndpointDescription("Starts a session for this quiz resource")]
+        public Task<IResult> StartQuizSessionAsync(Id resourceId, StartQuizSessionDto dto) =>
+            resourceService.TryStartSessionAsync(
+                resourceId,
+                User.GetUserId()!.Value,
+                dto.ParticipantsId
+            ).ToResourceAsync<QuizSession, QuizSessionResource>(Results.Ok);
 
 
         [HttpPost("{resourceId}/comments")]

@@ -29,7 +29,7 @@ public class ResourceService<T>(
         (x.Relationships & relationshipsFilter) == x.Relationships
     );
 
-    public Task<IResponse<IEnumerable<T>>> GetAllPrivateAsync(
+    public Task<IResponse<IEnumerable<T>>> TryGetAllPrivateAsync(
         Id userId,
         Id? categoryIdFilter,
         Relationships relationshipsFilter
