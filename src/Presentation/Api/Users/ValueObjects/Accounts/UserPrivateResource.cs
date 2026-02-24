@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
@@ -9,7 +8,6 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
 
     #region PROPERTIES
 
-        [JsonIgnore]
         public Id Id { get; } = from.Id;
 
         public string Username    { get; } = from.Username;

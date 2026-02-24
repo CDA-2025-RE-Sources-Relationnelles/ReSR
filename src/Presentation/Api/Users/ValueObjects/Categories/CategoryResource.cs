@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.Categories;
 using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
@@ -9,7 +8,6 @@ public class CategoryResource(Category resource) : IResource<CategoryResource, C
 
     #region PROPERTIES
 
-        [JsonIgnore]
         public Id Id { get; } = resource.Id;
 
         public string Name { get; } = resource.Name;

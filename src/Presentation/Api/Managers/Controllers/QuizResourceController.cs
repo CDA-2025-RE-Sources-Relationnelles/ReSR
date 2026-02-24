@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReSR.Application.Services.Managers.Definitions;
+using ReSR.Application.ValueObjects.Resources;
 using ReSR.Domain.Aggregates.Accounts.ValueObjects;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
@@ -13,7 +14,7 @@ namespace ReSR.Presentation.Api.Managers.Controllers;
 [Route(ROUTE)]
 [Authorize(Policy = "BackOffice")]
 public class QuizResourceController(
-    IRepository<QuizResource> repository,
+    IResourceQueryService<QuizResource> queryService,
     IQuizResourceCommandService commandService
 ) : ControllerBase {
 
@@ -42,15 +43,22 @@ public class QuizResourceController(
         [Authorize(Roles = nameof(ManagerPermissions.ReadContent))]
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the quiz resources.")]
-        public Task<IResult> GetQuizResourcesAsync() =>
-            repository.GetAllAsync().ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+        public Task<IResult> GetQuizResourcesAsync(
+            Id?    categoryIdFilter    = null,
+            string relationshipsFilter = nameof(Relationships.None),
+            string orderBy             = nameof(OrderBy.Newest)
+        ) => queryService.GetAllAsync(
+            categoryIdFilter: categoryIdFilter,
+            relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
+            orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
+        ).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
 
         [HttpGet("{resourceId}")]
         [Authorize(Roles = nameof(ManagerPermissions.ReadContent))]
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the quiz resource.")]
         public Task<IResult> GetQuizResourceAsync(Id resourceId) =>
-            repository.TryGetAsync(resourceId).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+            queryService.TryGetAsync(resourceId).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
 
         [HttpPost]
         [Authorize(Roles = nameof(ManagerPermissions.WriteContent))]

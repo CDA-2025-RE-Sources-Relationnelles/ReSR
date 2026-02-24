@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReSR.Application.Services.Managers.Definitions;
+using ReSR.Application.ValueObjects.Resources;
 using ReSR.Domain.Aggregates.Accounts.ValueObjects;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
-using ReSR.Domain.Ports;
 using ReSR.Presentation.Api.Core.Extensions;
 using ReSR.Presentation.Api.Managers.ValueObjects.Resources;
 
@@ -13,7 +13,7 @@ namespace ReSR.Presentation.Api.Managers.Controllers;
 [Route(ROUTE)]
 [Authorize(Policy = "BackOffice")]
 public class TextResourceController(
-    IRepository<TextResource> repository,
+    IResourceQueryService<TextResource> queryService,
     ITextResourceCommandService commandService
 ) : ControllerBase {
 
@@ -41,15 +41,22 @@ public class TextResourceController(
         [Authorize(Roles = nameof(ManagerPermissions.ReadContent))]
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the text resources.")]
-        public Task<IResult> GetTextResourcesAsync() =>
-            repository.GetAllAsync().ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+        public Task<IResult> GetTextResourcesAsync(
+            Id?    categoryIdFilter    = null,
+            string relationshipsFilter = nameof(Relationships.None),
+            string orderBy             = nameof(OrderBy.Newest)
+        ) => queryService.GetAllAsync(
+            categoryIdFilter: categoryIdFilter,
+            relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
+            orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
+        ).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
 
         [HttpGet("{resourceId}")]
         [Authorize(Roles = nameof(ManagerPermissions.ReadContent))]
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the text resource.")]
         public Task<IResult> GetTextResourceAsync(Id resourceId) =>
-            repository.TryGetAsync(resourceId).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            queryService.TryGetAsync(resourceId).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
 
         [HttpPost]
         [Authorize(Roles = nameof(ManagerPermissions.WriteContent))]
