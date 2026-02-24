@@ -24,7 +24,7 @@ public static class UserPermissionsService {
             _ => resource.Visibility.HasFlag(Visibility.Suspended)
                 ? resource.Owner is User owner && owner.Id == user.Id
                     ? Response.Success()
-                    : Response.Failure("Une ressource suspendue n'est accessible qu'à son propriétaire !"),
+                    : Response.Failure("Une ressource suspendue n'est accessible qu'à son propriétaire !")
                 : Response.Failure("Visibilité de ressource inconnue !")
         };
 
