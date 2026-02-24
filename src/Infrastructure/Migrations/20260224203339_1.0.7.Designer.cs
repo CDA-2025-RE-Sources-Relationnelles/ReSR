@@ -12,8 +12,8 @@ using ReSR.Infrastructure.Core;
 namespace ReSR.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260222214209_1.0.5")]
-    partial class _105
+    [Migration("20260224203339_1.0.7")]
+    partial class _107
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -265,12 +265,12 @@ namespace ReSR.Infrastructure.Migrations
                     b.Property<long>("LikedById")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("ResourceId")
+                    b.Property<long>("LikesId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("LikedById", "ResourceId");
+                    b.HasKey("LikedById", "LikesId");
 
-                    b.HasIndex("ResourceId");
+                    b.HasIndex("LikesId");
 
                     b.ToTable("Likes", (string)null);
                 });
@@ -295,12 +295,12 @@ namespace ReSR.Infrastructure.Migrations
                     b.Property<long>("ExploitedById")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("Resource1Id")
+                    b.Property<long>("ExploitsId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("ExploitedById", "Resource1Id");
+                    b.HasKey("ExploitedById", "ExploitsId");
 
-                    b.HasIndex("Resource1Id");
+                    b.HasIndex("ExploitsId");
 
                     b.ToTable("Exploits", (string)null);
                 });
@@ -515,7 +515,7 @@ namespace ReSR.Infrastructure.Migrations
 
                     b.HasOne("ReSR.Domain.Aggregates.Resources.Resource", null)
                         .WithMany()
-                        .HasForeignKey("ResourceId")
+                        .HasForeignKey("LikesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -545,7 +545,7 @@ namespace ReSR.Infrastructure.Migrations
 
                     b.HasOne("ReSR.Domain.Aggregates.Resources.Resource", null)
                         .WithMany()
-                        .HasForeignKey("Resource1Id")
+                        .HasForeignKey("ExploitsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

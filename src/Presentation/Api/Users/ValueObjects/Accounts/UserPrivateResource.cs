@@ -15,8 +15,6 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
         public string Username    { get; } = from.Username;
         public string Email       { get; } = from.Email;
         public string Permissions { get; } = from.Permissions.ToString();
-        public bool Suspended     { get; } = from.Suspended;
-        public bool IsAnonymous   { get; } = from.IsAnonymous;
         
         public UserLinks Links { get; } = new(
             Self           : GetLink(from),
@@ -24,7 +22,9 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
             LikeProfile    : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
             LikedByUsers   : GetLinks(from.LikedBy),
             Friends        : GetLinks(from.Friends),
+            Likes          : ResourceResource.GetLinks(from.Likes),
             Bookmarks      : ResourceResource.GetLinks(from.Bookmarks),
+            Exploits       : ResourceResource.GetLinks(from.Exploits),
             OwnedResources : ResourceResource.GetLinks(from.OwnedResources)
         );
 
@@ -34,7 +34,9 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
             Link          LikeProfile,
             IEnumerable<AnnotatedLink> LikedByUsers,
             IEnumerable<AnnotatedLink> Friends,
+            IEnumerable<AnnotatedLink> Likes,
             IEnumerable<AnnotatedLink> Bookmarks,
+            IEnumerable<AnnotatedLink> Exploits,
             IEnumerable<AnnotatedLink> OwnedResources
         );
 

@@ -37,8 +37,14 @@ public record User : Account<User>, IAggregateRoot<User> {
         public DateTime LastActivity { get; internal init; } = DateTime.UtcNow;
 
 
+        /// <summary> The user's liked resources. </summary>
+        public virtual ICollection<Resource> Likes { get; internal init; } = [];
+
         /// <summary> The user's bookmarked resources. </summary>
         public virtual ICollection<Resource> Bookmarks { get; internal init; } = [];
+
+        /// <summary> The user's exploited resources. </summary>
+        public virtual ICollection<Resource> Exploits { get; internal init; } = [];
 
         /// <summary> The user's published resources. </summary>
         public virtual ICollection<Resource> OwnedResources { get; internal init; } = [];

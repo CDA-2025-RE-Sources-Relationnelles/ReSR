@@ -10,7 +10,6 @@ using ReSR.Domain.Aggregates.Resources;
 using ReSR.Application.Ports;
 using ReSR.Infrastructure.Adapters;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authorization;
 using System.Text;
 using ReSR.Domain.Ports;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,7 +26,10 @@ public static partial class Extensions {
     public static void InitInfrastructure(this WebApplicationBuilder builder) {
 
         builder.Services.AddDbContext<DbContext, ApplicationDbContext>(x =>
-            x.UseNpgsql(builder.Configuration.GetConnectionString())
+            x.UseNpgsql(
+                builder.Configuration.GetConnectionString(),
+                options => options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            )
         );
 
         builder.Services.AddAuthentication(options => {

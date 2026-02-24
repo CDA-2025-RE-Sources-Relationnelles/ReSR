@@ -15,7 +15,9 @@ internal class UserRepository(
         base.GetJoinedTable()
             .Include(x => x.LikedUsers)
             .Include(x => x.LikedBy)
+            .Include(x => x.Likes)
             .Include(x => x.Bookmarks)
+            .Include(x => x.Exploits)
             .Include(x => x.OwnedResources);
             
     protected override Task<IResponse<User>> TryValidateAsync(User entity) =>

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ReSR.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class _100 : Migration
+    public partial class _107 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,7 +31,7 @@ namespace ReSR.Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Permissions = table.Column<int>(type: "integer", nullable: false),
+                    Permissions = table.Column<byte>(type: "smallint", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false)
                 },
@@ -47,7 +47,7 @@ namespace ReSR.Infrastructure.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Username = table.Column<string>(type: "text", nullable: false),
-                    Permissions = table.Column<int>(type: "integer", nullable: false),
+                    Permissions = table.Column<byte>(type: "smallint", nullable: false),
                     FirstActivity = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastActivity = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Suspended = table.Column<bool>(type: "boolean", nullable: false),
@@ -97,7 +97,6 @@ namespace ReSR.Infrastructure.Migrations
                     PublishedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EditedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     OwnerId = table.Column<long>(type: "bigint", nullable: true),
-                    VerifyingUserId = table.Column<long>(type: "bigint", nullable: true),
                     Discriminator = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
                     Content = table.Column<string>(type: "text", nullable: true),
                     TextResource_Content = table.Column<string>(type: "text", nullable: true)
@@ -114,11 +113,6 @@ namespace ReSR.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_Resource_Users_OwnerId",
                         column: x => x.OwnerId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Resource_Users_VerifyingUserId",
-                        column: x => x.VerifyingUserId,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
@@ -166,7 +160,8 @@ namespace ReSR.Infrastructure.Migrations
                         name: "FK_Comments_Comments_AnsweredCommentId",
                         column: x => x.AnsweredCommentId,
                         principalTable: "Comments",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Comments_Resource_CommentedResourceId",
                         column: x => x.CommentedResourceId,
@@ -186,14 +181,14 @@ namespace ReSR.Infrastructure.Migrations
                 columns: table => new
                 {
                     ExploitedById = table.Column<long>(type: "bigint", nullable: false),
-                    Resource1Id = table.Column<long>(type: "bigint", nullable: false)
+                    ExploitsId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Exploits", x => new { x.ExploitedById, x.Resource1Id });
+                    table.PrimaryKey("PK_Exploits", x => new { x.ExploitedById, x.ExploitsId });
                     table.ForeignKey(
-                        name: "FK_Exploits_Resource_Resource1Id",
-                        column: x => x.Resource1Id,
+                        name: "FK_Exploits_Resource_ExploitsId",
+                        column: x => x.ExploitsId,
                         principalTable: "Resource",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -210,14 +205,14 @@ namespace ReSR.Infrastructure.Migrations
                 columns: table => new
                 {
                     LikedById = table.Column<long>(type: "bigint", nullable: false),
-                    ResourceId = table.Column<long>(type: "bigint", nullable: false)
+                    LikesId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Likes", x => new { x.LikedById, x.ResourceId });
+                    table.PrimaryKey("PK_Likes", x => new { x.LikedById, x.LikesId });
                     table.ForeignKey(
-                        name: "FK_Likes_Resource_ResourceId",
-                        column: x => x.ResourceId,
+                        name: "FK_Likes_Resource_LikesId",
+                        column: x => x.LikesId,
                         principalTable: "Resource",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -408,9 +403,9 @@ namespace ReSR.Infrastructure.Migrations
                 column: "SentById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Exploits_Resource1Id",
+                name: "IX_Exploits_ExploitsId",
                 table: "Exploits",
-                column: "Resource1Id");
+                column: "ExploitsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Friends_LikedUsersId",
@@ -418,9 +413,9 @@ namespace ReSR.Infrastructure.Migrations
                 column: "LikedUsersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Likes_ResourceId",
+                name: "IX_Likes_LikesId",
                 table: "Likes",
-                column: "ResourceId");
+                column: "LikesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Managers_Email",
@@ -473,11 +468,6 @@ namespace ReSR.Infrastructure.Migrations
                 table: "Resource",
                 columns: new[] { "Title", "CategoryId" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Resource_VerifyingUserId",
-                table: "Resource",
-                column: "VerifyingUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
