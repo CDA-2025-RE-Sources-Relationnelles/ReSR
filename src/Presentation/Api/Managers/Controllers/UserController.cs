@@ -82,5 +82,12 @@ public class UserController(
         public Task<IResult> AnonymizeUserAsync(Id userId) =>
             commandService.TryAnonymizeAsync(userId).ToResourceAsync<User, UserResource>(Results.Ok);
 
+        [HttpPost("{userId}/suspend")]
+        [Authorize(Roles = nameof(ManagerPermissions.WriteUsers))]
+        [EndpointSummary("Only accessible for managers with write permissions.")]
+        [EndpointDescription("Tries to suspend the user.")]
+        public Task<IResult> SuspendUserAsync(Id userId, bool value = true) =>
+            commandService.TrySuspendAsync(userId, value).ToResourceAsync<User, UserResource>(Results.Ok);
+
     #endregion
 }

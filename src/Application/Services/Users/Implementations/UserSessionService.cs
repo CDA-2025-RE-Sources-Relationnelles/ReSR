@@ -20,6 +20,7 @@ public sealed class UserSessionService(
             .TryGetWithEmailAsync(email)
             .OnSuccessAsync(user => user
                 .TryVerifyPassword(password)
+                .OnSuccess(() => user.Suspended ? Response.Failure("Votre compte est suspendu !") : Response.Success())
                 .OnSuccessAsync(() => repository.TryUpdateAsync(user.Id, user => user.WithNewActivity()))
             ).OnSuccessAsync(user => authService.TryGenerateToken(user).OnSuccess(token => new Session<User>(token, user)));
 

@@ -21,5 +21,6 @@ public interface IUserCommandService {
 
     public Task<IResponse> TryDeleteAsync(Id id);
     public Task<IResponse<User>> TryAnonymizeAsync(Id id);
+    public Task<IResponse<User>> TrySuspendAsync(Id id, bool value = true);
 
 }

@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
-using ReSR.Presentation.Api.Users.ValueObjects.Resources;
 
 namespace ReSR.Presentation.Api.Managers.ValueObjects.Accounts;
 public class UserResource(User from) : IResource<UserResource, User> {
@@ -19,21 +18,15 @@ public class UserResource(User from) : IResource<UserResource, User> {
         public bool IsAnonymous   { get; } = from.IsAnonymous;
         
         public UserLinks Links { get; } = new(
-            Self           : GetLink(from),
-            Anonymize      : GetLink(from).WithSubRoute("anonymize").WithMethod(Core.ValueObjects.HttpMethod.POST),
-            Friends        : GetLinks(from.Friends),
-            LikedUsers     : GetLinks(from.LikedUsers),
-            Bookmarks      : ResourceResource.GetLinks(from.Bookmarks),
-            OwnedResources : ResourceResource.GetLinks(from.OwnedResources)
+            Self      : GetLink(from),
+            Anonymize : GetLink(from).WithSubRoute("anonymize").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            Suspend   : GetLink(from).WithSubRoute("suspend").WithMethod(Core.ValueObjects.HttpMethod.POST)
         );
 
         public readonly record struct UserLinks(
             AnnotatedLink Self,
             Link          Anonymize,
-            IEnumerable<AnnotatedLink> Friends,
-            IEnumerable<AnnotatedLink> LikedUsers,
-            IEnumerable<AnnotatedLink> Bookmarks,
-            IEnumerable<AnnotatedLink> OwnedResources
+            Link          Suspend
         );
 
     #endregion

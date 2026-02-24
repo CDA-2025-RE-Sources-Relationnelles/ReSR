@@ -49,4 +49,8 @@ internal class UserCommandService(
             .TryUpdateAsync(id, x => x.AsAnonymized())
             .OnSuccessAsync(x => logger.LogInformation("User anonymized by manager: {@User} !", x));
 
+    public Task<IResponse<User>> TrySuspendAsync(uint id, bool value = true) =>
+        repository
+            .TryUpdateAsync(id, x => x.WithSuspension(value))
+            .OnSuccessAsync(x => logger.LogInformation("User suspended by manager: {@User} !", x));
 }
