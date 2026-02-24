@@ -74,6 +74,10 @@ internal class QuizResourceCommandService(
     public Task<IResponse> TryDeleteAsync(Id id) =>
         repository
             .TryDeleteAsync(id)
-            .OnSuccessAsync(() => logger.LogInformation("Text resource with id {@Id} deleted by manager !", id));
+            .OnSuccessAsync(() => logger.LogInformation("Quiz resource with id {@Id} deleted by manager !", id));
 
+    public Task<IResponse<QuizResource>> TrySuspendAsync(uint id, bool value = true) =>
+        repository
+            .TryUpdateAsync(id, x => x.WithSuspension(value))
+            .OnSuccessAsync(x => logger.LogInformation("Quiz resource suspsension changed by manager: {@QuizResource} !", x));
 }

@@ -38,5 +38,6 @@ public interface IQuizResourceCommandService {
     );
 
     public Task<IResponse> TryDeleteAsync(Id id);
+    public Task<IResponse<QuizResource>> TrySuspendAsync(Id id, bool value = true);
 
 }

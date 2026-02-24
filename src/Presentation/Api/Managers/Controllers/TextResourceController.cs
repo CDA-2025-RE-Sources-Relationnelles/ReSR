@@ -69,6 +69,13 @@ public class TextResourceController(
                 .TryUpdateAsync(resourceId, dto.Title, dto.CategoryId, Enum.TryParse<Relationships>(dto.Relationships, true, out var permissions) ? permissions : null, dto.Content)
                 .ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
 
+        [HttpPost("{resourceId}/suspend")]
+        [Authorize(Roles = nameof(ManagerPermissions.WriteContent))]
+        [EndpointSummary("Only accessible for managers with write permissions.")]
+        [EndpointDescription("Tries to suspend the text resource.")]
+        public Task<IResult> SuspendUserAsync(Id resourceId, bool value = true) =>
+            commandService.TrySuspendAsync(resourceId, value).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+
         [HttpDelete("{resourceId}")]
         [Authorize(Roles = nameof(ManagerPermissions.WriteContent))]
         [EndpointSummary("Only accessible for managers with write permissions.")]

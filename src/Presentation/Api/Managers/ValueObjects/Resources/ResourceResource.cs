@@ -24,13 +24,15 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         public ResourceLinks Links { get; } = new(
             Self     : GetLink(from),
             Category : CategoryResource.GetLink(from.Category),
-            Owner    : from.Owner is not null ? UserPrivateResource.GetLink(from.Owner) : null
+            Owner    : from.Owner is not null ? UserPrivateResource.GetLink(from.Owner) : null,
+            Suspend  : GetLink(from).WithSubRoute("suspend").WithMethod(Core.ValueObjects.HttpMethod.POST)
         );
 
         public readonly record struct ResourceLinks(
             AnnotatedLink  Self,
             AnnotatedLink  Category,
-            AnnotatedLink? Owner
+            AnnotatedLink? Owner,
+            Link           Suspend
         );
 
     #endregion

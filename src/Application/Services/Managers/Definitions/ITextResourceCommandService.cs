@@ -21,5 +21,6 @@ public interface ITextResourceCommandService {
     );
 
     public Task<IResponse> TryDeleteAsync(Id id);
+    public Task<IResponse<TextResource>> TrySuspendAsync(Id id, bool value = true);
 
 }

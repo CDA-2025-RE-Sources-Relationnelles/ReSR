@@ -21,10 +21,11 @@ public static class UserPermissionsService {
             Visibility.WaitingForVerification => resource.Owner is User owner && owner.Id == user.Id
                 ? Response.Success()
                 : user.TryVerifyPermissions(UserPermissions.VerifyResources),
-            Visibility.Suspended => resource.Owner is User owner && owner.Id == user.Id
-                ? Response.Success()
-                : Response.Failure("Une ressource suspendue n'est accessible qu'à son propriétaire !"),
-            _ => Response.Failure("Visibilité de ressource inconnue !")
+            _ => resource.Visibility.HasFlag(Visibility.Suspended)
+                ? resource.Owner is User owner && owner.Id == user.Id
+                    ? Response.Success()
+                    : Response.Failure("Une ressource suspendue n'est accessible qu'à son propriétaire !"),
+                : Response.Failure("Visibilité de ressource inconnue !")
         };
 
     /// <returns>A successful response if the user has access to the given quiz session.</returns>

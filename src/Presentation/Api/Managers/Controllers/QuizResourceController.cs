@@ -98,6 +98,13 @@ public class QuizResourceController(
                 .TryRemoveQuestionAsync(resourceId, questionIndex)
                 .ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
 
+        [HttpPost("{resourceId}/suspend")]
+        [Authorize(Roles = nameof(ManagerPermissions.WriteContent))]
+        [EndpointSummary("Only accessible for managers with write permissions.")]
+        [EndpointDescription("Tries to suspend the quiz resource.")]
+        public Task<IResult> SuspendUserAsync(Id resourceId, bool value = true) =>
+            commandService.TrySuspendAsync(resourceId, value).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+
         [HttpDelete("{resourceId}")]
         [Authorize(Roles = nameof(ManagerPermissions.WriteContent))]
         [EndpointSummary("Only accessible for managers with write permissions.")]

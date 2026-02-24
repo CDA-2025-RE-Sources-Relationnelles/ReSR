@@ -53,4 +53,8 @@ internal class TextResourceCommandService(
             .TryDeleteAsync(id)
             .OnSuccessAsync(() => logger.LogInformation("Text resource with id {@Id} deleted by manager !", id));
 
+    public Task<IResponse<TextResource>> TrySuspendAsync(uint id, bool value = true) =>
+        repository
+            .TryUpdateAsync(id, x => x.WithSuspension(value))
+            .OnSuccessAsync(x => logger.LogInformation("Text resource suspsension changed by manager: {@TextResource} !", x));
 }
