@@ -1,6 +1,7 @@
 using FluentResponse;
 using FluentResponse.Interfaces;
 using ReSR.Application.Services.Users.Definitions;
+using ReSR.Application.ValueObjects.Resources;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Aggregates.Resources;
@@ -20,27 +21,46 @@ public class ResourceService<T>(
     protected readonly IRepository<User> userRepository = userRepository;
     protected readonly IRepository<Comment> commentRepository = commentRepository;
 
-    public Task<IEnumerable<T>> GetAllPublicAsync(
+    public async Task<IEnumerable<T>> GetAllPublicAsync(
         Id? categoryIdFilter,
-        Relationships relationshipsFilter
-    ) => resourceRepository.GetAllAsync(x =>
-        x.Visibility == Visibility.Public &&
-        (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
-        (x.Relationships & relationshipsFilter) == x.Relationships
-    );
+        Relationships relationshipsFilter,
+        OrderBy       orderBy
+    ) {
+        var resources = await resourceRepository.GetAllAsync(x =>
+            x.Visibility == Visibility.Public &&
+            (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
+            (x.Relationships & relationshipsFilter) == relationshipsFilter
+        );
+
+        return orderBy switch {
+            OrderBy.Newest    => resources.OrderByDescending(x => x.EditedAt),
+            OrderBy.Oldest    => resources.OrderBy(x => x.EditedAt),
+            OrderBy.LikeCount => resources.OrderByDescending(x => x.LikeCount),
+            _ => resources
+        };
+    }
 
     public Task<IResponse<IEnumerable<T>>> TryGetAllPrivateAsync(
         Id userId,
         Id? categoryIdFilter,
-        Relationships relationshipsFilter
-    ) => userRepository.TryGetAsync(userId).OnSuccessAsync(async user =>
-        (await resourceRepository.GetAllAsync(x =>
+        Relationships relationshipsFilter,
+        OrderBy orderBy
+    ) => userRepository.TryGetAsync(userId).OnSuccessAsync(async user => {
+
+        var resources = (await resourceRepository.GetAllAsync(x =>
             x.Visibility == Visibility.Private &&
             (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
-            (x.Relationships & relationshipsFilter) == x.Relationships &&
+            (x.Relationships & relationshipsFilter) == relationshipsFilter &&
             x.Owner != null
-        )).Where(x => x.Owner!.Id == userId || user.Friends.Any(y => y.Id == x.Owner.Id))
-    );
+        )).Where(x => x.Owner!.Id == userId || user.Friends.Any(y => y.Id == x.Owner.Id));
+
+        return orderBy switch {
+            OrderBy.Newest    => resources.OrderByDescending(x => x.EditedAt),
+            OrderBy.Oldest    => resources.OrderBy(x => x.EditedAt),
+            OrderBy.LikeCount => resources.OrderByDescending(x => x.LikeCount),
+            _ => resources
+        };
+    });
 
     public Task<IEnumerable<T>> GetAllWaitingForVerificationAsync() => resourceRepository.GetAllAsync(x =>
         x.Visibility == Visibility.WaitingForVerification

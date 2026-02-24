@@ -1,4 +1,5 @@
 using FluentResponse.Interfaces;
+using ReSR.Application.ValueObjects.Resources;
 using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
@@ -14,7 +15,8 @@ public interface IResourceService<T> where T: Resource {
     /// <param name="relationshipsFilter">The relationships filter used in the query.</param>
     public Task<IEnumerable<T>> GetAllPublicAsync(
         Id?           categoryIdFilter    = null,
-        Relationships relationshipsFilter = Relationships.All
+        Relationships relationshipsFilter = Relationships.None,
+        OrderBy       orderBy             = OrderBy.Newest
     );
 
     /// <summary>
@@ -27,7 +29,8 @@ public interface IResourceService<T> where T: Resource {
     public Task<IResponse<IEnumerable<T>>> TryGetAllPrivateAsync(
         Id            userId,
         Id?           categoryIdFilter    = null,
-        Relationships relationshipsFilter = Relationships.All
+        Relationships relationshipsFilter = Relationships.None,
+        OrderBy       orderBy             = OrderBy.Newest
     );
 
     /// <summary>

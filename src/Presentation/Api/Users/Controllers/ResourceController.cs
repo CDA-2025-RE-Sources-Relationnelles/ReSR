@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReSR.Application.Services.Users.Definitions;
+using ReSR.Application.ValueObjects.Resources;
 using ReSR.Domain.Aggregates.Accounts.ValueObjects;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
@@ -43,11 +44,13 @@ public class ResourceController(
         [HttpGet(ROUTE + "/public")]
         [EndpointDescription("Queries the public resources.")]
         public Task<IResult> GetPublicResourcesAsync(
-            string? relationshipsFilter = null,
-            Id?     categoryIdFilter    = null
+            Id?    categoryIdFilter    = null,
+            string relationshipsFilter = nameof(Relationships.None),
+            string orderBy             = nameof(OrderBy.Newest)
         ) => resourceService.GetAllPublicAsync(
             categoryIdFilter: categoryIdFilter,
-            relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.All
+            relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
+            orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
         ).ToResourceAsync<Resource, ResourceResource>(Results.Ok);
 
 
@@ -56,12 +59,14 @@ public class ResourceController(
         [EndpointSummary("Only accessible for authenticated users.")]
         [EndpointDescription("Queries the user's private resources.")]
         public Task<IResult> GetPrivateResourcesAsync(
-            string? relationshipsFilter = null,
-            Id?     categoryIdFilter    = null
+            Id?    categoryIdFilter    = null,
+            string relationshipsFilter = nameof(Relationships.None),
+            string orderBy             = nameof(OrderBy.Newest)
         ) => resourceService.TryGetAllPrivateAsync(
             userId: User.GetUserId()!.Value,
             categoryIdFilter: categoryIdFilter,
-            relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.All
+            relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
+            orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
         ).ToResourceAsync<Resource, ResourceResource>(Results.Ok);
 
             
