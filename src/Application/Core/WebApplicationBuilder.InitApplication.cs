@@ -83,6 +83,7 @@ public static partial class Extensions {
         builder.Services.AddScoped<IQuizResourceService, QuizResourceService>();
         builder.Services.AddScoped<ICommentService, CommentService>();
         builder.Services.AddScoped<IQuizSessionService, QuizSessionService>();
+        builder.Services.AddScoped<IPrivateMessageService, PrivateMessageService>();
 
 
         builder.Services.AddHostedService<UserAnonymizationService>();
