@@ -7,8 +7,8 @@ Vous pouvez configurer la solution à l'aide du fichier `appsettings.shared.json
   "AllowedHosts": "*",
 
   "Root": {
-    "MailAddress" : <Adresse électronique de l'administrateur racine>,
-    "Password"    : <Mot de passe de l'administrateur racine>
+    "Email"    : <Adresse électronique de l'administrateur racine>,
+    "Password" : <Mot de passe de l'administrateur racine>
   },
   
   "DB" : {
@@ -50,7 +50,7 @@ Vous pouvez configurer la solution à l'aide du fichier `appsettings.shared.json
 }
 ```
 
-Il est possible de configurer la solution à l'aide de variables d'environnement : dans ce cas, nommez vos variables avec le format ``<Nom du parent>__<Nom de l'enfant>__<...>``. (exemple : ``Root__MailAddress=root@resr.fr``).
+Il est possible de configurer la solution à l'aide de variables d'environnement : dans ce cas, nommez vos variables avec le format ``<Nom du parent>__<Nom de l'enfant>__<...>``. (exemple : ``Root__Email=root@resr.fr``).
 
 ### Initialisation
 
