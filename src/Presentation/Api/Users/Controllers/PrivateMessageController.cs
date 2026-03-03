@@ -1,35 +1,57 @@
-using System.Collections.Concurrent;
-using System.Data;
-using System.Diagnostics.Contracts;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Swift;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Xml;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ReSR.Application.Services.Users.Definitions;
+using ReSR.Application.Dtos;
+using ReSR.Presentation.Api.Users.Mappers;
+using ReSR.Presentation.Api.Users.Dtos;
+using ReSR.Presentation.Api.Users.Extensions;
+using FluentResponse;
+using FluentResponse.Interfaces;
+using ReSR.Domain.Aggregates.Messages;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
+
 [ApiController]
 [Route(ROUTE)]
-public class PrivateMessageController(IPrivateMessageService messageService) : ControllerBase {
-
+public class PrivateMessageController : ControllerBase
+{
     public const string ROUTE = "/private-messages";
-    
-    public readonly record struct SendMessageDto(string Content, Id ReceiverId);
+    private readonly IPrivateMessageService messageService;
+
+    public PrivateMessageController(IPrivateMessageService messageService)
+    {
+        this.messageService = messageService;
+    }
 
     [HttpPost]
-    [Authorize(Roles = nameof(User))]
-    public Task<IResult> SendMessageAsync(SendMessageDto dto) => 
-        messageService
-            .TrySendAsync(User.GetUserId()!.Value, dto.ReceiverId, dto.Content)
-            .ToResourceAsync<PrivateMessage, PrivateMessageResource>(Results.Ok);
+    [Authorize(Roles = nameof(Domain.Aggregates.Accounts.User))]
+    public async Task<IActionResult> SendMessageAsync(SendMessageDto dto)
+    {
+        var userId = User.GetUserId();
+        if (userId is null) return Unauthorized();
 
-    [HttpGet]
-    [Authorize(Roles = nameof(User))]
-    public Task<IResult> GetMessagesAsync() =>
-        messageService
-            .TryGetAll(User.GetUserId()!.Value)
-            .ToResourceAsync<PrivateMessage, PrivateMessageResource>(Results.Ok);
+        var result = await messageService.TrySendAsync(userId.Value, dto.ReceiverId, dto.Content);
+
+        if (result is IFailure failure)
+            return BadRequest(failure.Exception);
+
+        var message = (result as ISuccess<PrivateMessage>)!.Value;
+        return Ok(message.ToDto());
+    }
+
+    [HttpGet("{friendId}")]
+    [Authorize(Roles = nameof(Domain.Aggregates.Accounts.User))]
+    public async Task<IActionResult> GetConversationAsync(uint friendId)
+    {
+        var userId = User.GetUserId();
+        if (userId is null) return Unauthorized();
+
+        var result = await messageService.TryGetConversationMessages(userId.Value, friendId);
+
+        if (result is IFailure failure)
+            return BadRequest(failure.Exception);
+
+        var messages = (result as ISuccess<IEnumerable<PrivateMessage>>)! .Value;
+        return Ok(messages.ToConversationDto(userId.Value));
+    }
 }
