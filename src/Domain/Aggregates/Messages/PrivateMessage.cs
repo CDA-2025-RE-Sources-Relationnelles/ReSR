@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using FluentResponse;
 using FluentResponse.Interfaces;
 using ReSR.Domain.Aggregates.Accounts;
@@ -9,41 +10,36 @@ namespace ReSR.Domain.Aggregates.Messages;
 /// <summary>
 /// A private message between two users.
 /// </summary>
-public record PrivateMessage : Message<PrivateMessage> {
-
+public record PrivateMessage : Message<PrivateMessage>
+{
     #region PROPERTIES
 
-        /// <summary> The user receiving the private message. </summary>
-        public virtual User SentTo { get; internal init; } = null!;
+    /// <summary> The user receiving the private message. </summary>
+    public virtual User SentTo { get; internal init; } = null!;
 
-        /// <summary> The resource quoted in the message, if any. </summary>
-        public virtual Resource? QuotedResource { get; internal init; } = null!;
+    /// <summary> The resource quoted in the message, if any. </summary>
+    public virtual Resource? QuotedResource { get; internal init; } = null!;
 
-    #endregion
-    #region CONSTRUCTORS
-            
-        public static IResponse<PrivateMessage> TryCreate(
-            User      sentBy,
-            User      sentTo,
-            string    content,
-            Resource? quotedResource = null
-        ) => TryVerifySenderReceiverInvariant(sentBy, sentTo)
-                .OnSuccess(() => TryVerifyContentInvariant(content))
-                .OnSuccess(() => new PrivateMessage {
-                    SentBy         = sentBy,
-                    SentTo         = sentTo,
-                    Content        = content,
-                    QuotedResource = quotedResource
-                });
+    public virtual Conversation Conversation { get; internal init; } = null!;
+
+    /// <summary> The UTC date and time when the message was created. </summary>
+    public DateTime CreatedAt { get; internal init; } = DateTime.UtcNow;
 
     #endregion
-    #region METHODS
 
-        protected static IResponse TryVerifySenderReceiverInvariant(User sender, User receiver) =>
-            sender.Id != receiver.Id
-            ? Response.Success()
-            : Response.Failure(new InvariantException("Un message ne peut être envoyé à l'envoyeur !"));
+    public static IResponse<PrivateMessage> TryCreate(User sentBy, User sentTo, string content, Conversation conversation, Resource? quotedResource = null)
+    {
+        if (sentBy.Id == sentTo.Id)
+            return Response.Failure<PrivateMessage>(new InvariantException("Un message ne peut pas être envoyé à soi-même !"));
 
-    #endregion
-    
+        return Response.Success(new PrivateMessage
+        {
+            SentBy = sentBy,
+            SentTo = sentTo,
+            Content = content,
+            Conversation = conversation,
+            QuotedResource = quotedResource,
+            CreatedAt = DateTime.UtcNow
+        });
+    }
 }
