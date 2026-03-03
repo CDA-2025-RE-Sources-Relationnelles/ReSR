@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using FluentResponse.Interfaces;
 using ReSR.Domain.Aggregates.Messages;
 
@@ -17,10 +18,5 @@ public interface IPrivateMessageService {
     /// <param name="content">The message's content.</param>
     public Task<IResponse<PrivateMessage>> TrySendAsync(Id byUserId, Id toUserId, string content);
 
-    /// <summary>
-    /// Tries to get a user's private messages.
-    /// </summary>
-    /// <returns>The users' private messages.</returns>
-    /// <param name="userId">The identifier of the user.</param>
-    public Task<IResponse<IEnumerable<PrivateMessage>>> TryGetAll(Id userId);
+    public Task<IResponse<IEnumerable<PrivateMessage>>> TryGetConversationMessages(Id userId, Id friendId);
 }

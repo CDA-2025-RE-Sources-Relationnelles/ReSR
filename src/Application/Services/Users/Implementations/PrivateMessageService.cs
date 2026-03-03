@@ -1,25 +1,58 @@
-using System.Data.Common;
-using System.Net;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Cryptography.X509Certificates;
+using FluentResponse;
+using FluentResponse.Interfaces;
+using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Aggregates.Messages;
+using ReSR.Domain.Ports;
+using ReSR.Application.Services.Users.Definitions;
 
 namespace ReSR.Application.Services.Users.Implementations;
 
-internal class PrivateMessageService(
-    IRepository<PrivateMessage> messageRepository,
-    IRepository<User> userRepository
-) : IPrivateMessageService
+public class PrivateMessageService : IPrivateMessageService
 {
-    public Task<IResponse<PrivateMessage>> TrySendAsync(Id byUserId, Id toUserId, string contect) => 
-        userRepository.TryGetAsync(byUserId).OnSuccessAsync(sender => 
-            userRepository.TryGetAsync(toUserId).OnSuccessAsync(receiver => 
-                PrivateMessage.TryCreate(sender, receiver, content)
-            )
-        ).OnSuccessAsync(messageRepository.TryAddAsync);
+    private readonly IConversationRepository conversationRepo;
+    private readonly IPrivateMessageRepository messageRepo;
+    private readonly IUserRepository userRepo;
 
-    public async Task<IResponse<IEnumerable<PrivateMessage>>> TryGetAll(Id userId)
+    public PrivateMessageService(
+        IConversationRepository conversationRepo,
+        IPrivateMessageRepository messageRepo,
+        IUserRepository userRepo)
     {
-        var messages = await messageRepository.GetAllAsync(X => X.SentBy.Id == userId || X.SendTo.Id == userId);
-        return WebResponse.Success(messages);
+        this.conversationRepo = conversationRepo;
+        this.messageRepo = messageRepo;
+        this.userRepo = userRepo;
+    }
+
+    public async Task<IResponse<PrivateMessage>> TrySendAsync(Id senderId, Id receiverId, string content)
+    {
+        var senderResponse = await userRepo.GetByIdAsync(senderId);
+        var receiverResponse = await userRepo.GetByIdAsync(receiverId);
+
+        if (senderResponse is null || receiverResponse is null)
+            return Response.Failure<PrivateMessage>("Utilisateur introuvable");
+
+        var sender = senderResponse.Unwrap();
+        var receiver = receiverResponse.Unwrap();
+
+        var conversation = await conversationRepo.GetByUsersAsync(senderId, receiverId)
+            ?? Conversation.TryCreate(sender, receiver).Unwrap();
+
+        if (!conversation.Messages.Any())
+            await conversationRepo.AddAsync(conversation);
+
+        var message = PrivateMessage.TryCreate(sender, receiver, content, conversation).Unwrap();
+        await messageRepo.AddAsync(message);
+
+        return Response.Success(message);
+    }
+
+    public async Task<IResponse<IEnumerable<PrivateMessage>>> TryGetConversationMessages(Id userId, Id friendId)
+    {
+        var conversation = await conversationRepo.GetByUsersAsync(userId, friendId);
+        if (conversation is null)
+            return Response.Success(Enumerable.Empty<PrivateMessage>());
+
+        var messages = conversation.Messages.OrderBy(m => m.CreatedAt);
+        return Response.Success(messages);
     }
 }
