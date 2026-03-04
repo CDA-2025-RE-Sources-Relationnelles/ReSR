@@ -1,78 +1,104 @@
-using System.Net;
-using System.Reflection;
-using System.Reflection.Metadata;
-using System.Security.Cryptography.X509Certificates;
-using FluentResponse;
-using FluentResponse.Interfaces;
+using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Moq;
+using Xunit;
 using ReSR.Application.Services.Users.Implementations;
+using ReSR.Application.Services.Users.Definitions;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Ports;
+using FluentResponse;
+using FluentResponse.Interfaces;
+using static FluentResponse.Extensions;
 
-namespace ReSR.Application.Tests.Services;
-
-public class PrivateMessageServiceTests
+namespace ReSR.Tests.Application.Services
 {
-    private readonly Mock<IRepository<PrivateMessag>> messageRepository = new();
-
-    private readonly Mock<IReppository<User>> userRepository = new();
-
-    private readonly PrivateMessageService service;
-
-    public PrivateMessageServiceTests()
+    public class PrivateMessageServiceTests
     {
-        service = new PrivateMessageService(messageReopsitory.Object, userRepository.Object);
-    }
+        private readonly Mock<IPrivateMessageRepository> _messageRepoMock;
+        private readonly Mock<IUserRepository> _userRepoMock;
+        private readonly PrivateMessageService _service;
 
-    [Fact]
-    public async Task TrySendAsync_Should_CreateMessage_When_ValidUsers()
-    {
-        //Arrange
-        var sender = new Mock<User>();
-        sender.SetupGet(x => x.Id).Returns(Id.New());
+        public PrivateMessageServiceTests()
+        {
+            _messageRepoMock = new Mock<IPrivateMessageRepository>();
+            _userRepoMock = new Mock<IUserRepository>();
+            _service = new PrivateMessageService(_messageRepoMock.Object, _userRepoMock.Object);
+        }
 
-        var receiver = new Mock<User>();
-        receiver.SetupGet(x => x.Id).Returns(Id.New());
+        [Fact]
+        public async Task TrySendAsync_ShouldReturnSuccess_WhenUsersExist()
+        {
+            // ARRANGE
+            uint senderId = 1;
+            uint receiverId = 2;
+            var sender = new User { Id = senderId };
+            var receiver = new User { Id = receiverId };
+            var content = "Hello";
 
-        userRepository.Setup(r => r.TryGetAsync(sender.Object.Id)).ReturnsAsync(sender.Object);
-        userRepository.Setup(r => r.TryGetAsync(receiver.Object.Id)).ReturnsAsync(receiver.Object);
+            _userRepoMock.Setup(x => x.TryGetAsync(senderId))
+                         .ReturnsAsync(Response.Success(sender));
+            _userRepoMock.Setup(x => x.TryGetAsync(receiverId))
+                         .ReturnsAsync(Response.Success(receiver));
 
-        PrivateMessage? savedMessage = null;
-        messageRepository.Setup(r => r.TryAddAsync(It.IsAny<PrivateMessage>()))
-            .Returns<PrivateMessage>(m => { savedMessage = m; return Task.FromResult(Response.Success(m));
-            });
+            // ACT
+            var result = await _service.TrySendAsync(senderId, receiverId, content);
 
-        //Act
-        var response = await service.TrySendAsync(sender.Object.Id, receiver.Object.Id, "Hello !");
+            // ASSERT
+            Assert.True(result.OnSuccess(u => true).Unwrap());
+        }
 
-        //Assert
-        Assert.True(response.IsSuccess);
-        Assert.NotNull(savedMessage);
-        Assert.Equal(sender.Object, savedMessage.SentBy);
-        Assert.Equal(receiver.Object,savedMessage.SentTo);
-        Assert.Equal("Hello !", savedMessage.Content);
-    }
+        [Fact]
+        public async Task TrySendAsync_ShouldFail_WhenSenderMissing()
+        {
+            // ARRANGE
+            uint senderId = 1;
+            uint receiverId = 2;
 
-    [Fact]
-    public async Task TryGetAll_Should_ReturnMessagesForUser()
-    {
-        //Arrange
-        var user = new Mock<User>();
-        user.SetupGet(x => x.Id).Returns(Id.New());
+            _userRepoMock.Setup(x => x.TryGetAsync(senderId))
+                        .ReturnsAsync(Response.Failure<User>("Sender not found"));
 
-        var msg1 = PrivateMessage.TryCreate(user.Object, new Mock<User>().Object, "msg1").Unwrap();
-        var msg2 = PrivateMessage.TryCreate(new Mock<User>().Object, user.Object, "msg2").Unwrap();
-        var allMessages = new List<PrivateMessage> {msg1, msg2};
+            // ACT
+            var result = await _service.TrySendAsync(senderId, receiverId, "Hi");
 
-        messageRepository.Setup(r.GetAllAsync(It.IsAny<Func<PrivateMessageServiceTests, bool>>()))
-                        .ReturnsAsync((Func<PrivateMessageServiceTests, bool> predicate) => allMessages.Where(predicate));
+            // ASSERT
 
-        //Act
-        var response = await service.TryGetAll(user.Object.Id);
+            bool successCalled = false;
+            string? errorMessage = null;
 
-        //Assert
-        Assert.True(response.IsSuccess);
-        Assert.Equal(2, response.Value.Count());
+            result
+                .OnSuccess(_ => successCalled = true)
+                .OnFailure(err => errorMessage = err.Message);
+
+            Assert.False(successCalled);
+            Assert.Equal("Sender not found", errorMessage);
+        }
+
+        [Fact]
+        public async Task TryGetMessagesBetweenAsync_ShouldReturnOrderedMessages()
+        {
+            // ARRANGE
+            uint senderId = 1;
+            uint receiverId = 2;
+
+            var messages = new List<PrivateMessage>
+            {
+                new PrivateMessage { Content = "2", Id = 2 },
+                new PrivateMessage { Content = "1", Id = 1 }
+            };
+
+            _messageRepoMock.Setup(x => x.GetMessagesBetweenUsersAsync(senderId, receiverId))
+                            .ReturnsAsync(Response.Success(messages));
+
+            // ACT
+            var result = await _service.TryGetMessagesBetweenAsync(senderId, receiverId);
+
+            // ASSERT
+            var msgs = result.OnSuccess(m => m).Unwrap();
+            Assert.Equal(2, msgs.Count());
+            Assert.Equal("1", msgs.First().Content);
+            Assert.Equal("2", msgs.Last().Content);
+        }
     }
 }
