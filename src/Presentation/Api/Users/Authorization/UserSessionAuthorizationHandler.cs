@@ -16,11 +16,14 @@ public class UserSessionAuthorizationHandler(
     ) {
 
         if (
-            Id.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) &&
             Id.TryParse((context.Resource as HttpContext)?.Request.RouteValues["userId"]?.ToString(), out var parameterId) &&
-            userId == parameterId &&
-            (await repository.TryGetAsync(userId)) is ISuccess<User> { Value : User { IsAnonymous : false }}
-        ) context.Succeed(requirement);
+            (await repository.TryGetAsync(parameterId)) is ISuccess<User> { Value : User { IsAnonymous : false }}
+        ) {
+            if (
+                Id.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) &&
+                userId == parameterId
+            ) context.Succeed(requirement);
+        } else context.Succeed(requirement);
 
         await Task.CompletedTask;
     }

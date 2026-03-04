@@ -16,10 +16,14 @@ public class ManagerSessionAuthorizationHandler(
     ) {
 
         if (
-            Id.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) &&
             Id.TryParse((context.Resource as HttpContext)?.Request.RouteValues["managerId"]?.ToString(), out var parameterId) &&
-            userId == parameterId && (await repository.TryGetAsync(userId)) is ISuccess<Manager>
-        ) context.Succeed(requirement);
+            (await repository.TryGetAsync(parameterId)) is ISuccess<Manager>
+        ) {
+            if (
+                Id.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) &&
+                userId == parameterId
+            ) context.Succeed(requirement);
+        } else context.Succeed(requirement);
 
         await Task.CompletedTask;
     }

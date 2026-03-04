@@ -16,10 +16,15 @@ public class ResourceWriteAuthorizationHandler(
     ) {
 
         if (
-            Id.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) &&
             Id.TryParse((context.Resource as HttpContext)?.Request.RouteValues["resourceId"]?.ToString(), out var resourceId) &&
-            (await repository.TryGetAsync(resourceId)) is ISuccess<Resource> resource && resource.Value.Owner?.Id == userId
-        ) context.Succeed(requirement);
+            (await repository.TryGetAsync(resourceId)) is ISuccess<Resource> resource
+        ) {
+            if (
+                Id.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) &&
+                resource.Value.Owner?.Id == userId
+            ) context.Succeed(requirement);
+
+        } else context.Succeed(requirement);
 
         await Task.CompletedTask;
     }

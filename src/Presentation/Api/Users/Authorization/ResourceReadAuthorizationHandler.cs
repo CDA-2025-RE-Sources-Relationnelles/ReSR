@@ -34,6 +34,8 @@ public class ResourceReadAuthorizationHandler(
         ).OnSuccess(() => context.Succeed(requirement))
         .OnFailure(e => context.Fail(new AuthorizationFailureReason(this, e.Message)));
 
+        else context.Succeed(requirement);
+
         await Task.CompletedTask;
     }
 }
