@@ -1,7 +1,3 @@
-using System.Data.Common;
-using System.Net;
-using System.Reflection;
-using System.Security.Claims;
 using FluentResponse.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

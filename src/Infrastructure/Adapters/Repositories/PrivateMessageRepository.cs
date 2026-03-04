@@ -3,8 +3,6 @@ using FluentResponse;
 using FluentResponse.Interfaces;
 using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Ports;
-using System;
-using System.Threading.Tasks;
 
 namespace ReSR.Infrastructure.Adapters.Repositories;
 

@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Moq;
 using Xunit;
 using ReSR.Application.Services.Users.Implementations;
