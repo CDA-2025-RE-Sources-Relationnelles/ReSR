@@ -17,6 +17,5 @@ public interface IPrivateMessageService {
     /// <param name="toUserId">The identifier of the user receiving the message.</param>
     /// <param name="content">The message's content.</param>
     public Task<IResponse<PrivateMessage>> TrySendAsync(Id byUserId, Id toUserId, string content);
-
-    public Task<IResponse<IEnumerable<PrivateMessage>>> TryGetConversationMessages(Id userId, Id friendId);
+    public Task<IResponse<IEnumerable<PrivateMessage>>> TryGetMessagesBetweenAsync(Id senderId, Id receiverId);
 }
