@@ -31,4 +31,17 @@ internal class PrivateMessageRepository(
             return Response.Failure<PrivateMessage>(ex);
         }
     }
+
+    public async Task<IResponse<IEnumerable<PrivateMessage>>> GetMessagesBetweenUsersAsync(Id senderId, Id receiverId)
+    {
+        var messages = await dbContext.Set<PrivateMessage>()
+            .Where(m =>
+                (m.SentBy.Id == senderId && m.SentTo.Id == receiverId)
+            || (m.SentBy.Id == receiverId && m.SentTo.Id == senderId)
+            )
+            .OrderBy(m => m.CreatedAt)
+            .ToListAsync();
+
+        return Response.Success<IEnumerable<PrivateMessage>>(messages);
+    }
 }
