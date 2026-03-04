@@ -1,57 +1,55 @@
+using FluentResponse;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReSR.Application.Services.Users.Definitions;
-using ReSR.Application.Dtos;
-using ReSR.Presentation.Api.Users.Mappers;
-using ReSR.Presentation.Api.Users.Dtos;
-using ReSR.Presentation.Api.Users.Extensions;
-using FluentResponse;
-using FluentResponse.Interfaces;
 using ReSR.Domain.Aggregates.Messages;
+using ReSR.Presentation.Api.Users.Extensions;
+using ReSR.Presentation.Api.Users.ValueObjects.Messages;
+using ReSR.Presentation.Api.Core.Extensions;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
 
 [ApiController]
 [Route(ROUTE)]
-public class PrivateMessageController : ControllerBase
+public class PrivateMessageController(
+    IPrivateMessageService messageService
+) : ControllerBase
 {
     public const string ROUTE = "/private-messages";
-    private readonly IPrivateMessageService messageService;
 
-    public PrivateMessageController(IPrivateMessageService messageService)
-    {
-        this.messageService = messageService;
-    }
+    #region DTO
+
+    public readonly record struct SendPrivateMessageDto(
+        Id ReceiverId,
+        string Content
+    );
+
+    #endregion
+
+    #region ROUTES
 
     [HttpPost]
-    [Authorize(Roles = nameof(Domain.Aggregates.Accounts.User))]
-    public async Task<IActionResult> SendMessageAsync(SendMessageDto dto)
-    {
-        var userId = User.GetUserId();
-        if (userId is null) return Unauthorized();
-
-        var result = await messageService.TrySendAsync(userId.Value, dto.ReceiverId, dto.Content);
-
-        if (result is IFailure failure)
-            return BadRequest(failure.Exception);
-
-        var message = (result as ISuccess<PrivateMessage>)!.Value;
-        return Ok(message.ToDto());
-    }
+    [Authorize(Roles = nameof(User))]
+    [EndpointSummary("Send a private message to a user.")]
+    public Task<IResult> SendAsync(SendPrivateMessageDto dto) =>
+        messageService
+            .TrySendAsync(
+                User.GetUserId()!.Value,
+                dto.ReceiverId,
+                dto.Content
+            )
+            .ToResourceAsync<PrivateMessage, PrivateMessageResource>(Results.Ok);
 
     [HttpGet("{friendId}")]
-    [Authorize(Roles = nameof(Domain.Aggregates.Accounts.User))]
-    public async Task<IActionResult> GetConversationAsync(uint friendId)
-    {
-        var userId = User.GetUserId();
-        if (userId is null) return Unauthorized();
+    [Authorize(Roles = nameof(User))]
+    [EndpointSummary("Get all private messages between the authenticated user and a friend.")]
+    public Task<IResult> GetMessagesAsync(Id friendId) =>
+        messageService
+            .TryGetMessagesBetweenAsync(
+                User.GetUserId()!.Value,
+                friendId
+            )
+            .ToResourceAsync<PrivateMessage, PrivateMessageResource>(Results.Ok);
 
-        var result = await messageService.TryGetConversationMessages(userId.Value, friendId);
-
-        if (result is IFailure failure)
-            return BadRequest(failure.Exception);
-
-        var messages = (result as ISuccess<IEnumerable<PrivateMessage>>)! .Value;
-        return Ok(messages.ToConversationDto(userId.Value));
-    }
+    #endregion
 }
