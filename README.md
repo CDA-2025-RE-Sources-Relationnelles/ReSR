@@ -54,6 +54,13 @@ Il est possible de configurer la solution à l'aide de variables d'environnement
 
 ### Initialisation
 
+
+Clonez d'abord le dépôt en entrant cette commande dans le terminale :
+
+```shell
+git clone https://github.com/CDA-2025-RE-Sources-Relationnelles/ReSR.git
+```
+
 Si aucune base de données et service d'envoi de courrier électronique ne sont en place, vous pouvez les mettre en place à l'aide de ce docker-compose :
 
 ```yml
@@ -77,6 +84,13 @@ services:
     ports:
       - "3000:1080"         # Interface web
       - "<Smtp__Port>:1026" # SMTP
+```
+
+Puis, entrez cette commande dans le terminal :
+
+```shell
+cd ReSR
+dotnet ef database update --project src\\Infrastructure
 ```
 
 ### Exécution
