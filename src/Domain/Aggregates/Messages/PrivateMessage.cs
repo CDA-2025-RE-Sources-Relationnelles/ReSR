@@ -20,14 +20,12 @@ public record PrivateMessage : Message<PrivateMessage>
     /// <summary> The resource quoted in the message, if any. </summary>
     public virtual Resource? QuotedResource { get; internal init; } = null!;
 
-    public virtual Conversation Conversation { get; internal init; } = null!;
-
     /// <summary> The UTC date and time when the message was created. </summary>
     public DateTime CreatedAt { get; internal init; } = DateTime.UtcNow;
 
     #endregion
 
-    public static IResponse<PrivateMessage> TryCreate(User sentBy, User sentTo, string content, Conversation conversation, Resource? quotedResource = null)
+    public static IResponse<PrivateMessage> TryCreate(User sentBy, User sentTo, string content, Resource? quotedResource = null)
     {
         if (sentBy.Id == sentTo.Id)
             return Response.Failure<PrivateMessage>(new InvariantException("Un message ne peut pas être envoyé à soi-même !"));
@@ -37,7 +35,6 @@ public record PrivateMessage : Message<PrivateMessage>
             SentBy = sentBy,
             SentTo = sentTo,
             Content = content,
-            Conversation = conversation,
             QuotedResource = quotedResource,
             CreatedAt = DateTime.UtcNow
         });
