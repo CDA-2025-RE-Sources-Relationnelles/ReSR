@@ -90,7 +90,13 @@ Puis, entrez cette commande dans le terminal :
 
 ```shell
 cd ReSR
+dotnet build
 dotnet ef database update --project src\\Infrastructure
+```
+Si vous n'avez pas de certificat ( HTTPS ) générez un certificat de développeur avec la commande suivante : 
+
+````shell
+dotnet dev-certs https --trust
 ```
 
 ### Exécution
