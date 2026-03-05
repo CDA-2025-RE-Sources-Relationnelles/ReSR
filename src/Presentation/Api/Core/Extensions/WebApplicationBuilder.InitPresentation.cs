@@ -1,6 +1,9 @@
+using System.Text;
 using System.Threading.RateLimiting;
 using FluentResponse;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Presentation.Api.Managers.Authorization;
@@ -20,6 +23,15 @@ public static partial class Extensions {
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddHttpContextAccessor();
 
+        builder.Services.AddCors(options => {
+            options.AddPolicy("AllowAll",
+                builder => builder
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+            );
+        });
+
         builder.Services.AddAuthorizationBuilder()
             .AddPolicy(nameof(UserSessionAuthorizationRequirement), policy => { policy.RequireRole(nameof(User)); policy.Requirements.Add(new UserSessionAuthorizationRequirement()); })
             .AddPolicy(nameof(ManagerSessionAuthorizationRequirement), policy => { policy.RequireRole(nameof(Manager)); policy.Requirements.Add(new ManagerSessionAuthorizationRequirement()); })
@@ -29,14 +41,20 @@ public static partial class Extensions {
             .AddPolicy(nameof(CommentReadAuthorizationRequirement), policy => { policy.Requirements.Add(new CommentReadAuthorizationRequirement()); })
             .AddPolicy("BackOffice", policy => policy.RequireRole(nameof(Manager)))
             .AddDefaultPolicy("FrontOffice", policy => policy.RequireRole(nameof(User)));
-
-        builder.Services.AddCors(options => {
-            options.AddPolicy("AllowAll",
-                builder => builder
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-            );
+        
+        builder.Services.AddAuthentication(options => {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options => {
+            options.TokenValidationParameters = new TokenValidationParameters {
+                ValidateIssuer           = true,
+                ValidateAudience         = true,
+                ValidateLifetime         = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer              = builder.Configuration["Jwt:Issuer"]!,
+                ValidAudience            = builder.Configuration["Jwt:Audience"]!,
+                IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            };
         });
 
         builder.Services.AddRateLimiter(options => {

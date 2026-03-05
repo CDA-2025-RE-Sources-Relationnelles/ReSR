@@ -19,9 +19,9 @@ public static partial class Extensions {
 
         app.UseHttpsRedirection();
         app.UseHsts();
+        app.UseCors("AllowAll");
         app.UseAuthentication();
         app.UseAuthorization();
-        app.UseCors("AllowAll");
         app.UseRateLimiter();
         app.MapControllers();
 
