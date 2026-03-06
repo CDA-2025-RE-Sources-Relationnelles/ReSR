@@ -12,6 +12,7 @@ using ReSR.Presentation.Api.Users.ValueObjects.Resources;
 using ReSR.Presentation.Api.Users.Authorization;
 using ReSR.Presentation.Api.Users.Extensions;
 using ReSR.Presentation.Api.Users.ValueObjects.Messages;
+using ReSR.Application.ValueObjects.Resources;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
 [ApiController]
@@ -45,6 +46,34 @@ public class TextResourceController(
 
     #endregion
     #region ROUTES
+
+        [HttpGet(ROUTE + "/public")]
+        [EndpointDescription("Queries the public text resources.")]
+        public Task<IResult> GetPublicTextResourcesAsync(
+            Id?    categoryIdFilter    = null,
+            string relationshipsFilter = nameof(Relationships.None),
+            string orderBy             = nameof(OrderBy.Newest)
+        ) => resourceService.GetAllPublicAsync(
+            categoryIdFilter: categoryIdFilter,
+            relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
+            orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
+        ).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+
+
+        [HttpGet(ROUTE + "/private")]
+        [Authorize]
+        [EndpointSummary("Only accessible for authenticated users.")]
+        [EndpointDescription("Queries the user's private text resources.")]
+        public Task<IResult> GetPrivateTextResourcesAsync(
+            Id?    categoryIdFilter    = null,
+            string relationshipsFilter = nameof(Relationships.None),
+            string orderBy             = nameof(OrderBy.Newest)
+        ) => resourceService.TryGetAllPrivateAsync(
+            userId: User.GetUserId()!.Value,
+            categoryIdFilter: categoryIdFilter,
+            relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
+            orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
+        ).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
 
         [HttpGet("{resourceId}")]
         [Authorize(Policy = nameof(ResourceReadAuthorizationRequirement))]
