@@ -1,7 +1,6 @@
 using ReSR.Domain.Aggregates.Messages;
 using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
-using ReSR.Presentation.Api.Users.ValueObjects.Accounts;
 using ReSR.Presentation.Api.Users.ValueObjects.Resources;
 
 namespace ReSR.Presentation.Api.Users.ValueObjects.Messages;
@@ -11,15 +10,11 @@ public class PrivateMessageResource(PrivateMessage from) : MessageResource<Priva
 
         public PrivateMessageLinks Links { get; } = new(
             Self           : GetLink(from),
-            SentBy         : UserPrivateResource.GetLink(from.SentBy),
-            SentTo         : UserPrivateResource.GetLink(from.SentTo),
             QuotedResource : from.QuotedResource is not null ? ResourceResource.GetLink(from.QuotedResource) : null
         );
 
         public readonly record struct PrivateMessageLinks(
             Link           Self,
-            AnnotatedLink  SentBy,
-            AnnotatedLink  SentTo,
             AnnotatedLink? QuotedResource
         );
 

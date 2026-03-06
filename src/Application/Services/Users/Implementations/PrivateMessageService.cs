@@ -12,28 +12,29 @@ namespace ReSR.Application.Services.Users.Implementations;
 
 internal class PrivateMessageService(
     IPrivateMessageRepository messageRepo,
-    IUserRepository userRepo
+    IRepository<User> userRepo
 ) : IPrivateMessageService
 {
     public Task<IResponse<PrivateMessage>> TrySendAsync(
         Id senderId, 
         Id receiverId, 
-        string content){
+        string content
+    ){
             return userRepo.TryGetAsync(senderId)
                 .OnSuccessAsync(sender => 
                     userRepo.TryGetAsync(receiverId)
                         .OnSuccessAsync(receiver =>
-                            PrivateMessage.TryCreate(sender, receiver, content)
+                            PrivateMessage
+                                .TryCreate(sender, receiver, content)
+                                .OnSuccessAsync(messageRepo.TryAddAsync)
                         )
                 );
         }
 
     public Task<IResponse<IEnumerable<PrivateMessage>>> TryGetMessagesBetweenAsync(
         Id senderId, 
-        Id receiverId){
-            return messageRepo.GetMessagesBetweenUsersAsync(senderId, receiverId)
-                .OnSuccessAsync(messages => Task.FromResult(messages.OrderBy(m => m.Id).AsEnumerable()
-                )
-            );
-        }
+        Id receiverId
+    ){
+        return messageRepo.GetMessagesBetweenUsersAsync(senderId, receiverId);
+    }
 }
