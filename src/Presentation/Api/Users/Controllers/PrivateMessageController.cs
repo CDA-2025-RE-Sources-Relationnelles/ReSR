@@ -6,6 +6,7 @@ using ReSR.Domain.Aggregates.Messages;
 using ReSR.Presentation.Api.Users.Extensions;
 using ReSR.Presentation.Api.Users.ValueObjects.Messages;
 using ReSR.Presentation.Api.Core.Extensions;
+using ReSR.Domain.Aggregates.Resources;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
 
@@ -21,7 +22,8 @@ public class PrivateMessageController(
 
     public readonly record struct SendPrivateMessageDto(
         Id ReceiverId,
-        string Content
+        string Content,
+        Resource? Resource
     );
 
     #endregion
@@ -36,7 +38,8 @@ public class PrivateMessageController(
             .TrySendAsync(
                 User.GetUserId()!.Value,
                 dto.ReceiverId,
-                dto.Content
+                dto.Content,
+                dto.Resource
             )
             .ToResourceAsync<PrivateMessage, PrivateMessageResource>(Results.Ok);
 
