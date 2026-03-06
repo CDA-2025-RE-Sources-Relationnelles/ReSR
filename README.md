@@ -95,8 +95,14 @@ dotnet ef database update --project src\\Infrastructure
 ```
 Si vous n'avez pas de certificat ( HTTPS ) générez un certificat de développeur avec la commande suivante : 
 
-````shell
+```shell
 dotnet dev-certs https --trust
+```
+Si vous souhaitez avoir des données par défaut ( génération de ressources et catégories ) :
+
+```shell
+docker cp seed-data.sql resr-db-1:/tmp/seed-data.sql
+docker exec resr-db-1 psql -U "root@resr.fr" -d resr -f /tmp/seed-data.sql
 ```
 
 ### Exécution
