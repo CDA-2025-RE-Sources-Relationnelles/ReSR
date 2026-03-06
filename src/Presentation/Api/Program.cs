@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using ReSR.Application.Core;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Categories;

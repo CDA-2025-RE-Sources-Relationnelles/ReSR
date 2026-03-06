@@ -14,13 +14,13 @@ namespace ReSR.Tests.Application.Services
     public class PrivateMessageServiceTests
     {
         private readonly Mock<IPrivateMessageRepository> _messageRepoMock;
-        private readonly Mock<IUserRepository> _userRepoMock;
+        private readonly Mock<IRepository<User>> _userRepoMock;
         private readonly PrivateMessageService _service;
 
         public PrivateMessageServiceTests()
         {
             _messageRepoMock = new Mock<IPrivateMessageRepository>();
-            _userRepoMock = new Mock<IUserRepository>();
+            _userRepoMock = new Mock<IRepository<User>>();
             _service = new PrivateMessageService(_messageRepoMock.Object, _userRepoMock.Object);
         }
 
