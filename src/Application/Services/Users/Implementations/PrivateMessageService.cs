@@ -4,6 +4,7 @@ using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Ports;
 using ReSR.Application.Services.Users.Definitions;
+using ReSR.Domain.Aggregates.Resources;
 
 namespace ReSR.Application.Services.Users.Implementations;
 
@@ -15,7 +16,8 @@ internal class PrivateMessageService(
     public Task<IResponse<PrivateMessage>> TrySendAsync(
     Id senderId, 
     Id receiverId, 
-    string content
+    string content,
+    Resource? resource = null
     ){
         return userRepo.TryGetAsync(senderId)
             .OnSuccessAsync(sender => 
@@ -28,7 +30,7 @@ internal class PrivateMessageService(
                             );
 
                         return PrivateMessage
-                            .TryCreate(sender, receiver, content)
+                            .TryCreate(sender, receiver, content, resource)
                             .OnSuccessAsync(messageRepo.TryAddAsync);
                     })
             );
