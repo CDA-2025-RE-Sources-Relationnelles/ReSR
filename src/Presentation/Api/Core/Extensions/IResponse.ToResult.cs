@@ -40,5 +40,9 @@ public static partial class Extensions {
     public static IResult ToResult<TValue>(
         this TValue self,
         Func<ISuccess<TValue>, IResult> onSuccess
-    ) => onSuccess((ISuccess<TValue>)Response.Success(self));
+    ) => self switch {
+            ISuccess<TValue> success => onSuccess(success),
+            IFailure         failure => failure.Exception.ToResult(failure),
+            _                        => onSuccess((ISuccess<TValue>)Response.Success(self))
+        };
 }
