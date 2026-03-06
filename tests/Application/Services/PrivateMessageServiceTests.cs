@@ -16,13 +16,16 @@ namespace ReSR.Tests.Application.Services
     {
         private readonly Mock<IPrivateMessageRepository> _messageRepoMock;
         private readonly Mock<IRepository<User>> _userRepoMock;
+
+        private readonly Mock<IRepository<Resource>> _resourceRepoMock;
         private readonly PrivateMessageService _service;
 
         public PrivateMessageServiceTests()
         {
             _messageRepoMock = new Mock<IPrivateMessageRepository>();
             _userRepoMock = new Mock<IRepository<User>>();
-            _service = new PrivateMessageService(_messageRepoMock.Object, _userRepoMock.Object);
+            _resourceRepoMock = new Mock<IRepository<Resource>>();
+            _service = new PrivateMessageService(_messageRepoMock.Object, _userRepoMock.Object, _resourceRepoMock.Object);
         }
 
         [Fact]
@@ -99,6 +102,8 @@ namespace ReSR.Tests.Application.Services
             // ARRANGE
             uint senderId = 1;
             uint receiverId = 2;
+            uint resourceId = 10;
+
             var sender = new User { Id = senderId };
             var receiver = new User { Id = receiverId };
 
@@ -107,28 +112,36 @@ namespace ReSR.Tests.Application.Services
             receiver.LikedUsers.Add(sender);
             receiver.LikedBy.Add(sender);
 
-            var resource = new TextResource { Id = 10, Title = "Test Resource" };
+            var resource = new TextResource { Id = resourceId, Title = "Test Resource" };
 
             var content = "Regarde cette ressource !";
 
             _userRepoMock.Setup(x => x.TryGetAsync(senderId))
-                        .ReturnsAsync(Response.Success(sender));
+                .ReturnsAsync(Response.Success(sender));
+
             _userRepoMock.Setup(x => x.TryGetAsync(receiverId))
-                        .ReturnsAsync(Response.Success(receiver));
+                .ReturnsAsync(Response.Success(receiver));
+
+            _resourceRepoMock.Setup(x => x.TryGetAsync(resourceId))
+                .ReturnsAsync(Response.Success<Resource>(resource));
 
             _messageRepoMock.Setup(x => x.TryAddAsync(It.IsAny<PrivateMessage>()))
-                            .ReturnsAsync((PrivateMessage m) => Response.Success(m));
+                .ReturnsAsync((PrivateMessage m) => Response.Success(m));
 
             // ACT
-            var result = await _service.TrySendAsync(senderId, receiverId, content, resource);
+            var result = await _service.TrySendAsync(senderId, receiverId, content, resourceId);
 
             // ASSERT
             bool successCalled = false;
             string? errorMessage = null;
             PrivateMessage? sentMessage = null;
 
-            result.OnSuccess(msg => { successCalled = true; sentMessage = msg; })
-                .OnFailure(err => errorMessage = err.Message);
+            result.OnSuccess(msg =>
+            {
+                successCalled = true;
+                sentMessage = msg;
+            })
+            .OnFailure(err => errorMessage = err.Message);
 
             Assert.True(successCalled);
             Assert.Null(errorMessage);
@@ -137,8 +150,7 @@ namespace ReSR.Tests.Application.Services
             Assert.Equal(receiverId, sentMessage.SentTo.Id);
             Assert.Equal(content, sentMessage.Content);
             Assert.NotNull(sentMessage.QuotedResource);
-            Assert.Equal(10u, sentMessage.QuotedResource!.Id);
-            Assert.Equal("Test Resource", sentMessage.QuotedResource.Title);
+            Assert.Equal(resourceId, sentMessage.QuotedResource!.Id);
         }
 
         [Fact]

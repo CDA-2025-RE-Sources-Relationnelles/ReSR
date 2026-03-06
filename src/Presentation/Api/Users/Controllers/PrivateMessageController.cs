@@ -23,7 +23,7 @@ public class PrivateMessageController(
     public readonly record struct SendPrivateMessageDto(
         Id ReceiverId,
         string Content,
-        Resource? Resource
+        Id? ResourceId
     );
 
     #endregion
@@ -39,7 +39,7 @@ public class PrivateMessageController(
                 User.GetUserId()!.Value,
                 dto.ReceiverId,
                 dto.Content,
-                dto.Resource
+                dto.ResourceId
             )
             .ToResourceAsync<PrivateMessage, PrivateMessageResource>(Results.Ok);
 
