@@ -100,7 +100,7 @@ public record User : Account<User>, IAggregateRoot<User> {
                         if (!this.LikedBy.Any(x => x.Id == from.Id)) {
 
                             List<User> likedBy = [.. this.LikedBy, from];
-                            bool nowFriends = !this.Friends.Any(x => x.Id == from.Id);
+                            bool nowFriends = this.LikedUsers.Any(x => x.Id == from.Id);
                             this.LikedBy = likedBy;
                             return Response.Success(this with {
                                 DomainEvents = nowFriends
