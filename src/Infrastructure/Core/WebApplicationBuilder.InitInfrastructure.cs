@@ -64,7 +64,8 @@ public static partial class Extensions {
         builder.Services.AddScoped<IRepository<Category>, CategoryRepository>();
 
         builder.Services.AddScoped<IRepository<Comment>,        CommentRepository>();
-        builder.Services.AddScoped<IRepository<PrivateMessage>, PrivateMessageRepository>();
+        builder.Services.AddScoped<IPrivateMessageRepository,   PrivateMessageRepository>();
+        builder.Services.AddScoped<IRepository<PrivateMessage>>(x => x.GetRequiredService<IPrivateMessageRepository>());
 
         builder.Services.AddScoped<IRepository<QuizSession>, QuizSessionRepository>();
 

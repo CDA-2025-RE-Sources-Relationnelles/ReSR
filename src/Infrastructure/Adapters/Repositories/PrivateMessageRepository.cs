@@ -14,6 +14,7 @@ internal class PrivateMessageRepository(
     protected override IQueryable<PrivateMessage> GetJoinedTable() =>
         base.GetJoinedTable()
             .Include(x => x.SentTo)
+            .Include(x => x.SentBy)
             .Include(x => x.QuotedResource);
 
     public async Task<IResponse<PrivateMessage>> AddAsync(PrivateMessage message)
@@ -37,7 +38,7 @@ internal class PrivateMessageRepository(
                 (m.SentBy.Id == senderId && m.SentTo.Id == receiverId)
             || (m.SentBy.Id == receiverId && m.SentTo.Id == senderId)
             )
-            .OrderBy(m => m.CreatedAt)
+            .OrderByDescending(m => m.SentAt)
             .ToListAsync();
 
         return Response.Success<IEnumerable<PrivateMessage>>(messages);

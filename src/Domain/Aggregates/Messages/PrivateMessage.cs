@@ -19,9 +19,6 @@ public record PrivateMessage : Message<PrivateMessage>
     /// <summary> The resource quoted in the message, if any. </summary>
     public virtual Resource? QuotedResource { get; internal init; } = null!;
 
-    /// <summary> The UTC date and time when the message was created. </summary>
-    public DateTime CreatedAt { get; internal init; } = DateTime.UtcNow;
-
     #endregion
 
     public static IResponse<PrivateMessage> TryCreate(User sentBy, User sentTo, string content, Resource? quotedResource = null)
@@ -35,7 +32,6 @@ public record PrivateMessage : Message<PrivateMessage>
             SentTo = sentTo,
             Content = content,
             QuotedResource = quotedResource,
-            CreatedAt = DateTime.UtcNow
         });
     }
 }
