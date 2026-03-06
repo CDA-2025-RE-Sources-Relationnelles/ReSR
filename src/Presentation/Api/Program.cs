@@ -10,6 +10,6 @@ builder.InitPresentation();
 
 var app = builder.Build();
 
-await app.FinalizePresentationAsync();
+app.FinalizePresentation(args);
 
 app.Run();
