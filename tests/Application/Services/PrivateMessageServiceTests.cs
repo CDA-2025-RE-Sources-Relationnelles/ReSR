@@ -8,6 +8,7 @@ using ReSR.Domain.Ports;
 using FluentResponse;
 using FluentResponse.Interfaces;
 using static FluentResponse.Extensions;
+using ReSR.Domain.Aggregates.Resources;
 
 namespace ReSR.Tests.Application.Services
 {
@@ -25,25 +26,119 @@ namespace ReSR.Tests.Application.Services
         }
 
         [Fact]
-        public async Task TrySendAsync_ShouldReturnSuccess_WhenUsersExist()
+        public async Task TrySendAsync_ShouldReturnSuccess_WhenUsersAreFriends()
         {
             // ARRANGE
             uint senderId = 1;
             uint receiverId = 2;
             var sender = new User { Id = senderId };
             var receiver = new User { Id = receiverId };
+
+            sender.LikedUsers.Add(receiver);
+            sender.LikedBy.Add(receiver);
+            receiver.LikedBy.Add(sender);
+            receiver.LikedUsers.Add(sender);
+
             var content = "Hello";
 
             _userRepoMock.Setup(x => x.TryGetAsync(senderId))
-                         .ReturnsAsync(Response.Success(sender));
+                        .ReturnsAsync(Response.Success(sender));
             _userRepoMock.Setup(x => x.TryGetAsync(receiverId))
-                         .ReturnsAsync(Response.Success(receiver));
+                        .ReturnsAsync(Response.Success(receiver));
+
+            _messageRepoMock.Setup(x => x.TryAddAsync(It.IsAny<PrivateMessage>()))
+                            .ReturnsAsync((PrivateMessage m) => Response.Success(m));
 
             // ACT
             var result = await _service.TrySendAsync(senderId, receiverId, content);
 
             // ASSERT
-            Assert.True(result.OnSuccess(u => true).Unwrap());
+            bool successCalled = false;
+            string? errorMessage = null;
+
+            result.OnSuccess(_ => successCalled = true)
+                .OnFailure(err => errorMessage = err.Message);
+
+            Assert.True(successCalled);
+            Assert.Null(errorMessage);
+        }
+
+        [Fact]
+        public async Task TrySendAsync_ShouldFail_WhenUsersAreNotFriends()
+        {
+            // ARRANGE
+            uint senderId = 1;
+            uint receiverId = 2;
+            var sender = new User { Id = senderId };
+            var receiver = new User { Id = receiverId };
+
+            var content = "Hello";
+
+            _userRepoMock.Setup(x => x.TryGetAsync(senderId))
+                        .ReturnsAsync(Response.Success(sender));
+            _userRepoMock.Setup(x => x.TryGetAsync(receiverId))
+                        .ReturnsAsync(Response.Success(receiver));
+
+            // ACT
+            var result = await _service.TrySendAsync(senderId, receiverId, content);
+
+            // ASSERT
+            bool successCalled = false;
+            string? errorMessage = null;
+
+            result.OnSuccess(_ => successCalled = true)
+                .OnFailure(err => errorMessage = err.Message);
+
+            Assert.False(successCalled);
+            Assert.Equal("Vous devez être amis pour vous envoyer des messages !", errorMessage);
+        }
+
+        [Fact]
+        public async Task TrySendAsync_ShouldReturnSuccess_WithQuotedResource()
+        {
+            // ARRANGE
+            uint senderId = 1;
+            uint receiverId = 2;
+            var sender = new User { Id = senderId };
+            var receiver = new User { Id = receiverId };
+
+            sender.LikedUsers.Add(receiver);
+            sender.LikedBy.Add(receiver);
+            receiver.LikedUsers.Add(sender);
+            receiver.LikedBy.Add(sender);
+
+            var resource = new TextResource { Id = 10, Title = "Test Resource" };
+
+            var content = "Regarde cette ressource !";
+
+            _userRepoMock.Setup(x => x.TryGetAsync(senderId))
+                        .ReturnsAsync(Response.Success(sender));
+            _userRepoMock.Setup(x => x.TryGetAsync(receiverId))
+                        .ReturnsAsync(Response.Success(receiver));
+
+            _messageRepoMock.Setup(x => x.TryAddAsync(It.IsAny<PrivateMessage>()))
+                            .ReturnsAsync((PrivateMessage m) => Response.Success(m));
+
+            // ACT
+            var result = await _service.TrySendAsync(senderId, receiverId, content, resource);
+
+            // ASSERT
+            bool successCalled = false;
+            string? errorMessage = null;
+            PrivateMessage? sentMessage = null;
+
+            result.OnSuccess(msg => { successCalled = true; sentMessage = msg; })
+                .OnFailure(err => errorMessage = err.Message);
+
+            Assert.True(successCalled);
+            Assert.Null(errorMessage);
+            Assert.NotNull(sentMessage);
+            Assert.Equal(senderId, sentMessage!.SentBy.Id);
+            Assert.Equal(receiverId, sentMessage.SentTo.Id);
+            Assert.Equal(content, sentMessage.Content);
+            Assert.NotNull(sentMessage.QuotedResource);
+            Assert.Equal(10u, sentMessage.QuotedResource!.Id);
+            Assert.Equal("Test Resource", sentMessage.QuotedResource.Title);
         }
 
         [Fact]
@@ -94,8 +189,8 @@ namespace ReSR.Tests.Application.Services
             // ASSERT
             var msgs = result.OnSuccess(m => m).Unwrap();
             Assert.Equal(2, msgs.Count());
-            Assert.Equal("1", msgs.First().Content);
-            Assert.Equal("2", msgs.Last().Content);
+            Assert.Equal("2", msgs.First().Content);
+            Assert.Equal("1", msgs.Last().Content);
         }
     }
 }
