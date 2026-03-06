@@ -81,7 +81,7 @@ internal class QuizResourceService(
                     ? participants.All(x => UserPermissionsService.TryVerifyUserResourceAccess(x, resource) is ISuccess)
                         ? await quizSessionRepository.TryAddAsync(QuizSession.Create(resource, [..participants, user]))
                         : Response.Failure<QuizSession>("Vous ne pouvez pas inviter des participants qui n'ont pas accès à la ressource !")
-                    : Response.Failure<QuizSession>("Vous ne pouvez invitez que vos ami.e.s !");
+                    : Response.Failure<QuizSession>("Vous ne pouvez inviter que vos ami.e.s !");
             })
         );
 }
