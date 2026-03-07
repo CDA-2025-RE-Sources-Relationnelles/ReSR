@@ -14,6 +14,7 @@ public interface IResourceService<T> where T: Resource {
     /// <param name="categoryIdFilter">The identifier of the category filter used in the query.</param>
     /// <param name="relationshipsFilter">The relationships filter used in the query.</param>
     public Task<IEnumerable<T>> GetAllPublicAsync(
+        string?       titleSearch         = null,
         Id?           categoryIdFilter    = null,
         Relationships relationshipsFilter = Relationships.None,
         OrderBy       orderBy             = OrderBy.Newest
@@ -28,6 +29,7 @@ public interface IResourceService<T> where T: Resource {
     /// <param name="relationshipsFilter">The relationships filter used in the query.</param>
     public Task<IResponse<IEnumerable<T>>> TryGetAllPrivateAsync(
         Id            userId,
+        string?       titleSearch         = null,
         Id?           categoryIdFilter    = null,
         Relationships relationshipsFilter = Relationships.None,
         OrderBy       orderBy             = OrderBy.Newest

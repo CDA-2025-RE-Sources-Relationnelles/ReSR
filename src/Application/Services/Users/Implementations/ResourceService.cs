@@ -12,25 +12,22 @@ using ReSR.Domain.Ports;
 namespace ReSR.Application.Services.Users.Implementations;
 
 public class ResourceService<T>(
-    IRepository<T> resourceRepository,
+    IResourceRepository<T> resourceRepository,
     IRepository<User> userRepository,
     IRepository<Comment> commentRepository
 ) : IResourceService<T> where T : Resource, IAggregateRoot<T> {
 
-    protected readonly IRepository<T> resourceRepository = resourceRepository;
+    protected readonly IResourceRepository<T> resourceRepository = resourceRepository;
     protected readonly IRepository<User> userRepository = userRepository;
     protected readonly IRepository<Comment> commentRepository = commentRepository;
 
     public async Task<IEnumerable<T>> GetAllPublicAsync(
-        Id? categoryIdFilter,
+        string?       titleSearch,
+        Id?           categoryIdFilter,
         Relationships relationshipsFilter,
         OrderBy       orderBy
     ) {
-        var resources = await resourceRepository.GetAllAsync(x =>
-            x.Visibility == Visibility.Public &&
-            (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
-            (x.Relationships & relationshipsFilter) == relationshipsFilter
-        );
+        var resources = await resourceRepository.GetAllAsync(titleSearch, categoryIdFilter, relationshipsFilter, Visibility.Public);
 
         return orderBy switch {
             OrderBy.Newest    => resources.OrderByDescending(x => x.EditedAt),
@@ -41,18 +38,16 @@ public class ResourceService<T>(
     }
 
     public Task<IResponse<IEnumerable<T>>> TryGetAllPrivateAsync(
-        Id userId,
-        Id? categoryIdFilter,
+        Id            userId,
+        string?       titleSearch,
+        Id?           categoryIdFilter,
         Relationships relationshipsFilter,
-        OrderBy orderBy
+        OrderBy       orderBy
     ) => userRepository.TryGetAsync(userId).OnSuccessAsync(async user => {
 
-        var resources = (await resourceRepository.GetAllAsync(x =>
-            x.Visibility == Visibility.Private &&
-            (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
-            (x.Relationships & relationshipsFilter) == relationshipsFilter &&
-            x.Owner != null
-        )).Where(x => x.Owner!.Id == userId || user.Friends.Any(y => y.Id == x.Owner.Id));
+        var resources = (await resourceRepository
+            .GetAllAsync(titleSearch, categoryIdFilter, relationshipsFilter, Visibility.Private)
+        ).Where(x => x.Owner!.Id == userId || user.Friends.Any(y => y.Id == x.Owner.Id));
 
         return orderBy switch {
             OrderBy.Newest    => resources.OrderByDescending(x => x.EditedAt),

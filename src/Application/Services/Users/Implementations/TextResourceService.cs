@@ -10,7 +10,7 @@ using ReSR.Domain.Ports;
 
 namespace ReSR.Application.Services.Users.Implementations;
 internal class TextResourceService(
-    IRepository<TextResource> resourceRepository,
+    IResourceRepository<TextResource> resourceRepository,
     IRepository<User> userRepository,
     IRepository<Comment> commentRepository,
     IRepository<Category> categoryRepository

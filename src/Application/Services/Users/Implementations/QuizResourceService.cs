@@ -12,7 +12,7 @@ using ReSR.Domain.Services.Implementations;
 
 namespace ReSR.Application.Services.Users.Implementations;
 internal class QuizResourceService(
-    IRepository<QuizResource> resourceRepository,
+    IResourceRepository<QuizResource> resourceRepository,
     IRepository<User> userRepository,
     IRepository<Comment> commentRepository,
     IRepository<Category> categoryRepository,

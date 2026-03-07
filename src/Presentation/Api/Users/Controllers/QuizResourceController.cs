@@ -57,12 +57,14 @@ public class QuizResourceController(
         [HttpGet(ROUTE + "/public")]
         [EndpointDescription("Queries the public quiz resources.")]
         public Task<IResult> GetPublicTextResourcesAsync(
-            int    pageIndex           = 0,
-            int    pageSize            = 10,
-            Id?    categoryIdFilter    = null,
-            string relationshipsFilter = nameof(Relationships.None),
-            string orderBy             = nameof(OrderBy.Newest)
+            int     pageIndex           = 0,
+            int     pageSize            = 10,
+            string? titleSearch         = null,
+            Id?     categoryIdFilter    = null,
+            string  relationshipsFilter = nameof(Relationships.None),
+            string  orderBy             = nameof(OrderBy.Newest)
         ) => resourceService.GetAllPublicAsync(
+            titleSearch: titleSearch,
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
@@ -74,13 +76,15 @@ public class QuizResourceController(
         [EndpointSummary("Only accessible for authenticated users.")]
         [EndpointDescription("Queries the user's private quiz resources.")]
         public Task<IResult> GetPrivateTextResourcesAsync(
-            int    pageIndex           = 0,
-            int    pageSize            = 10,
-            Id?    categoryIdFilter    = null,
-            string relationshipsFilter = nameof(Relationships.None),
-            string orderBy             = nameof(OrderBy.Newest)
+            int     pageIndex           = 0,
+            int     pageSize            = 10,
+            string? titleSearch         = null,
+            Id?     categoryIdFilter    = null,
+            string  relationshipsFilter = nameof(Relationships.None),
+            string  orderBy             = nameof(OrderBy.Newest)
         ) => resourceService.TryGetAllPrivateAsync(
             userId: User.GetUserId()!.Value,
+            titleSearch: titleSearch,
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest

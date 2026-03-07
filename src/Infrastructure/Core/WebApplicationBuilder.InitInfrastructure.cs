@@ -44,10 +44,13 @@ public static partial class Extensions {
 
         builder.Services.AddScoped<IRepository<QuizSession>, QuizSessionRepository>();
 
-        builder.Services.AddScoped<IRepository<Resource>, ResourceRepository<Resource>>();
-        builder.Services.AddScoped<IRepository<TextResource>, ResourceRepository<TextResource>>();
-        builder.Services.AddScoped<IRepository<QuizResource>, ResourceRepository<QuizResource>>();
+        builder.Services.AddScoped<IResourceRepository<Resource>,     ResourceRepository<Resource>>();
+        builder.Services.AddScoped<IResourceRepository<TextResource>, ResourceRepository<TextResource>>();
+        builder.Services.AddScoped<IResourceRepository<QuizResource>, ResourceRepository<QuizResource>>();
 
+        builder.Services.AddScoped<IRepository<Resource>>(x => x.GetRequiredService<IResourceRepository<Resource>>());
+        builder.Services.AddScoped<IRepository<TextResource>>(x => x.GetRequiredService<IResourceRepository<TextResource>>());
+        builder.Services.AddScoped<IRepository<QuizResource>>(x => x.GetRequiredService<IResourceRepository<QuizResource>>());
 
         builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 

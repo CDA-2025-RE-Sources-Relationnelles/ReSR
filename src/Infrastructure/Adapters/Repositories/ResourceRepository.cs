@@ -2,6 +2,7 @@ using FluentResponse;
 using FluentResponse.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using ReSR.Domain.Aggregates.Resources;
+using ReSR.Domain.Aggregates.Resources.ValueObjects;
 using ReSR.Domain.Core;
 using ReSR.Domain.Ports;
 
@@ -9,7 +10,19 @@ namespace ReSR.Infrastructure.Adapters.Repositories;
 internal class ResourceRepository<T>(
     DbContext              dbContext,
     IDomainEventDispatcher domainEventDispatcher
-) : Repository<T>(dbContext, domainEventDispatcher) where T : Resource, IAggregateRoot<T> {
+) : Repository<T>(dbContext, domainEventDispatcher), IResourceRepository<T> where T : Resource, IAggregateRoot<T> {
+    
+    public async Task<IEnumerable<T>> GetAllAsync(
+        string? titleSearch,
+        Id? categoryIdFilter,
+        Relationships relationshipsFilter,
+        Visibility visibilityFilter
+    ) => await this.GetJoinedTable().Where(x =>
+        EF.Functions.ILike(x.Title, $"%{titleSearch}%") &&
+        x.Visibility == visibilityFilter &&
+        (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
+        (x.Relationships & relationshipsFilter) == relationshipsFilter
+    ).ToListAsync();
 
     protected override IQueryable<T> GetJoinedTable() =>
         base.GetJoinedTable()
