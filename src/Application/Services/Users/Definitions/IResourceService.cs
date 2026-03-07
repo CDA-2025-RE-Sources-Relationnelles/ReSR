@@ -42,6 +42,7 @@ public interface IResourceService<T> where T: Resource {
     public Task<IResponse<T>> TryConfirmVerificationAsync(Id id);
     public Task<IResponse<T>> TryRejectVerificationAsync(Id id);
     public Task<IResponse<Comment>> TryPostCommentAsync(Id resourceId, Id posterId, string content);
+    public Task<IResponse<IEnumerable<Comment>>> TryGetCommentsAsync(Id resourceId);
 
     public Task<IResponse<T>> TryLikeAsync(Id id, Id fromId, bool value = true);
     public Task<IResponse<T>> TryBookmarkAsync(Id id, Id fromId, bool value = true);

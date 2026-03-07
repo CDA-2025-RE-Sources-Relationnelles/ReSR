@@ -79,6 +79,14 @@ public class ResourceService<T>(
             )
         ).OnSuccessAsync(commentRepository.TryAddAsync);
 
+    public Task<IResponse<IEnumerable<Comment>>> TryGetCommentsAsync(Id resourceId) =>
+        resourceRepository
+            .TryGetAsync(resourceId)
+            .OnSuccessAsync(_ => commentRepository.GetAllAsync(x =>
+                x.CommentedResource.Id == resourceId &&
+                x.AnsweredComment == null
+            ));
+
     public Task<IResponse<T>> TryLikeAsync(Id id, Id fromId, bool value) =>
         userRepository.TryGetAsync(fromId).OnSuccessAsync(from =>
             resourceRepository.TryUpdateAsync(id, x => (T)x.WithLikeFrom(from, value))

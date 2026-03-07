@@ -3,7 +3,6 @@ using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
 using ReSR.Presentation.Api.Users.ValueObjects.Accounts;
 using ReSR.Presentation.Api.Users.ValueObjects.Resources;
-using ReSR.Domain.Aggregates.Messages.ValueObjects;
 
 namespace ReSR.Presentation.Api.Users.ValueObjects.Messages;
 public class CommentResource(Comment from) : MessageResource<Comment>(from), IResource<CommentResource, Comment> {

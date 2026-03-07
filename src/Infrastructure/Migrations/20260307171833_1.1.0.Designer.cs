@@ -12,8 +12,8 @@ using ReSR.Infrastructure.Core;
 namespace ReSR.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260224203339_1.0.7")]
-    partial class _107
+    [Migration("20260307171833_1.1.0")]
+    partial class _110
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

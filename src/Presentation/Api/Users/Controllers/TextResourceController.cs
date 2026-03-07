@@ -148,7 +148,7 @@ public class TextResourceController(
         [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
         [EndpointDescription("Queries commens from the text resource")]
         public Task<IResult> GetAllTextResourceComments(Id resourceId) =>
-            repository.TryGetAsync(resourceId).OnSuccessAsync(x => x.Comments.Where(x => x.AnsweredComment is null)).ToResourceAsync<Comment, CommentResource>(Results.Ok);
+            resourceService.TryGetCommentsAsync(resourceId).ToResourceAsync<Comment, CommentResource>(Results.Ok);
 
         [HttpPost("{resourceId}/confirm-verification")]
         [Authorize(Roles = nameof(UserPermissions.VerifyResources))]

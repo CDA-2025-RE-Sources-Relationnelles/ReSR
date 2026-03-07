@@ -194,7 +194,7 @@ public class QuizResourceController(
         [Authorize(Policy = nameof(ResourceReadAuthorizationRequirement))]
         [EndpointDescription("Queries commens from the text resource")]
         public Task<IResult> GetAllQuizResourceComments(Id resourceId) =>
-            repository.TryGetAsync(resourceId).OnSuccessAsync(x => x.Comments.Where(x => x.AnsweredComment is null)).ToResourceAsync<Comment, CommentResource>(Results.Ok);
+            resourceService.TryGetCommentsAsync(resourceId).ToResourceAsync<Comment, CommentResource>(Results.Ok);
 
 
         [HttpPost("{resourceId}/confirm-verification")]
