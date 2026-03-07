@@ -47,7 +47,7 @@ public class ResourceService<T>(
 
         var resources = (await resourceRepository
             .GetAllAsync(titleSearch, categoryIdFilter, relationshipsFilter, Visibility.Private)
-        ).Where(x => x.Owner!.Id == userId || user.Friends.Any(y => y.Id == x.Owner.Id));
+        ).Where(x => x.Owner?.Id == userId || user.Friends.Any(y => y.Id == x.Owner?.Id));
 
         return orderBy switch {
             OrderBy.Newest    => resources.OrderByDescending(x => x.EditedAt),

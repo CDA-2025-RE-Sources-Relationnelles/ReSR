@@ -62,7 +62,7 @@ public static partial class Extensions {
         int pageSize
     ) where TResource : IResource<TResource, TValue> {
         return self.Unwrap(
-            x => Results.Ok(Page<TValue>.From(x, pageIndex, pageSize)),
+            x => Results.Ok(Response.Success(Page<TResource>.From(TResource.From(x), pageIndex, pageSize))),
             e => e.ToResult(self)
         );
     }
@@ -77,7 +77,9 @@ public static partial class Extensions {
         this IEnumerable<TValue> self,
         int pageIndex,
         int pageSize
-    ) where TResource : IResource<TResource, TValue> => self.ToResource<TValue, TResource>(x => Results.Ok(Page<TResource>.From(x.Value, pageIndex, pageSize)));
+    ) where TResource : IResource<TResource, TValue> => self.ToResource<TValue, TResource>(
+        x => Results.Ok(Response.Success(Page<TResource>.From(x.Value, pageIndex, pageSize))))
+    ;
 
     /// <summary>
     /// Converts a <see cref="IResponse{TValue}"/> to an HATEOAS resource wrapped in an HTTP response.
