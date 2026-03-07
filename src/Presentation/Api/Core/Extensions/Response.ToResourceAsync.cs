@@ -51,6 +51,35 @@ public static partial class Extensions {
     }
 
     /// <summary>
+    /// Converts a <see cref="IResponse{IEnumerable{TValue}}"/> to a HATEOAS page wrapped in an HTTP response.
+    /// </summary>
+    /// <typeparam name="TValue">Reponse value type.</typeparam>
+    /// <typeparam name="TResource">Resource type.</typeparam>
+    /// <returns>An HTTP reponse</returns>
+    public static IResult ToPageResource<TValue, TResource>(
+        this IResponse<IEnumerable<TValue>> self,
+        int pageIndex,
+        int pageSize
+    ) where TResource : IResource<TResource, TValue> {
+        return self.Unwrap(
+            x => Results.Ok(Page<TValue>.From(x, pageIndex, pageSize)),
+            e => e.ToResult(self)
+        );
+    }
+
+    /// <summary>
+    /// Converts a <see cref="IResponse{IEnumerable{TValue}}"/> to a HATEOAS page wrapped in an HTTP response.
+    /// </summary>
+    /// <typeparam name="TValue">Reponse value type.</typeparam>
+    /// <typeparam name="TResource">Resource type.</typeparam>
+    /// <returns>An HTTP reponse</returns>
+    public static IResult ToPageResource<TValue, TResource>(
+        this IEnumerable<TValue> self,
+        int pageIndex,
+        int pageSize
+    ) where TResource : IResource<TResource, TValue> => self.ToResource<TValue, TResource>(x => Results.Ok(Page<TResource>.From(x.Value, pageIndex, pageSize)));
+
+    /// <summary>
     /// Converts a <see cref="IResponse{TValue}"/> to an HATEOAS resource wrapped in an HTTP response.
     /// </summary>
     /// <typeparam name="TValue">Reponse value type.</typeparam>
@@ -85,4 +114,30 @@ public static partial class Extensions {
         Func<ISuccess<IEnumerable<TResource>>, IResult> transform
     ) where TResource : IResource<TResource, TValue> =>
         (await task).ToResource(transform);
+
+    /// <summary>
+    /// Converts a <see cref="IResponse{IEnumerable{TValue}}"/> to a HATEOAS page wrapped in an HTTP response.
+    /// </summary>
+    /// <typeparam name="TValue">Value type.</typeparam>
+    /// <typeparam name="TResource">Resource type.</typeparam>
+    /// <returns>An HTTP reponse</returns>
+    public static async Task<IResult> ToPageResourceAsync<TValue, TResource>(
+        this Task<IResponse<IEnumerable<TValue>>> task,
+        int pageIndex,
+        int pageSize
+    ) where TResource : IResource<TResource, TValue> =>
+        (await task).ToPageResource<TValue, TResource>(pageIndex, pageSize);
+
+    /// <summary>
+    /// Converts a <see cref="IResponse{IEnumerable{TValue}}"/> to a HATEOAS page wrapped in an HTTP response.
+    /// </summary>
+    /// <typeparam name="TValue">Value type.</typeparam>
+    /// <typeparam name="TResource">Resource type.</typeparam>
+    /// <returns>An HTTP reponse</returns>
+    public static async Task<IResult> ToPageResourceAsync<TValue, TResource>(
+        this Task<IEnumerable<TValue>> task,
+        int pageIndex,
+        int pageSize
+    ) where TResource : IResource<TResource, TValue> =>
+        (await task).ToPageResource<TValue, TResource>(pageIndex, pageSize);
 }
