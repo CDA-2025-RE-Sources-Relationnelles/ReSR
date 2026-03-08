@@ -7,18 +7,18 @@ public interface IQuizResourceCommandService {
 
     public Task<IResponse<QuizResource>> TryCreateAsync(
         string                    title,
+        string                    description,
         Id                        categoryId,
         Relationships             relationships,
-        string                    content,
         IEnumerable<QuizQuestion> questions
     );
 
     public Task<IResponse<QuizResource>> TryUpdateAsync(
         Id id,
         string?        title         = null,
+        string?        description   = null,
         Id?            categoryId    = null,
-        Relationships? relationships = null,
-        string?        content       = null
+        Relationships? relationships = null
     );
 
     public Task<IResponse<QuizResource>> TryAddQuestionAsync(

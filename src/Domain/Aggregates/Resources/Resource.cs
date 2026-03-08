@@ -20,6 +20,9 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
         /// <summary> The resource's title </summary>
         public string Title { get; internal init; } = null!;
 
+        /// <summary> The resource's description. </summary>
+        public string Description { get; internal init; } = null!;
+
         /// <summary> The resource's category </summary>
         public Category Category { get; internal init; } = null!;
 
@@ -28,7 +31,6 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
 
         /// <summary> The resource's visibility. </summary>
         public Visibility Visibility { get; internal init; }
-        
 
 
         /// <summary> The instant at which the resource was published. </summary>
@@ -77,6 +79,13 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
                     EditedAt = DateTime.UtcNow,
                     Title    = value,
                 });
+
+            /// <returns> A copy of the resource with a new description. </returns>
+            public virtual Resource WithDescription(string value) =>
+                this with {
+                    EditedAt    = DateTime.UtcNow,
+                    Description = value,
+                };
 
             /// <returns> A copy of the resource with a new category. </returns>
             public virtual Resource WithCategory(Category value) =>

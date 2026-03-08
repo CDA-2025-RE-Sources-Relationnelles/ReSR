@@ -16,22 +16,22 @@ internal class QuizResourceCommandService(
 
     public Task<IResponse<QuizResource>> TryCreateAsync(
         string                    title,
+        string                    description,
         Id                        categoryId,
         Relationships             relationships,
-        string                    content,
         IEnumerable<QuizQuestion> questions
     ) => categoryRepository
         .TryGetAsync(categoryId)
-        .OnSuccessAsync(category => QuizResource.TryCreate(title, category, relationships, content, questions, isPrivate: false))
+        .OnSuccessAsync(category => QuizResource.TryCreate(title, description, category, relationships, questions, isPrivate: false))
         .OnSuccessAsync(repository.TryAddAsync)
         .OnSuccessAsync(x => logger.LogInformation("Quiz resource created by manager: {@QuizResource} !", x));
 
     public Task<IResponse<QuizResource>> TryUpdateAsync(
         Id id,
         string?                    title         = null,
+        string?                    description   = null,
         Id?                        categoryId    = null,
-        Relationships?             relationships = null,
-        string?                    content       = null
+        Relationships?             relationships = null
     ) => repository.TryUpdateAsync(id, async resource => {
 
         var response = Response.Success(resource);
@@ -43,7 +43,7 @@ internal class QuizResourceCommandService(
                 .OnSuccessAsync(category => x.WithCategory(category))
         );
         if (relationships is not null) response = response.OnSuccess(x => x.WithRelationships(relationships.Value));
-        if (content is not null) response = response.OnSuccess(x => x.WithContent(content));
+        if (description is not null) response = response.OnSuccess(x => x.WithDescription(description));
 
         return response;
 

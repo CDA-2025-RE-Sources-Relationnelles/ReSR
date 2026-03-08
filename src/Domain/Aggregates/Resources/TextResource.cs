@@ -18,6 +18,7 @@ public record TextResource : Resource, IAggregateRoot<TextResource> {
 
         public static IResponse<TextResource> TryCreate(
             string        title,
+            string        description,
             Category      category,
             Relationships relationships,
             string        content,
@@ -26,6 +27,7 @@ public record TextResource : Resource, IAggregateRoot<TextResource> {
         ) => TryVerifyTitleInvariant(title)
                 .OnSuccess(() => new TextResource {
                     Title         = title,
+                    Description   = description,
                     Category      = category,
                     Relationships = relationships,
                     Content       = content,
@@ -46,6 +48,9 @@ public record TextResource : Resource, IAggregateRoot<TextResource> {
 
             public new IResponse<TextResource> TryWithTitle(string value) =>
                 base.TryWithTitle(value).OnSuccess(x => (TextResource)x);
+
+            public new TextResource WithDescription(string value) =>
+                (TextResource)base.WithDescription(value);
 
             public new TextResource WithCategory(Category value) =>
                 (TextResource)base.WithCategory(value);
