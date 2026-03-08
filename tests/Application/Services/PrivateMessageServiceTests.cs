@@ -112,7 +112,7 @@ namespace ReSR.Tests.Application.Services
             receiver.LikedUsers.Add(sender);
             receiver.LikedBy.Add(sender);
 
-            var resource = new TextResource { Id = resourceId, Title = "Test Resource" };
+            var resource = new TextResource { Id = resourceId, Title = "Test Resource", Owner = sender };
 
             var content = "Regarde cette ressource !";
 
@@ -130,6 +130,7 @@ namespace ReSR.Tests.Application.Services
 
             // ACT
             var result = await _service.TrySendAsync(senderId, receiverId, content, resourceId);
+            result.Unwrap();
 
             // ASSERT
             bool successCalled = false;

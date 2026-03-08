@@ -17,23 +17,9 @@ internal class PrivateMessageRepository(
             .Include(x => x.SentBy)
             .Include(x => x.QuotedResource);
 
-    public async Task<IResponse<PrivateMessage>> AddAsync(PrivateMessage message)
-    {
-        try
-        {
-            await dbContext.Set<PrivateMessage>().AddAsync(message);
-            await dbContext.SaveChangesAsync();
-            return Response.Success(message);
-        }
-        catch (Exception ex)
-        {
-            return Response.Failure<PrivateMessage>(ex);
-        }
-    }
-
     public async Task<IResponse<IEnumerable<PrivateMessage>>> GetMessagesBetweenUsersAsync(Id senderId, Id receiverId)
     {
-        var messages = await dbContext.Set<PrivateMessage>()
+        var messages = await this.GetJoinedTable()
             .Where(m =>
                 (m.SentBy.Id == senderId && m.SentTo.Id == receiverId)
             || (m.SentBy.Id == receiverId && m.SentTo.Id == senderId)

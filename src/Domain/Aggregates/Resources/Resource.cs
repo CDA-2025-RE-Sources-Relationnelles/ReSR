@@ -30,7 +30,7 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
         public Relationships Relationships { get; internal init; }
 
         /// <summary> The resource's visibility. </summary>
-        public Visibility Visibility { get; internal init; }
+        public Visibility Visibility { get; internal init; } = Visibility.Private;
 
 
         /// <summary> The instant at which the resource was published. </summary>
