@@ -15,7 +15,7 @@ public class QuizResourceCreationTests {
             title         : "Quiz title",
             category      : Category.TryCreate("General").Unwrap(),
             relationships : Relationships.All,
-            content       : "Some content",
+            description   : "Some description",
             questions     : [QuizResourceTestFactory.ValidQuestion()]
         );
 
@@ -24,7 +24,7 @@ public class QuizResourceCreationTests {
 
         var quiz = response.Unwrap();
         Assert.Equal("Quiz title", quiz.Title);
-        Assert.Equal("Some content", quiz.Content);
+        Assert.Equal("Some description", quiz.Description);
         Assert.Single(quiz.Questions);
     }
 
@@ -36,7 +36,7 @@ public class QuizResourceCreationTests {
             title         : "Quiz title",
             category      : Category.TryCreate("General").Unwrap(),
             relationships : Relationships.All,
-            content       : "Some content",
+            description   : "Some description",
             questions     : []
         );
 
@@ -51,7 +51,7 @@ public class QuizResourceCreationTests {
             title         : "Quiz title",
             category      : Category.TryCreate("General").Unwrap(),
             relationships : Relationships.All,
-            content       : "Some content",
+            description   : "Some description",
             questions     : [new() {
                 Score   = 20,
                 Content = "Content",

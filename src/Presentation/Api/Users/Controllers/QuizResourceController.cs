@@ -29,18 +29,18 @@ public class QuizResourceController(
 
         public readonly record struct CreateUserQuizResourceDto(
             string                    Title,
+            string                    Description,
             Id                        CategoryId,
             string                    Relationships,
-            string                    Content,
             IEnumerable<QuizQuestion> Questions,
             bool                      IsPrivate
         );
 
         public readonly record struct UpdateUserQuizResourceDto(
             string? Title         = null,
+            string? Description   = null,
             Id?     CategoryId    = null,
-            string? Relationships = null,
-            string? Content       = null
+            string? Relationships = null
         );
 
         public readonly record struct PostQuizResourceCommentDto(
@@ -104,9 +104,9 @@ public class QuizResourceController(
             resourceService.TryCreateAsync(
                 ownerId: User.GetUserId()!.Value,
                 title: dto.Title,
+                description: dto.Description,
                 categoryId: dto.CategoryId,
                 relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : Relationships.All,
-                content: dto.Content,
                 questions: dto.Questions,
                 isPrivate: dto.IsPrivate
             ).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
@@ -119,9 +119,9 @@ public class QuizResourceController(
             resourceService.TryUpdateAsync(
                 id: resourceId,
                 title: dto.Title,
+                description: dto.Description,
                 categoryId: dto.CategoryId,
-                relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : null,
-                content: dto.Content
+                relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : null
             ).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
 
         [HttpPost("{resourceId}/questions")]

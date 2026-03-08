@@ -9,9 +9,9 @@ public interface IQuizResourceService : IResourceService<QuizResource> {
     public Task<IResponse<QuizResource>> TryCreateAsync(
         Id                        ownerId,
         string                    title,
+        string                    description,
         Id                        categoryId,
         Relationships             relationships,
-        string                    content,
         IEnumerable<QuizQuestion> questions,
         bool                      isPrivate
     );
@@ -19,9 +19,9 @@ public interface IQuizResourceService : IResourceService<QuizResource> {
     public Task<IResponse<QuizResource>> TryUpdateAsync(
         Id id,
         string?        title         = null,
+        string?        description   = null,
         Id?            categoryId    = null,
-        Relationships? relationships = null,
-        string?        content       = null
+        Relationships? relationships = null
     );
 
     public Task<IResponse<QuizResource>> TryAddQuestionAsync(

@@ -27,6 +27,7 @@ public class TextResourceController(
 
         public readonly record struct CreateUserTextResourceDto(
             string Title,
+            string Description,
             Id     CategoryId,
             string Relationships,
             string Content,
@@ -35,6 +36,7 @@ public class TextResourceController(
 
         public readonly record struct UpdateUserTextResourceDto(
             string? Title         = null,
+            string? Description   = null,
             Id?     CategoryId    = null,
             string? Relationships = null,
             string? Content       = null
@@ -97,6 +99,7 @@ public class TextResourceController(
             resourceService.TryCreateAsync(
                 ownerId: User.GetUserId()!.Value,
                 title: dto.Title,
+                description: dto.Description,
                 categoryId: dto.CategoryId,
                 relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : Relationships.All,
                 content: dto.Content,
@@ -111,6 +114,7 @@ public class TextResourceController(
             resourceService.TryUpdateAsync(
                 id: resourceId,
                 title: dto.Title,
+                description: dto.Description,
                 categoryId: dto.CategoryId,
                 relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : null,
                 content: dto.Content

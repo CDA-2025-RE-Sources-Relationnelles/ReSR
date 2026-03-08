@@ -13,6 +13,7 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         public Id Id { get; } = from.Id;
 
         public string Title         { get; } = from.Title;
+        public string Description   { get; } = from.Description;
         public string Relationships { get; } = from.Relationships.ToString();
         public string Visibility    { get; } = from.Visibility.ToString();
         public string PublishedAt   { get; } = from.PublishedAt.ToString();
