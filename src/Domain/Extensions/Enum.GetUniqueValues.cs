@@ -1,5 +1,5 @@
 namespace ReSR.Domain.Extensions;
-internal static partial class FlagsManipulation {
+public static partial class FlagsManipulation {
 
     public static IEnumerable<F> GetUniqueValues<F>() where F: Enum {
 

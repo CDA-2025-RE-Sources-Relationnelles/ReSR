@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ReSR.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class _107 : Migration
+    public partial class _120 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -91,6 +91,7 @@ namespace ReSR.Infrastructure.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
                     CategoryId = table.Column<long>(type: "bigint", nullable: false),
                     Relationships = table.Column<int>(type: "integer", nullable: false),
                     Visibility = table.Column<int>(type: "integer", nullable: false),
@@ -98,8 +99,7 @@ namespace ReSR.Infrastructure.Migrations
                     EditedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     OwnerId = table.Column<long>(type: "bigint", nullable: true),
                     Discriminator = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
-                    Content = table.Column<string>(type: "text", nullable: true),
-                    TextResource_Content = table.Column<string>(type: "text", nullable: true)
+                    Content = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

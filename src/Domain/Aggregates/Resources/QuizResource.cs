@@ -10,9 +10,6 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
 
     #region PROPERTIES
 
-        /// <summary> The resource's text content. </summary>
-        public string Content { get; internal init; } = null!;
-
         /// <summary> The resource's quiz questions. </summary>
         public ICollection<QuizQuestion> Questions { get; internal set; } = [];
 
@@ -21,9 +18,9 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
 
         public static IResponse<QuizResource> TryCreate(
             string                    title,
+            string                    description,
             Category                  category,
             Relationships             relationships,
-            string                    content,
             IEnumerable<QuizQuestion> questions,
             bool                      isPrivate = true,
             User?                     owner     = null
@@ -31,9 +28,9 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
                 .OnSuccess(() => TryVerifyQuizQuestionsInvariant(questions))
                 .OnSuccess(() => new QuizResource {
                     Title         = title,
+                    Description   = description,
                     Category      = category,
                     Relationships = relationships,
-                    Content       = content,
                     Questions     = [.. questions],
                     Owner         = owner,
                     Visibility    = isPrivate
@@ -44,9 +41,8 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
     #endregion
     #region METHODS
             
-        /// <returns> A copy of the resource with the given content. </returns>
-        public virtual QuizResource WithContent(string value) =>
-            this with { Content = value };
+        public new QuizResource WithDescription(string value) =>
+            (QuizResource)base.WithDescription(value);
 
         public new QuizResource WithCategory(Category value) =>
             (QuizResource)base.WithCategory(value);

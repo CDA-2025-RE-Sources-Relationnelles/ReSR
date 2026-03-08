@@ -3,6 +3,7 @@ using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
 using ReSR.Presentation.Api.Users.ValueObjects.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
+using ReSR.Domain.Extensions;
 
 namespace ReSR.Presentation.Api.Users.ValueObjects.Accounts;
 public class UserPublicResource(User from) : IResource<UserPublicResource, User> {
@@ -11,7 +12,8 @@ public class UserPublicResource(User from) : IResource<UserPublicResource, User>
 
         public Id Id { get; } = from.Id;
 
-        public string Username { get; } = from.Username;
+        public string              Username             { get; } = from.Username;
+        public IEnumerable<string> LocalizedPermissions { get; } = from.Permissions.ToLocalizedNames();
         
         public UserLinks Links { get; } = new(
             Self                 : GetLink(from),

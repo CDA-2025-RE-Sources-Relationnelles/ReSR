@@ -14,6 +14,7 @@ using ReSR.Presentation.Api.Users.Authorization;
 using ReSR.Presentation.Api.Users.Extensions;
 using ReSR.Presentation.Api.Users.ValueObjects.Messages;
 using ReSR.Presentation.Api.Users.ValueObjects.QuizSessions;
+using ReSR.Application.ValueObjects.Resources;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
 [ApiController]
@@ -28,18 +29,18 @@ public class QuizResourceController(
 
         public readonly record struct CreateUserQuizResourceDto(
             string                    Title,
+            string                    Description,
             Id                        CategoryId,
             string                    Relationships,
-            string                    Content,
             IEnumerable<QuizQuestion> Questions,
             bool                      IsPrivate
         );
 
         public readonly record struct UpdateUserQuizResourceDto(
             string? Title         = null,
+            string? Description   = null,
             Id?     CategoryId    = null,
-            string? Relationships = null,
-            string? Content       = null
+            string? Relationships = null
         );
 
         public readonly record struct PostQuizResourceCommentDto(
@@ -52,6 +53,42 @@ public class QuizResourceController(
 
     #endregion
     #region ROUTES
+
+        [HttpGet(ROUTE + "/public")]
+        [EndpointDescription("Queries the public quiz resources.")]
+        public Task<IResult> GetPublicTextResourcesAsync(
+            int     pageIndex           = 0,
+            int     pageSize            = 10,
+            string? titleSearch         = null,
+            Id?     categoryIdFilter    = null,
+            string  relationshipsFilter = nameof(Relationships.None),
+            string  orderBy             = nameof(OrderBy.Newest)
+        ) => resourceService.GetAllPublicAsync(
+            titleSearch: titleSearch,
+            categoryIdFilter: categoryIdFilter,
+            relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
+            orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
+        ).ToPageResourceAsync<QuizResource, QuizResourceResource>(pageIndex, pageSize);
+
+
+        [HttpGet(ROUTE + "/private")]
+        [Authorize]
+        [EndpointSummary("Only accessible for authenticated users.")]
+        [EndpointDescription("Queries the user's private quiz resources.")]
+        public Task<IResult> GetPrivateTextResourcesAsync(
+            int     pageIndex           = 0,
+            int     pageSize            = 10,
+            string? titleSearch         = null,
+            Id?     categoryIdFilter    = null,
+            string  relationshipsFilter = nameof(Relationships.None),
+            string  orderBy             = nameof(OrderBy.Newest)
+        ) => resourceService.TryGetAllPrivateAsync(
+            userId: User.GetUserId()!.Value,
+            titleSearch: titleSearch,
+            categoryIdFilter: categoryIdFilter,
+            relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
+            orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
+        ).ToPageResourceAsync<QuizResource, QuizResourceResource>(pageIndex, pageSize);
 
         [HttpGet("{resourceId}")]
         [Authorize(Policy = nameof(ResourceReadAuthorizationRequirement))]
@@ -67,9 +104,9 @@ public class QuizResourceController(
             resourceService.TryCreateAsync(
                 ownerId: User.GetUserId()!.Value,
                 title: dto.Title,
+                description: dto.Description,
                 categoryId: dto.CategoryId,
                 relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : Relationships.All,
-                content: dto.Content,
                 questions: dto.Questions,
                 isPrivate: dto.IsPrivate
             ).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
@@ -82,9 +119,9 @@ public class QuizResourceController(
             resourceService.TryUpdateAsync(
                 id: resourceId,
                 title: dto.Title,
+                description: dto.Description,
                 categoryId: dto.CategoryId,
-                relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : null,
-                content: dto.Content
+                relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : null
             ).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
 
         [HttpPost("{resourceId}/questions")]
@@ -165,7 +202,7 @@ public class QuizResourceController(
         [Authorize(Policy = nameof(ResourceReadAuthorizationRequirement))]
         [EndpointDescription("Queries commens from the text resource")]
         public Task<IResult> GetAllQuizResourceComments(Id resourceId) =>
-            repository.TryGetAsync(resourceId).OnSuccessAsync(x => x.Comments.Where(x => x.AnsweredComment is null)).ToResourceAsync<Comment, CommentResource>(Results.Ok);
+            resourceService.TryGetCommentsAsync(resourceId).ToResourceAsync<Comment, CommentResource>(Results.Ok);
 
 
         [HttpPost("{resourceId}/confirm-verification")]

@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
+using ReSR.Domain.Extensions;
 
 namespace ReSR.Presentation.Api.Managers.ValueObjects.Accounts;
 public class UserResource(User from) : IResource<UserResource, User> {
@@ -11,11 +12,12 @@ public class UserResource(User from) : IResource<UserResource, User> {
         [JsonIgnore]
         public Id Id { get; } = from.Id;
 
-        public string Username    { get; } = from.Username;
-        public string Email       { get; } = from.Email;
-        public string Permissions { get; } = from.Permissions.ToString();
-        public bool Suspended     { get; } = from.Suspended;
-        public bool IsAnonymous   { get; } = from.IsAnonymous;
+        public string              Username             { get; } = from.Username;
+        public string              Email                { get; } = from.Email;
+        public string              Permissions          { get; } = from.Permissions.ToString();
+        public IEnumerable<string> LocalizedPermissions { get; } = from.Permissions.ToLocalizedNames();
+        public bool                Suspended            { get; } = from.Suspended;
+        public bool                IsAnonymous          { get; } = from.IsAnonymous;
         
         public UserLinks Links { get; } = new(
             Self      : GetLink(from),

@@ -7,8 +7,8 @@ Vous pouvez configurer la solution à l'aide du fichier `appsettings.shared.json
   "AllowedHosts": "*",
 
   "Root": {
-    "MailAddress" : <Adresse électronique de l'administrateur racine>,
-    "Password"    : <Mot de passe de l'administrateur racine>
+    "Email"    : <Adresse électronique de l'administrateur racine>,
+    "Password" : <Mot de passe de l'administrateur racine>
   },
   
   "DB" : {
@@ -50,9 +50,16 @@ Vous pouvez configurer la solution à l'aide du fichier `appsettings.shared.json
 }
 ```
 
-Il est possible de configurer la solution à l'aide de variables d'environnement : dans ce cas, nommez vos variables avec le format ``<Nom du parent>__<Nom de l'enfant>__<...>``. (exemple : ``Root__MailAddress=root@resr.fr``).
+Il est possible de configurer la solution à l'aide de variables d'environnement : dans ce cas, nommez vos variables avec le format ``<Nom du parent>__<Nom de l'enfant>__<...>``. (exemple : ``Root__Email=root@resr.fr``).
 
 ### Initialisation
+
+
+Clonez d'abord le dépôt en entrant cette commande dans le terminale :
+
+```shell
+git clone https://github.com/CDA-2025-RE-Sources-Relationnelles/ReSR.git
+```
 
 Si aucune base de données et service d'envoi de courrier électronique ne sont en place, vous pouvez les mettre en place à l'aide de ce docker-compose :
 
@@ -77,6 +84,25 @@ services:
     ports:
       - "3000:1080"         # Interface web
       - "<Smtp__Port>:1026" # SMTP
+```
+
+Puis, entrez cette commande dans le terminal :
+
+```shell
+cd ReSR
+dotnet build
+dotnet ef database update --project src\\Infrastructure
+```
+Si vous n'avez pas de certificat ( HTTPS ) générez un certificat de développeur avec la commande suivante : 
+
+```shell
+dotnet dev-certs https --trust
+```
+Si vous souhaitez avoir des données par défaut ( génération de ressources et catégories ) :
+
+```shell
+docker cp seed-data.sql resr-db-1:/tmp/seed-data.sql
+docker exec resr-db-1 psql -U "root@resr.fr" -d resr -f /tmp/seed-data.sql
 ```
 
 ### Exécution

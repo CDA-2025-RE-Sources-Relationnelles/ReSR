@@ -10,7 +10,7 @@ using ReSR.Domain.Ports;
 
 namespace ReSR.Application.Services.Users.Implementations;
 internal class TextResourceService(
-    IRepository<TextResource> resourceRepository,
+    IResourceRepository<TextResource> resourceRepository,
     IRepository<User> userRepository,
     IRepository<Comment> commentRepository,
     IRepository<Category> categoryRepository
@@ -19,6 +19,7 @@ internal class TextResourceService(
     public Task<IResponse<TextResource>> TryCreateAsync(
         Id            ownerId,
         string        title,
+        string        description,
         Id            categoryId,
         Relationships relationships,
         string        content,
@@ -26,12 +27,13 @@ internal class TextResourceService(
     ) => userRepository.TryGetAsync(ownerId)
         .OnSuccessAsync(owner => categoryRepository
             .TryGetAsync(categoryId)
-            .OnSuccessAsync(category => TextResource.TryCreate(title, category, relationships, content, isPrivate, owner)))
+            .OnSuccessAsync(category => TextResource.TryCreate(title, description, category, relationships, content, isPrivate, owner)))
         .OnSuccessAsync(resourceRepository.TryAddAsync);
 
     public Task<IResponse<TextResource>> TryUpdateAsync(
         Id id,
         string?        title         = null,
+        string?        description   = null,
         Id?            categoryId    = null,
         Relationships? relationships = null,
         string?        content       = null
@@ -40,6 +42,7 @@ internal class TextResourceService(
         var response = Response.Success(resource);
 
         if (title is not null) response = response.OnSuccess(x => x.TryWithTitle(title));
+        if (description is not null) response = response.OnSuccess(x => x.WithDescription(description));
         if (categoryId is not null) response = await response.OnSuccessAsync(x =>
             categoryRepository
                 .TryGetAsync(categoryId.Value)

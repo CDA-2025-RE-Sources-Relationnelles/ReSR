@@ -12,8 +12,8 @@ using ReSR.Infrastructure.Core;
 namespace ReSR.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260224203339_1.0.7")]
-    partial class _107
+    [Migration("20260308163721_1.2.0")]
+    partial class _120
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -220,6 +220,10 @@ namespace ReSR.Infrastructure.Migrations
                     b.Property<long>("CategoryId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Discriminator")
                         .IsRequired()
                         .HasMaxLength(13)
@@ -324,10 +328,6 @@ namespace ReSR.Infrastructure.Migrations
                 {
                     b.HasBaseType("ReSR.Domain.Aggregates.Resources.Resource");
 
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasDiscriminator().HasValue("QuizResource");
                 });
 
@@ -338,12 +338,6 @@ namespace ReSR.Infrastructure.Migrations
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.ToTable("Resource", t =>
-                        {
-                            t.Property("Content")
-                                .HasColumnName("TextResource_Content");
-                        });
 
                     b.HasDiscriminator().HasValue("TextResource");
                 });

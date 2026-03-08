@@ -8,6 +8,7 @@ public interface ITextResourceService : IResourceService<TextResource> {
     public Task<IResponse<TextResource>> TryCreateAsync(
         Id            ownerId,
         string        title,
+        string        description,
         Id            categoryId,
         Relationships relationships,
         string        content,
@@ -17,6 +18,7 @@ public interface ITextResourceService : IResourceService<TextResource> {
     public Task<IResponse<TextResource>> TryUpdateAsync(
         Id id,
         string?        title         = null,
+        string?        description   = null,
         Id?            categoryId    = null,
         Relationships? relationships = null,
         string?        content       = null

@@ -12,7 +12,7 @@ using ReSR.Domain.Services.Implementations;
 
 namespace ReSR.Application.Services.Users.Implementations;
 internal class QuizResourceService(
-    IRepository<QuizResource> resourceRepository,
+    IResourceRepository<QuizResource> resourceRepository,
     IRepository<User> userRepository,
     IRepository<Comment> commentRepository,
     IRepository<Category> categoryRepository,
@@ -22,22 +22,22 @@ internal class QuizResourceService(
     public Task<IResponse<QuizResource>> TryCreateAsync(
         Id                        ownerId,
         string                    title,
+        string                    description,
         Id                        categoryId,
         Relationships             relationships,
-        string                    content,
         IEnumerable<QuizQuestion> questions,
         bool                      isPrivate
     ) => userRepository.TryGetAsync(ownerId).OnSuccessAsync(owner => categoryRepository
             .TryGetAsync(categoryId)
-            .OnSuccessAsync(category => QuizResource.TryCreate(title, category, relationships, content, questions, isPrivate, owner))
+            .OnSuccessAsync(category => QuizResource.TryCreate(title, description, category, relationships, questions, isPrivate, owner))
         ).OnSuccessAsync(resourceRepository.TryAddAsync);
 
     public Task<IResponse<QuizResource>> TryUpdateAsync(
         Id id,
-        string?                    title         = null,
-        Id?                        categoryId    = null,
-        Relationships?             relationships = null,
-        string?                    content       = null
+        string?        title         = null,
+        string?        description   = null,
+        Id?            categoryId    = null,
+        Relationships? relationships = null
     ) => resourceRepository.TryUpdateAsync(id, async resource => {
 
         var response = Response.Success(resource);
@@ -49,7 +49,7 @@ internal class QuizResourceService(
                 .OnSuccessAsync(category => x.WithCategory(category))
         );
         if (relationships is not null) response = response.OnSuccess(x => x.WithRelationships(relationships.Value));
-        if (content is not null) response = response.OnSuccess(x => x.WithContent(content));
+        if (description is not null) response = response.OnSuccess(x => x.WithDescription(description));
 
         return response;
 

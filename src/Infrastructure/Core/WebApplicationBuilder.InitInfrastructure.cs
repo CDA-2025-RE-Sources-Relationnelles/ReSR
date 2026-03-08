@@ -32,30 +32,6 @@ public static partial class Extensions {
             )
         );
 
-        builder.Services.AddAuthentication(options => {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(options => {
-            options.TokenValidationParameters = new TokenValidationParameters {
-                ValidateIssuer           = true,
-                ValidateAudience         = true,
-                ValidateLifetime         = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer              = builder.Configuration["Jwt:Issuer"]!,
-                ValidAudience            = builder.Configuration["Jwt:Audience"]!,
-                IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
-            };
-
-            options.Events = new JwtBearerEvents {
-                OnChallenge = context => {
-                    context.HandleResponse();
-                    context.Response.Redirect("/");
-                    return Task.CompletedTask;
-                }
-            };
-        });
-
-
         builder.Services.AddScoped<IAccountRepository<Manager>, AccountRepository<Manager>>();
         builder.Services.AddScoped<IAccountRepository<User>,    UserRepository>();
         builder.Services.AddScoped<IRepository<Manager>>(x => x.GetRequiredService<IAccountRepository<Manager>>());
@@ -69,10 +45,13 @@ public static partial class Extensions {
 
         builder.Services.AddScoped<IRepository<QuizSession>, QuizSessionRepository>();
 
-        builder.Services.AddScoped<IRepository<Resource>, ResourceRepository<Resource>>();
-        builder.Services.AddScoped<IRepository<TextResource>, ResourceRepository<TextResource>>();
-        builder.Services.AddScoped<IRepository<QuizResource>, ResourceRepository<QuizResource>>();
+        builder.Services.AddScoped<IResourceRepository<Resource>,     ResourceRepository<Resource>>();
+        builder.Services.AddScoped<IResourceRepository<TextResource>, ResourceRepository<TextResource>>();
+        builder.Services.AddScoped<IResourceRepository<QuizResource>, ResourceRepository<QuizResource>>();
 
+        builder.Services.AddScoped<IRepository<Resource>>(x => x.GetRequiredService<IResourceRepository<Resource>>());
+        builder.Services.AddScoped<IRepository<TextResource>>(x => x.GetRequiredService<IResourceRepository<TextResource>>());
+        builder.Services.AddScoped<IRepository<QuizResource>>(x => x.GetRequiredService<IResourceRepository<QuizResource>>());
 
         builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 

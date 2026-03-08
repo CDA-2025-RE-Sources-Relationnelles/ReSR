@@ -20,12 +20,16 @@ public class QuizSessionAuthorizationHandler(
     ) {
         if (
             Id.TryParse((context.Resource as HttpContext)?.Request.RouteValues["quizSessionId"]?.ToString(), out var quizSessionId) &&
-            Id.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) && context.User.IsInRole(nameof(User)) &&
-            (await quizSessionRepository.TryGetAsync(quizSessionId)) is ISuccess<QuizSession> quizSession &&
-            (await userRepository.TryGetAsync(userId)) is ISuccess<User> user
-        ) UserPermissionsService.TryVerifyUserQuizSessionAccess(user.Value, quizSession.Value)
-            .OnSuccess(() => context.Succeed(requirement))
-            .OnFailure(e => context.Fail(new AuthorizationFailureReason(this, e.Message)));
+            (await quizSessionRepository.TryGetAsync(quizSessionId)) is ISuccess<QuizSession> quizSession
+        ) {
+            if (
+                Id.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) && context.User.IsInRole(nameof(User)) &&
+                (await userRepository.TryGetAsync(userId)) is ISuccess<User> user
+            ) UserPermissionsService.TryVerifyUserQuizSessionAccess(user.Value, quizSession.Value)
+                .OnSuccess(() => context.Succeed(requirement))
+                .OnFailure(e => context.Fail(new AuthorizationFailureReason(this, e.Message)));
+
+        } else context.Succeed(requirement);
 
         await Task.CompletedTask;
     }

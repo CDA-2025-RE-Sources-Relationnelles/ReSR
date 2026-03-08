@@ -8,7 +8,6 @@ public class QuizResourceResource(QuizResource from) : ResourceResource(from), I
 
     #region PROPERTIES
 
-        public string                    Content   { get; } = from.Content;
         public IEnumerable<QuizQuestion> Questions { get; } = from.Questions;
 
     #endregion

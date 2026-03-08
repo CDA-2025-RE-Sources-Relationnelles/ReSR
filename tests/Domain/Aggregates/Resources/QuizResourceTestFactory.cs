@@ -19,9 +19,9 @@ internal static class QuizResourceTestFactory {
     public static QuizResource CreateValidQuiz(IEnumerable<QuizQuestion>? questions = null) {
         var response = QuizResource.TryCreate(
             title         : "Valid quiz",
+            description   : "Quiz description",
             category      : Category.TryCreate("Valid category").Unwrap(),
             relationships : Relationships.All,
-            content       : "Quiz content",
             questions     : questions ?? [ValidQuestion()],
             isPrivate     : true
         );

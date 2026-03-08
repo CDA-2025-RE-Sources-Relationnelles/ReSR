@@ -23,17 +23,17 @@ public class QuizResourceController(
 
         public readonly record struct CreateQuizResourceDto(
             string                    Title,
+            string                    Description,
             Id                        CategoryId,
             string                    Relationships,
-            string                    Content,
             IEnumerable<QuizQuestion> Questions
         );
 
         public readonly record struct UpdateQuizResourceDto(
             string? Title         = null,
+            string? Description   = null,
             Id?     CategoryId    = null,
-            string? Relationships = null,
-            string? Content       = null
+            string? Relationships = null
         );
 
     #endregion
@@ -66,8 +66,13 @@ public class QuizResourceController(
         [EndpointDescription("Creates a new quiz resource.")]
         public Task<IResult> PostQuizResourceAsync(CreateQuizResourceDto dto) =>
             commandService
-                .TryCreateAsync(dto.Title, dto.CategoryId, Enum.TryParse<Relationships>(dto.Relationships, true, out var permissions) ? permissions : Relationships.All, dto.Content, dto.Questions)
-                .ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+                .TryCreateAsync(
+                    title: dto.Title,
+                    description: dto.Description,
+                    categoryId: dto.CategoryId,
+                    relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var permissions) ? permissions : Relationships.All,
+                    questions: dto.Questions
+                ).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
 
         [HttpPatch("{resourceId}")]
         [Authorize(Roles = nameof(ManagerPermissions.WriteContent))]
@@ -75,8 +80,13 @@ public class QuizResourceController(
         [EndpointDescription("Updates the quiz resource.")]
         public Task<IResult> PatchQuizResourceAsync(Id resourceId, UpdateQuizResourceDto dto) =>
             commandService
-                .TryUpdateAsync(resourceId, dto.Title, dto.CategoryId, Enum.TryParse<Relationships>(dto.Relationships, true, out var permissions) ? permissions : null, dto.Content)
-                .ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+                .TryUpdateAsync(
+                    id: resourceId,
+                    title: dto.Title,
+                    description: dto.Description,
+                    categoryId: dto.CategoryId,
+                    relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var permissions) ? permissions : null
+                ).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
 
 
         [HttpPost("{resourceId}/questions")]

@@ -16,18 +16,20 @@ internal class TextResourceCommandService(
 
     public Task<IResponse<TextResource>> TryCreateAsync(
         string        title,
+        string        description,
         Id            categoryId,
         Relationships relationships,
         string        content
     ) => categoryRepository
         .TryGetAsync(categoryId)
-        .OnSuccessAsync(category => TextResource.TryCreate(title, category, relationships, content, isPrivate: false))
+        .OnSuccessAsync(category => TextResource.TryCreate(title, description, category, relationships, content, isPrivate: false))
         .OnSuccessAsync(repository.TryAddAsync)
         .OnSuccessAsync(x => logger.LogInformation("Text resource created by manager: {@TextResource} !", x));
 
     public Task<IResponse<TextResource>> TryUpdateAsync(
         Id id,
         string?        title         = null,
+        string?        description   = null,
         Id?            categoryId    = null,
         Relationships? relationships = null,
         string?        content       = null
@@ -36,6 +38,7 @@ internal class TextResourceCommandService(
         var response = Response.Success(resource);
 
         if (title is not null) response = response.OnSuccess(x => x.TryWithTitle(title));
+        if (description is not null) response = response.OnSuccess(x => x.WithDescription(description));
         if (categoryId is not null) response = await response.OnSuccessAsync(x =>
             categoryRepository
                 .TryGetAsync(categoryId.Value)

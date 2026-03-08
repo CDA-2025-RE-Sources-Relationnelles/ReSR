@@ -44,14 +44,18 @@ public class ResourceController(
         [HttpGet(ROUTE + "/public")]
         [EndpointDescription("Queries the public resources.")]
         public Task<IResult> GetPublicResourcesAsync(
-            Id?    categoryIdFilter    = null,
-            string relationshipsFilter = nameof(Relationships.None),
-            string orderBy             = nameof(OrderBy.Newest)
+            int     pageIndex           = 0,
+            int     pageSize            = 10,
+            string? titleSearch         = null,
+            Id?     categoryIdFilter    = null,
+            string  relationshipsFilter = nameof(Relationships.None),
+            string  orderBy             = nameof(OrderBy.Newest)
         ) => resourceService.GetAllPublicAsync(
+            titleSearch: titleSearch,
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
-        ).ToResourceAsync<Resource, ResourceResource>(Results.Ok);
+        ).ToPageResourceAsync<Resource, ResourceResource>(pageIndex, pageSize);
 
 
         [HttpGet(ROUTE + "/private")]
@@ -59,15 +63,19 @@ public class ResourceController(
         [EndpointSummary("Only accessible for authenticated users.")]
         [EndpointDescription("Queries the user's private resources.")]
         public Task<IResult> GetPrivateResourcesAsync(
-            Id?    categoryIdFilter    = null,
-            string relationshipsFilter = nameof(Relationships.None),
-            string orderBy             = nameof(OrderBy.Newest)
+            int     pageIndex           = 0,
+            int     pageSize            = 10,
+            string? titleSearch         = null,
+            Id?     categoryIdFilter    = null,
+            string  relationshipsFilter = nameof(Relationships.None),
+            string  orderBy             = nameof(OrderBy.Newest)
         ) => resourceService.TryGetAllPrivateAsync(
             userId: User.GetUserId()!.Value,
+            titleSearch: titleSearch,
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
-        ).ToResourceAsync<Resource, ResourceResource>(Results.Ok);
+        ).ToPageResourceAsync<Resource, ResourceResource>(pageIndex, pageSize);
 
             
         [HttpGet(ROUTE + "/waiting-for-verification")]
