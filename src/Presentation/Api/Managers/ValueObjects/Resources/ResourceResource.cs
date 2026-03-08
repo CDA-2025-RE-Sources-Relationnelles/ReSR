@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.Resources;
+using ReSR.Domain.Extensions;
 using ReSR.Presentation.Api.Core.ValueObjects;
 using ReSR.Presentation.Api.Users.ValueObjects.Accounts;
 using ReSR.Presentation.Api.Users.ValueObjects.Categories;
@@ -12,15 +13,17 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         [JsonIgnore]
         public Id Id { get; } = from.Id;
 
-        public string Title         { get; } = from.Title;
-        public string Description   { get; } = from.Description;
-        public string Relationships { get; } = from.Relationships.ToString();
-        public string Visibility    { get; } = from.Visibility.ToString();
-        public string PublishedAt   { get; } = from.PublishedAt.ToString();
-        public string EditedAt      { get; } = from.EditedAt.ToString();
-        public uint   LikeCount     { get; } = from.LikeCount;
-        public uint   BookmarkCount { get; } = from.BookmarkCount;
-        public uint   ExploitCount  { get; } = from.ExploitCount;
+        public string              Title                  { get; } = from.Title;
+        public string              Description            { get; } = from.Description;
+        public string              Relationships          { get; } = from.Relationships.ToString();
+        public string              Visibility             { get; } = from.Visibility.ToString();
+        public IEnumerable<string> LocalizedRelationships { get; } = from.Relationships.ToLocalizedNames();
+        public string              LocalizedVisibility    { get; } = from.Visibility.ToLocalizedName();
+        public string              PublishedAt            { get; } = from.PublishedAt.ToString();
+        public string              EditedAt               { get; } = from.EditedAt.ToString();
+        public uint                LikeCount              { get; } = from.LikeCount;
+        public uint                BookmarkCount          { get; } = from.BookmarkCount;
+        public uint                ExploitCount           { get; } = from.ExploitCount;
 
         public ResourceLinks Links { get; } = new(
             Self     : GetLink(from),

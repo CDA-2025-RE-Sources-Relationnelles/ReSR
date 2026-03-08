@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Extensions;
 using ReSR.Presentation.Api.Core.ValueObjects;
 using ReSR.Presentation.Api.Managers.Controllers;
 
@@ -11,8 +12,9 @@ public class ManagerResource(Manager from) : IResource<ManagerResource, Manager>
         [JsonIgnore]
         public Id Id { get; } = from.Id;
 
-        public string Email       { get; } = from.Email;
-        public string Permissions { get; } = from.Permissions.ToString();
+        public string              Email                { get; } = from.Email;
+        public string              Permissions          { get; } = from.Permissions.ToString();
+        public IEnumerable<string> LocalizedPermissions { get; } = from.Permissions.ToLocalizedNames();
         
         public ManagerLinks Links { get; } = new(
             Self : GetLink(from)

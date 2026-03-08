@@ -2,6 +2,7 @@ using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
 using ReSR.Presentation.Api.Users.ValueObjects.Resources;
+using ReSR.Domain.Extensions;
 
 namespace ReSR.Presentation.Api.Users.ValueObjects.Accounts;
 public class UserPrivateResource(User from) : IResource<UserPrivateResource, User> {
@@ -10,9 +11,10 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
 
         public Id Id { get; } = from.Id;
 
-        public string Username    { get; } = from.Username;
-        public string Email       { get; } = from.Email;
-        public string Permissions { get; } = from.Permissions.ToString();
+        public string              Username             { get; } = from.Username;
+        public string              Email                { get; } = from.Email;
+        public string              Permissions          { get; } = from.Permissions.ToString();
+        public IEnumerable<string> LocalizedPermissions { get; } = from.Permissions.ToLocalizedNames();
         
         public UserLinks Links { get; } = new(
             Self           : GetLink(from),
