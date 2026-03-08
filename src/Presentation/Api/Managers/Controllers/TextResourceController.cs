@@ -22,6 +22,7 @@ public class TextResourceController(
 
         public readonly record struct CreateTextResourceDto(
             string Title,
+            string Description,
             Id     CategoryId,
             string Relationships,
             string Content
@@ -29,6 +30,7 @@ public class TextResourceController(
 
         public readonly record struct UpdateTextResourceDto(
             string? Title         = null,
+            string? Description   = null,
             Id?     CategoryId    = null,
             string? Relationships = null,
             string? Content       = null
@@ -64,8 +66,13 @@ public class TextResourceController(
         [EndpointDescription("Creates a new text resource.")]
         public Task<IResult> PostTextResourceAsync(CreateTextResourceDto dto) =>
             commandService
-                .TryCreateAsync(dto.Title, dto.CategoryId, Enum.TryParse<Relationships>(dto.Relationships, true, out var permissions) ? permissions : Relationships.All, dto.Content)
-                .ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+                .TryCreateAsync(
+                    title: dto.Title,
+                    description: dto.Description,
+                    categoryId: dto.CategoryId,
+                    relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var permissions) ? permissions : Relationships.All,
+                    content: dto.Content
+                ).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
 
         [HttpPatch("{resourceId}")]
         [Authorize(Roles = nameof(ManagerPermissions.WriteContent))]
@@ -73,8 +80,14 @@ public class TextResourceController(
         [EndpointDescription("Updates the text resource.")]
         public Task<IResult> PatchTextResourceAsync(Id resourceId, UpdateTextResourceDto dto) =>
             commandService
-                .TryUpdateAsync(resourceId, dto.Title, dto.CategoryId, Enum.TryParse<Relationships>(dto.Relationships, true, out var permissions) ? permissions : null, dto.Content)
-                .ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+                .TryUpdateAsync(
+                    id: resourceId,
+                    title: dto.Title,
+                    description: dto.Description,
+                    categoryId: dto.CategoryId,
+                    relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var permissions) ? permissions : null,
+                    content: dto.Content
+                ).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
 
         [HttpPost("{resourceId}/suspend")]
         [Authorize(Roles = nameof(ManagerPermissions.WriteContent))]

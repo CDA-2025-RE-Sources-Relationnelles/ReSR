@@ -217,6 +217,10 @@ namespace ReSR.Infrastructure.Migrations
                     b.Property<long>("CategoryId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Discriminator")
                         .IsRequired()
                         .HasMaxLength(13)
@@ -321,10 +325,6 @@ namespace ReSR.Infrastructure.Migrations
                 {
                     b.HasBaseType("ReSR.Domain.Aggregates.Resources.Resource");
 
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasDiscriminator().HasValue("QuizResource");
                 });
 
@@ -335,12 +335,6 @@ namespace ReSR.Infrastructure.Migrations
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.ToTable("Resource", t =>
-                        {
-                            t.Property("Content")
-                                .HasColumnName("TextResource_Content");
-                        });
 
                     b.HasDiscriminator().HasValue("TextResource");
                 });

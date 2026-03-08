@@ -116,7 +116,11 @@ public static partial class Extensions {
         dbContext.AddRange(
             Enumerable.Range(0, 50).Select(i =>
                 TextResource.TryCreate(
-                    title         : $"Article N°{i}",
+                    title       : $"Article N°{i}",
+                    description : """
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eget condimentum sem, vitae hendrerit erat. Pellentesque bibendum enim libero, vehicula porttitor nibh convallis at. Quisque vehicula sem vel est elementum, vel mattis dui fringilla. Etiam finibus quis sem vitae ultrices. Vivamus blandit tortor nec mi posuere tristique. Curabitur vel neque sit amet sem suscipit ornare vel consectetur est. Aliquam id risus ac felis iaculis aliquam a sed magna. Aliquam enim purus, condimentum sit amet dignissim ut, consectetur vel est. Duis ac metus sem. In vulputate eros ut dolor consectetur, eget rutrum ante malesuada.
+                        """
+                    ,
                     category      : categories[random.Next(categories.Count)],
                     relationships : Enumerable
                         .Range(0, random.Next(1, relationships.Count))
@@ -130,9 +134,9 @@ public static partial class Extensions {
                         <p>Aliquam erat volutpat. Fusce metus erat, euismod nec urna ut, iaculis fermentum mauris. Ut ac tincidunt nisi. In scelerisque dui ante, id sodales dolor tempor ac. Morbi elementum vel tellus vel rutrum. Integer porta ornare lectus non egestas. Maecenas pellentesque erat ex, a consequat metus pretium sit amet. Suspendisse tellus orci, convallis in mollis ac, egestas in nisl. Donec aliquet dignissim feugiat. Nullam euismod nec ex ut tempus. Mauris sit amet bibendum mi, at aliquet sem. Donec et laoreet nisl. Nullam pharetra fermentum enim, a pretium lacus pellentesque id. Mauris facilisis hendrerit odio, ut aliquam ex blandit eget. Vivamus facilisis mattis pharetra.</p>
                         """
                     ,
-                    isPrivate : (i & 0b01) == 0b01,
-                    owner     : (i & 0b10) == 0b10 ? users[random.Next(users.Count)] : null
-                ).Unwrap()
+                    isPrivate : (i & 0b11) == 0b11,
+                    owner     : (i & 0b01) == 0b01 ? users[random.Next(users.Count)] : null
+                ).OnSuccess(x => (i & 0b11) == 0b11 ? x.AsPublic() : x).Unwrap()
             )
         );
 
@@ -140,16 +144,16 @@ public static partial class Extensions {
         dbContext.AddRange(
             Enumerable.Range(0, 50).Select(i =>
                 QuizResource.TryCreate(
-                    title         : $"Quiz N°{i}",
+                    title       : $"Quiz N°{i}",
+                    description : """
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eget condimentum sem, vitae hendrerit erat. Pellentesque bibendum enim libero, vehicula porttitor nibh convallis at. Quisque vehicula sem vel est elementum, vel mattis dui fringilla. Etiam finibus quis sem vitae ultrices. Vivamus blandit tortor nec mi posuere tristique. Curabitur vel neque sit amet sem suscipit ornare vel consectetur est. Aliquam id risus ac felis iaculis aliquam a sed magna. Aliquam enim purus, condimentum sit amet dignissim ut, consectetur vel est. Duis ac metus sem. In vulputate eros ut dolor consectetur, eget rutrum ante malesuada.
+                        """
+                    ,
                     category      : categories[random.Next(categories.Count)],
                     relationships : Enumerable
                         .Range(0, random.Next(1, relationships.Count))
                         .Select(i => relationships[i % relationships.Count])
                         .Aggregate((a, b) => a | relationships[random.Next(relationships.Count)]),
-                    content : """
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eget condimentum sem, vitae hendrerit erat. Pellentesque bibendum enim libero, vehicula porttitor nibh convallis at. Quisque vehicula sem vel est elementum, vel mattis dui fringilla. Etiam finibus quis sem vitae ultrices. Vivamus blandit tortor nec mi posuere tristique. Curabitur vel neque sit amet sem suscipit ornare vel consectetur est. Aliquam id risus ac felis iaculis aliquam a sed magna. Aliquam enim purus, condimentum sit amet dignissim ut, consectetur vel est. Duis ac metus sem. In vulputate eros ut dolor consectetur, eget rutrum ante malesuada.</p>
-                        """
-                    ,
                     questions : Enumerable.Range(0, random.Next(1, 20)).Select(i => new QuizQuestion() {
                         Content = $"Question N°{i}",
                         Score   = random.Next(1, 256),
@@ -159,8 +163,8 @@ public static partial class Extensions {
                         })]
                     }),
                     isPrivate : (i & 0b01) == 0b01,
-                    owner     : (i & 0b10) == 0b10 ? users[random.Next(users.Count)] : null
-                ).Unwrap()
+                    owner     : (i & 0b01) == 0b01 ? users[random.Next(users.Count)] : null
+                ).OnSuccess(x => (i & 0b11) == 0b11 ? x.AsPublic() : x).Unwrap()
             )
         );
         
