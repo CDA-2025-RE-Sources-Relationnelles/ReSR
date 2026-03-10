@@ -36,10 +36,12 @@ public class CommentController(
         [EndpointSummary("Only accessible for authenticated users with comment verification permissions.")]
         [Authorize(Roles = nameof(UserPermissions.VerifyComments))]
         [EndpointDescription("Queries the reported comments.")]
-        public Task<IResult> GetReportedCommentsAsync() =>
-            commentService
-                .GetAllReportedAsync()
-                .ToResourceAsync<Comment, CommentResource>(Results.Ok);
+        public Task<IResult> GetReportedCommentsAsync(
+            int pageIndex = 0,
+            int pageSize  = 10
+        ) => commentService
+            .GetAllReportedAsync()
+            .ToPageResourceAsync<Comment, CommentResource>(pageIndex, pageSize);
 
         [HttpPost("{commentId}/answers")]
         [EndpointSummary("Only accessible for authenticated users.")]

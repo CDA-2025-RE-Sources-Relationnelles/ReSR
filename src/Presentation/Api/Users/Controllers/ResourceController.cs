@@ -82,10 +82,12 @@ public class ResourceController(
         [EndpointSummary("Only accessible for authenticated users with resource verification permissions.")]
         [Authorize(Roles = nameof(UserPermissions.VerifyResources))]
         [EndpointDescription("Queries the resources waiting for verification.")]
-        public Task<IResult> GetResourcesWaitingForVerificationAsync() =>
-            resourceService
-                .GetAllWaitingForVerificationAsync()
-                .ToResourceAsync<Resource, ResourceResource>(Results.Ok);
+        public Task<IResult> GetResourcesWaitingForVerificationAsync(
+            int pageIndex = 0,
+            int pageSize  = 10
+        ) => resourceService
+            .GetAllWaitingForVerificationAsync()
+            .ToPageResourceAsync<Resource, ResourceResource>(pageIndex, pageSize);
 
     #endregion
     
