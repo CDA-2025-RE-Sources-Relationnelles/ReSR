@@ -8,6 +8,7 @@ using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
 using ReSR.Domain.Core;
 using ReSR.Domain.Ports;
+using ReSR.Domain.Services.Implementations;
 
 namespace ReSR.Application.Services.Users.Implementations;
 
@@ -96,4 +97,15 @@ public class ResourceService<T>(
         userRepository.TryGetAsync(fromId).OnSuccessAsync(from =>
             resourceRepository.TryUpdateAsync(id, x => (T)x.WithExploitFrom(from, value))
         );
+
+
+    public Task<IResponse<IEnumerable<T>>> TryGetUserOwnedResources(Id id, Id? forUserId = null) =>
+        userRepository.TryGetAsync(id).OnSuccessAsync(async user => {
+
+            var resources = await resourceRepository.GetAllAsync(x => x.Owner != null && x.Owner.Id == id);
+            return forUserId is not null
+                ? await userRepository.TryGetAsync(forUserId.Value).OnSuccessAsync(forUser =>
+                    resources.Where(x => UserPermissionsService.TryVerifyUserResourceAccess(forUser, x) is ISuccess)
+                ) : Response.Success(resources.Where(x => x.Visibility == Visibility.Public));
+        });
 }

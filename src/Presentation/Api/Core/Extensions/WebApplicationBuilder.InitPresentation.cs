@@ -63,7 +63,7 @@ public static partial class Extensions {
                     partitionKey : httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
                     factory      : partition => new FixedWindowRateLimiterOptions {
                         AutoReplenishment = true,
-                        PermitLimit       = httpContext.User.Identity?.IsAuthenticated == true ? 32 : 16,
+                        PermitLimit       = httpContext.User.Identity?.IsAuthenticated == true ? 64 : 32,
                         QueueLimit        = 0,
                         Window            = TimeSpan.FromMinutes(1)
                     }

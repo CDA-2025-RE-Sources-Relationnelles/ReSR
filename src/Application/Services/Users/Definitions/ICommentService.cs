@@ -17,6 +17,8 @@ public interface ICommentService {
     /// <param name="toCommentId">The identifier of the answered comment, if any.</param>
     public Task<IResponse<Comment>> TryAnswerAsync(Id toCommentId, Id byUserId, string content);
 
+    public Task<IEnumerable<Comment>> GetAnswersAsync(Id commentId);
+
     public Task<IEnumerable<Comment>> GetAllReportedAsync();
 
     /// <summary>

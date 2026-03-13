@@ -2,6 +2,7 @@ using FluentResponse.Interfaces;
 using ReSR.Application.Services.Core.Definitions;
 using ReSR.Application.ValueObjects.Accounts;
 using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Aggregates.Resources;
 
 namespace ReSR.Application.Services.Users.Definitions;
 
@@ -51,4 +52,5 @@ public interface IUserSessionService : ISessionService<User> {
     /// <param name="email">The user's mail address.</param>
     public Task<IResponse> TryRequestPasswordResetPINAsync(string email);
     public Task<IResponse<User>> TryLikeProfile(Id id, Id fromId, bool value = true);
+
 }

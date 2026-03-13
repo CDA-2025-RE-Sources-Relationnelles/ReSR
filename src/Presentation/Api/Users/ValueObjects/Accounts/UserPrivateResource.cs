@@ -13,8 +13,12 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
 
         public string              Username             { get; } = from.Username;
         public string              Email                { get; } = from.Email;
-        public string              Permissions          { get; } = from.Permissions.ToString();
+        public string              Permissions          { get; } = string.Join(',', from.Permissions.GetUniqueValues());
         public IEnumerable<string> LocalizedPermissions { get; } = from.Permissions.ToLocalizedNames();
+        public int                 OwnedResourceCount   { get; } = from.OwnedResources.Count;
+        public int                 LikeCount            { get; } = from.Likes.Count;
+        public int                 BookmarkCount        { get; } = from.Bookmarks.Count;
+        public int                 ExploitCount         { get; } = from.Exploits.Count;
         
         public UserLinks Links { get; } = new(
             Self           : GetLink(from),
@@ -25,7 +29,7 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
             Likes          : ResourceResource.GetLinks(from.Likes),
             Bookmarks      : ResourceResource.GetLinks(from.Bookmarks),
             Exploits       : ResourceResource.GetLinks(from.Exploits),
-            OwnedResources : ResourceResource.GetLinks(from.OwnedResources)
+            OwnedResources : GetLink(from).WithSubRoute("owned-resources")
         );
 
         public readonly record struct UserLinks(
@@ -37,7 +41,7 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
             IEnumerable<AnnotatedLink> Likes,
             IEnumerable<AnnotatedLink> Bookmarks,
             IEnumerable<AnnotatedLink> Exploits,
-            IEnumerable<AnnotatedLink> OwnedResources
+            Link OwnedResources
         );
 
     #endregion

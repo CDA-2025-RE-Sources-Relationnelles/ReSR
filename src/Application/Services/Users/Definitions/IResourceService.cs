@@ -49,4 +49,9 @@ public interface IResourceService<T> where T: Resource {
     public Task<IResponse<T>> TryLikeAsync(Id id, Id fromId, bool value = true);
     public Task<IResponse<T>> TryBookmarkAsync(Id id, Id fromId, bool value = true);
     public Task<IResponse<T>> TryExploitAsync(Id id, Id fromId, bool value = true);
+
+    public Task<IResponse<IEnumerable<T>>> TryGetUserOwnedResources(
+        Id id,
+        Id? forUserId = null
+    );
 }

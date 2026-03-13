@@ -4,18 +4,21 @@ using Microsoft.AspNetCore.Mvc;
 using ReSR.Application.Services.Users.Definitions;
 using ReSR.Application.ValueObjects.Accounts;
 using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Ports;
 using ReSR.Presentation.Api.Core.Extensions;
 using ReSR.Presentation.Api.Users.Authorization;
 using ReSR.Presentation.Api.Users.Extensions;
 using ReSR.Presentation.Api.Users.ValueObjects.Accounts;
+using ReSR.Presentation.Api.Users.ValueObjects.Resources;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
 [ApiController]
 [Route(ROUTE)]
 public class UserController(
-    IUserSessionService sessionService,
-    IRepository<User>   queryService
+    IUserSessionService        sessionService,
+    IResourceService<Resource> resourceService,
+    IRepository<User>          queryService
 ) : ControllerBase {
 
     public const string ROUTE = "/users";
@@ -89,6 +92,16 @@ public class UserController(
             User.GetUserId() is Id id && id == userId
                 ? queryService.TryGetAsync(userId).ToResourceAsync<User, UserPrivateResource>(Results.Ok)
                 : queryService.TryGetAsync(userId).ToResourceAsync<User, UserPublicResource>(Results.Ok);
+
+        [HttpGet("{userId}/owned-resources")]
+        [EndpointDescription("Queries the user's owned resources.")]
+        public Task<IResult> GetUserOwnedResourcesAsync(
+            Id  userId,
+            int pageIndex = 0,
+            int pageSize  = 10
+        ) => resourceService
+            .TryGetUserOwnedResources(userId, User.GetUserId())
+            .ToPageResourceAsync<Resource, ResourceResource>(pageIndex, pageSize);
 
         [HttpPatch("{userId}")]
         [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]

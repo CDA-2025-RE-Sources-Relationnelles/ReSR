@@ -89,7 +89,7 @@ public class CommentController(
         [Authorize(Policy = nameof(CommentReadAuthorizationRequirement))]
         [EndpointDescription("Queries the comment's answers.")]
         public Task<IResult> GetCommentAnswersAsync(Id commentId) =>
-            repository.TryGetAsync(commentId).OnSuccessAsync(x => (IEnumerable<Comment>)x.Answers).ToResourceAsync<Comment, CommentResource>(Results.Ok);
+            commentService.GetAnswersAsync(commentId).ToResourceAsync<Comment, CommentResource>(Results.Ok);
 
     #endregion
     

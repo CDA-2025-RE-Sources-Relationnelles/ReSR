@@ -1,8 +1,6 @@
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
-using ReSR.Presentation.Api.Users.ValueObjects.Resources;
-using ReSR.Domain.Aggregates.Resources.ValueObjects;
 using ReSR.Domain.Extensions;
 
 namespace ReSR.Presentation.Api.Users.ValueObjects.Accounts;
@@ -16,17 +14,17 @@ public class UserPublicResource(User from) : IResource<UserPublicResource, User>
         public IEnumerable<string> LocalizedPermissions { get; } = from.Permissions.ToLocalizedNames();
         
         public UserLinks Links { get; } = new(
-            Self                 : GetLink(from),
-            LikeProfile          : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
-            LikedByUsers         : GetLinks(from.LikedBy),
-            OwnedPublicResources : ResourceResource.GetLinks(from.OwnedResources.Where(x => x.Visibility == Visibility.Public))
+            Self           : GetLink(from),
+            LikeProfile    : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            LikedByUsers   : GetLinks(from.LikedBy),
+            OwnedResources : GetLink(from).WithSubRoute("owned-resources")
         );
 
         public readonly record struct UserLinks(
-            AnnotatedLink Self,
-            Link          LikeProfile,
+            AnnotatedLink              Self,
+            Link                       LikeProfile,
             IEnumerable<AnnotatedLink> LikedByUsers,
-            IEnumerable<AnnotatedLink> OwnedPublicResources
+            Link                       OwnedResources
         );
 
     #endregion

@@ -34,4 +34,7 @@ internal class CommentService(
         userRepository.TryGetAsync(userId).OnSuccessAsync(user =>
             commentRepository.TryUpdateAsync(id, x => x.TryWithReport(user, content))
         );
+
+    public Task<IEnumerable<Comment>> GetAnswersAsync(Id commentId) =>
+        commentRepository.GetAllAsync(x => x.AnsweredComment != null && x.AnsweredComment.Id == commentId);
 }

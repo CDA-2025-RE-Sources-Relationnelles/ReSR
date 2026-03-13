@@ -17,7 +17,9 @@ public class CommentResource(Comment from) : MessageResource<Comment>(from), IRe
             CommentedResource : ResourceResource.GetLink(from.CommentedResource),
             Answers           : GetLink(from).WithSubRoute("answers"),
             AnsweredComment   : from.AnsweredComment is not null ? GetLink(from.AnsweredComment) : null,
-            Report            : GetLink(from).WithSubRoute("report").WithMethod(Core.ValueObjects.HttpMethod.POST)
+            Report            : GetLink(from).WithSubRoute("report").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            Verify            : GetLink(from).WithSubRoute("verify").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            Reject            : GetLink(from).WithSubRoute("reject").WithMethod(Core.ValueObjects.HttpMethod.POST)
         );
 
         public readonly record struct CommentLinks(
@@ -26,7 +28,9 @@ public class CommentResource(Comment from) : MessageResource<Comment>(from), IRe
             AnnotatedLink CommentedResource,
             Link          Answers,
             Link?         AnsweredComment,
-            Link          Report
+            Link          Report,
+            Link          Verify,
+            Link          Reject
         );
 
     #endregion
