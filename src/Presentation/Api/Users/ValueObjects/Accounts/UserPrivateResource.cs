@@ -21,15 +21,15 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
         public int                 ExploitCount         { get; } = from.Exploits.Count;
         
         public UserLinks Links { get; } = new(
-            Self           : GetLink(from),
-            Anonymize      : GetLink(from).WithSubRoute("anonymize").WithMethod(Core.ValueObjects.HttpMethod.POST),
-            LikeProfile    : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
-            LikedByUsers   : GetLinks(from.LikedBy),
-            Friends        : GetLinks(from.Friends),
-            Likes          : ResourceResource.GetLinks(from.Likes),
-            Bookmarks      : ResourceResource.GetLinks(from.Bookmarks),
-            Exploits       : ResourceResource.GetLinks(from.Exploits),
-            OwnedResources : GetLink(from).WithSubRoute("owned-resources")
+            Self            : GetLink(from),
+            Anonymize       : GetLink(from).WithSubRoute("anonymize").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            LikeProfile     : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            LikedByUsers    : GetLinks(from.LikedBy),
+            Friends         : GetLinks(from.Friends),
+            Likes           : ResourceResource.GetLinks(from.Likes),
+            Bookmarks       : ResourceResource.GetLinks(from.Bookmarks),
+            Exploits        : ResourceResource.GetLinks(from.Exploits),
+            OwnedResources  : GetLink(from).WithSubRoute("owned-resources")
         );
 
         public readonly record struct UserLinks(

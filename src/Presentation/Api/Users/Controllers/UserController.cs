@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using ReSR.Application.Services.Users.Definitions;
 using ReSR.Application.ValueObjects.Accounts;
 using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Aggregates.Messages;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Ports;
 using ReSR.Presentation.Api.Core.Extensions;
 using ReSR.Presentation.Api.Users.Authorization;
 using ReSR.Presentation.Api.Users.Extensions;
 using ReSR.Presentation.Api.Users.ValueObjects.Accounts;
+using ReSR.Presentation.Api.Users.ValueObjects.Messages;
 using ReSR.Presentation.Api.Users.ValueObjects.Resources;
 
 namespace ReSR.Presentation.Api.Users.Controllers;
@@ -17,6 +19,7 @@ namespace ReSR.Presentation.Api.Users.Controllers;
 [Route(ROUTE)]
 public class UserController(
     IUserSessionService        sessionService,
+    IPrivateMessageService     messageService,
     IResourceService<Resource> resourceService,
     IRepository<User>          queryService
 ) : ControllerBase {
@@ -56,6 +59,11 @@ public class UserController(
 
         public readonly record struct RequestPinGenerationDto(
             string Email
+        );
+        
+        public readonly record struct SendPrivateMessageDto(
+            string Content,
+            Id? ResourceId
         );
     
     #endregion
@@ -137,6 +145,28 @@ public class UserController(
             sessionService
                 .TryLikeProfile(userId, User.GetUserId()!.Value, value)
                 .ToResourceAsync<User, UserPublicResource>(Results.Ok);
+
+        [HttpPost("{userId}/private-messages")]
+        [Authorize(Roles = nameof(User))]
+        [EndpointSummary("Send a private message to a user.")]
+        public Task<IResult> SendAsync(Id userId, SendPrivateMessageDto dto) =>
+            messageService
+                .TrySendAsync(
+                    User.GetUserId()!.Value,
+                    userId,
+                    dto.Content,
+                    dto.ResourceId
+                ).ToResourceAsync<PrivateMessage, PrivateMessageResource>(Results.Ok);
+
+        [HttpGet("{userId}/private-messages")]
+        [Authorize(Roles = nameof(User))]
+        [EndpointSummary("Get all private messages between the authenticated user and a friend.")]
+        public Task<IResult> GetMessagesAsync(Id userId) =>
+            messageService
+                .TryGetMessagesBetweenAsync(
+                    User.GetUserId()!.Value,
+                    userId
+                ).ToResourceAsync<PrivateMessage, PrivateMessageResource>(Results.Ok);
 
         [HttpDelete("{userId}")]
         [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]

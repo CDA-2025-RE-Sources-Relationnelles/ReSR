@@ -14,17 +14,19 @@ public class UserPublicResource(User from) : IResource<UserPublicResource, User>
         public IEnumerable<string> LocalizedPermissions { get; } = from.Permissions.ToLocalizedNames();
         
         public UserLinks Links { get; } = new(
-            Self           : GetLink(from),
-            LikeProfile    : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
-            LikedByUsers   : GetLinks(from.LikedBy),
-            OwnedResources : GetLink(from).WithSubRoute("owned-resources")
+            Self            : GetLink(from),
+            LikeProfile     : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            LikedByUsers    : GetLinks(from.LikedBy),
+            OwnedResources  : GetLink(from).WithSubRoute("owned-resources"),
+            PrivateMessages : GetLink(from).WithSubRoute("private-messages")
         );
 
         public readonly record struct UserLinks(
             AnnotatedLink              Self,
             Link                       LikeProfile,
             IEnumerable<AnnotatedLink> LikedByUsers,
-            Link                       OwnedResources
+            Link                       OwnedResources,
+            Link                       PrivateMessages
         );
 
     #endregion
