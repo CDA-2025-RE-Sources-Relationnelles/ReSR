@@ -63,7 +63,11 @@ public class TextResourceController(
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
-        ).ToPageResourceAsync<TextResource, TextResourceResource>(pageIndex, pageSize);
+        ).ToPageResourceAsync<TextResource, TextResourceResource>(
+            pageIndex,
+            pageSize,
+            User.GetUserId() is Id userId ? (x) => x.WithInjectedUserContext<TextResourceResource>(userId) : null
+        );
 
 
         [HttpGet(ROUTE + "/private")]
@@ -83,13 +87,19 @@ public class TextResourceController(
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
-        ).ToPageResourceAsync<TextResource, TextResourceResource>(pageIndex, pageSize);
+        ).ToPageResourceAsync<TextResource, TextResourceResource>(
+            pageIndex,
+            pageSize,
+            User.GetUserId() is Id userId ? (x) => x.WithInjectedUserContext<TextResourceResource>(userId) : null
+        );
 
         [HttpGet("{resourceId}")]
         [Authorize(Policy = nameof(ResourceReadAuthorizationRequirement))]
         [EndpointDescription("Queries the text resource.")]
         public Task<IResult> GetTextResourceAsync(Id resourceId) =>
-            repository.TryGetAsync(resourceId).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            repository.TryGetAsync(resourceId).ToResourceAsync<TextResource, TextResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpPost]
         [Authorize]
@@ -104,7 +114,9 @@ public class TextResourceController(
                 relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : Relationships.All,
                 content: dto.Content,
                 isPrivate: dto.IsPrivate
-            ).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            ).ToResourceAsync<TextResource, TextResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpPatch("{resourceId}")]
         [Authorize(Policy = nameof(ResourceWriteAuthorizationRequirement))]
@@ -118,7 +130,10 @@ public class TextResourceController(
                 categoryId: dto.CategoryId,
                 relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : null,
                 content: dto.Content
-            ).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            ).ToResourceAsync<TextResource, TextResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
+
 
         [HttpDelete("{resourceId}")]
         [Authorize(Policy = nameof(ResourceWriteAuthorizationRequirement))]
@@ -132,21 +147,30 @@ public class TextResourceController(
         [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
         [EndpointDescription("Likes the text resource")]
         public Task<IResult> LikeTextResourceAsync(Id resourceId, bool value = true) =>
-            resourceService.TryLikeAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            resourceService.TryLikeAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<TextResource, TextResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
+
 
         [HttpPost("{resourceId}/bookmark")]
         [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
         [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
         [EndpointDescription("Likes the text resource")]
         public Task<IResult> BookmarkTextResourceAsync(Id resourceId, bool value = true) =>
-            resourceService.TryBookmarkAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            resourceService.TryBookmarkAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<TextResource, TextResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
+
 
         [HttpPost("{resourceId}/exploit")]
         [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
         [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
         [EndpointDescription("Likes the text resource")]
         public Task<IResult> ExploitTextResourceAsync(Id resourceId, bool value = true) =>
-            resourceService.TryExploitAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            resourceService.TryExploitAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<TextResource, TextResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
+
 
         [HttpPost("{resourceId}/comments")]
         [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
@@ -167,14 +191,20 @@ public class TextResourceController(
         [EndpointSummary("Only accessible for authenticated users with resource verification permissions.")]
         [EndpointDescription("Confirms the text resource verification.")]
         public Task<IResult> ConfirmTextResourceVerification(Id resourceId) =>
-            resourceService.TryConfirmVerificationAsync(resourceId).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            resourceService.TryConfirmVerificationAsync(resourceId).ToResourceAsync<TextResource, TextResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
+
 
         [HttpPost("{resourceId}/reject-verification")]
         [Authorize(Roles = nameof(UserPermissions.VerifyResources))]
         [EndpointSummary("Only accessible for authenticated users with resource verification permissions.")]
         [EndpointDescription("Cancels the text resource verification.")]
         public Task<IResult> RejectTextResourceVerification(Id resourceId) =>
-            resourceService.TryRejectVerificationAsync(resourceId).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+            resourceService.TryRejectVerificationAsync(resourceId).ToResourceAsync<TextResource, TextResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
+
 
     #endregion
     

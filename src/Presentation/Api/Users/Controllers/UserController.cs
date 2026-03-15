@@ -109,7 +109,11 @@ public class UserController(
             int pageSize  = 10
         ) => resourceService
             .TryGetUserOwnedResources(userId, User.GetUserId())
-            .ToPageResourceAsync<Resource, ResourceResource>(pageIndex, pageSize);
+            .ToPageResourceAsync<Resource, ResourceResource>(
+                pageIndex,
+                pageSize,
+                User.GetUserId() is Id id ? (x) => x.WithInjectedUserContext<ResourceResource>(id) : null
+            );
 
         [HttpPatch("{userId}")]
         [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]

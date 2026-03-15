@@ -59,10 +59,11 @@ public static partial class Extensions {
     public static IResult ToPageResource<TValue, TResource>(
         this IResponse<IEnumerable<TValue>> self,
         int pageIndex,
-        int pageSize
+        int pageSize,
+        Func<TResource, TResource>? transform = null
     ) where TResource : IResource<TResource, TValue> {
         return self.Unwrap(
-            x => Results.Ok(Response.Success(Page<TResource>.From(TResource.From(x), pageIndex, pageSize))),
+            x => Results.Ok(Response.Success(Page<TResource>.From(transform is not null ? TResource.From(x).Select(transform) : TResource.From(x), pageIndex, pageSize))),
             e => e.ToResult(self)
         );
     }
@@ -76,9 +77,10 @@ public static partial class Extensions {
     public static IResult ToPageResource<TValue, TResource>(
         this IEnumerable<TValue> self,
         int pageIndex,
-        int pageSize
+        int pageSize,
+        Func<TResource, TResource>? transform = null
     ) where TResource : IResource<TResource, TValue> => self.ToResource<TValue, TResource>(
-        x => Results.Ok(Response.Success(Page<TResource>.From(x.Value, pageIndex, pageSize))))
+        x => Results.Ok(Response.Success(Page<TResource>.From(transform is not null ? x.Value.Select(transform) : x.Value, pageIndex, pageSize))))
     ;
 
     /// <summary>
@@ -126,9 +128,10 @@ public static partial class Extensions {
     public static async Task<IResult> ToPageResourceAsync<TValue, TResource>(
         this Task<IResponse<IEnumerable<TValue>>> task,
         int pageIndex,
-        int pageSize
+        int pageSize,
+        Func<TResource, TResource>? transform = null
     ) where TResource : IResource<TResource, TValue> =>
-        (await task).ToPageResource<TValue, TResource>(pageIndex, pageSize);
+        (await task).ToPageResource<TValue, TResource>(pageIndex, pageSize, transform);
 
     /// <summary>
     /// Converts a <see cref="IResponse{IEnumerable{TValue}}"/> to a HATEOAS page wrapped in an HTTP response.
@@ -139,7 +142,8 @@ public static partial class Extensions {
     public static async Task<IResult> ToPageResourceAsync<TValue, TResource>(
         this Task<IEnumerable<TValue>> task,
         int pageIndex,
-        int pageSize
+        int pageSize,
+        Func<TResource, TResource>? transform = null
     ) where TResource : IResource<TResource, TValue> =>
-        (await task).ToPageResource<TValue, TResource>(pageIndex, pageSize);
+        (await task).ToPageResource<TValue, TResource>(pageIndex, pageSize, transform);
 }

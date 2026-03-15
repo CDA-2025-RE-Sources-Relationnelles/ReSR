@@ -68,7 +68,11 @@ public class QuizResourceController(
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
-        ).ToPageResourceAsync<QuizResource, QuizResourceResource>(pageIndex, pageSize);
+        ).ToPageResourceAsync<QuizResource, QuizResourceResource>(
+            pageIndex,
+            pageSize,
+            User.GetUserId() is Id userId ? (x) => x.WithInjectedUserContext<QuizResourceResource>(userId) : null
+        );
 
 
         [HttpGet(ROUTE + "/private")]
@@ -88,13 +92,19 @@ public class QuizResourceController(
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
-        ).ToPageResourceAsync<QuizResource, QuizResourceResource>(pageIndex, pageSize);
+        ).ToPageResourceAsync<QuizResource, QuizResourceResource>(
+            pageIndex,
+            pageSize,
+            User.GetUserId() is Id userId ? (x) => x.WithInjectedUserContext<QuizResourceResource>(userId) : null
+        );
 
         [HttpGet("{resourceId}")]
         [Authorize(Policy = nameof(ResourceReadAuthorizationRequirement))]
         [EndpointDescription("Queries the quiz resource.")]
         public Task<IResult> GetQuizResourceAsync(Id resourceId) =>
-            repository.TryGetAsync(resourceId).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+            repository.TryGetAsync(resourceId).ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpPost]
         [Authorize]
@@ -109,7 +119,9 @@ public class QuizResourceController(
                 relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : Relationships.All,
                 questions: dto.Questions,
                 isPrivate: dto.IsPrivate
-            ).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+            ).ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpPatch("{resourceId}")]
         [Authorize(Policy = nameof(ResourceWriteAuthorizationRequirement))]
@@ -122,7 +134,9 @@ public class QuizResourceController(
                 description: dto.Description,
                 categoryId: dto.CategoryId,
                 relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : null
-            ).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+            ).ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpPost("{resourceId}/questions")]
         [Authorize(Policy = nameof(ResourceWriteAuthorizationRequirement))]
@@ -131,7 +145,9 @@ public class QuizResourceController(
         public Task<IResult> PostQuizResourceQuestionAsync(Id resourceId, QuizQuestion dto) =>
             resourceService
                 .TryAddQuestionAsync(resourceId, dto)
-                .ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+                .ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpPut("{resourceId}/questions/{questionIndex}")]
         [Authorize(Policy = nameof(ResourceWriteAuthorizationRequirement))]
@@ -140,7 +156,9 @@ public class QuizResourceController(
         public Task<IResult> PutQuizResourceQuestionAsync(Id resourceId, int questionIndex, QuizQuestion dto) =>
             resourceService
                 .TrySetQuestionAsync(resourceId, questionIndex, dto)
-                .ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+                .ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpDelete("{resourceId}/questions/{questionIndex}")]
         [Authorize(Policy = nameof(ResourceWriteAuthorizationRequirement))]
@@ -149,7 +167,9 @@ public class QuizResourceController(
         public Task<IResult> DeleteQuizResourceQuestionAsync(Id resourceId, int questionIndex) =>
             resourceService
                 .TryRemoveQuestionAsync(resourceId, questionIndex)
-                .ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+                .ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpDelete("{resourceId}")]
         [Authorize(Policy = nameof(ResourceWriteAuthorizationRequirement))]
@@ -163,21 +183,27 @@ public class QuizResourceController(
         [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
         [EndpointDescription("Likes the quiz resource")]
         public Task<IResult> LikeQuizResourceAsync(Id resourceId, bool value = true) =>
-            resourceService.TryLikeAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+            resourceService.TryLikeAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpPost("{resourceId}/bookmark")]
         [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
         [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
         [EndpointDescription("Likes the quiz resource")]
         public Task<IResult> BookmarkQuizResourceAsync(Id resourceId, bool value = true) =>
-            resourceService.TryBookmarkAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+            resourceService.TryBookmarkAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpPost("{resourceId}/exploit")]
         [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
         [EndpointSummary("Only accessible for authenticated users with access to the resource.")]
         [EndpointDescription("Likes the quiz resource")]
         public Task<IResult> ExploitQuizResourceAsync(Id resourceId, bool value = true) =>
-            resourceService.TryExploitAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+            resourceService.TryExploitAsync(resourceId, User.GetUserId()!.Value, value).ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpPost("{resourceId}/start-session")]
         [Authorize(Roles = nameof(User), Policy = nameof(ResourceReadAuthorizationRequirement))]
@@ -210,14 +236,18 @@ public class QuizResourceController(
         [EndpointSummary("Only accessible for authenticated users with resource verification permissions.")]
         [EndpointDescription("Confirms the quiz resource verification.")]
         public Task<IResult> ConfirmQuizResourceVerification(Id resourceId) =>
-            resourceService.TryConfirmVerificationAsync(resourceId).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+            resourceService.TryConfirmVerificationAsync(resourceId).ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
         [HttpPost("{resourceId}/reject-verification")]
         [Authorize(Roles = nameof(UserPermissions.VerifyResources))]
         [EndpointSummary("Only accessible for authenticated users with resource verification permissions.")]
         [EndpointDescription("Cancels the quiz resource verification.")]
         public Task<IResult> RejectQuizResourceVerification(Id resourceId) =>
-            resourceService.TryRejectVerificationAsync(resourceId).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+            resourceService.TryRejectVerificationAsync(resourceId).ToResourceAsync<QuizResource, QuizResourceResource>(x =>
+                ResourceController.WithInjectedUserContext(x, User.GetUserId())
+            );
 
     #endregion
     

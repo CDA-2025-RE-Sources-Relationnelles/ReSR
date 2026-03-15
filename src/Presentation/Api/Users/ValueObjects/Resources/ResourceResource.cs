@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using ReSR.Application.ValueObjects.Accounts;
+using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Extensions;
 using ReSR.Presentation.Api.Core.ValueObjects;
@@ -24,6 +26,10 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         public uint                BookmarkCount          { get; } = from.BookmarkCount;
         public uint                ExploitCount           { get; } = from.ExploitCount;
 
+        public bool? LikedBySession      { get; protected set; }
+        public bool? ExploitedBySession  { get; protected set; }
+        public bool? BookmarkedBySession { get; protected set; }
+
         public virtual ResourceLinks Links { get; } = new(
             Self     : GetLink(from),
             Category : CategoryResource.GetLink(from.Category),
@@ -46,6 +52,13 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
 
     #endregion
     #region METHODS
+
+        public T WithInjectedUserContext<T>(Id userId) where T : ResourceResource {
+            this.LikedBySession      = from.LikedBy.Any(x => x.Id == userId);
+            this.ExploitedBySession  = from.ExploitedBy.Any(x => x.Id == userId);
+            this.BookmarkedBySession = from.BookmarkedBy.Any(x => x.Id == userId);
+            return (T)this;
+        }
 
         public static implicit operator ResourceResource(Resource from) => from switch {
             QuizResource fromActual => QuizResourceResource.From(fromActual),

@@ -1,3 +1,5 @@
+using FluentResponse;
+using FluentResponse.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReSR.Application.Services.Users.Definitions;
@@ -39,6 +41,14 @@ public class ResourceController(
         );
 
     #endregion
+    #region METHOD
+
+    public static IResult WithInjectedUserContext<T>(ISuccess<T> success, Id? userId) where T : ResourceResource =>
+        userId is Id id
+            ? Results.Ok(success.OnSuccess(x => x.WithInjectedUserContext<T>(id)))
+            : Results.Ok();
+
+    #endregion
     #region ROUTES
 
         [HttpGet(ROUTE + "/public")]
@@ -55,7 +65,11 @@ public class ResourceController(
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
-        ).ToPageResourceAsync<Resource, ResourceResource>(pageIndex, pageSize);
+        ).ToPageResourceAsync<Resource, ResourceResource>(
+            pageIndex,
+            pageSize,
+            User.GetUserId() is Id userId ? (x) => x.WithInjectedUserContext<ResourceResource>(userId) : null
+        );
 
 
         [HttpGet(ROUTE + "/private")]
@@ -75,7 +89,11 @@ public class ResourceController(
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
-        ).ToPageResourceAsync<Resource, ResourceResource>(pageIndex, pageSize);
+        ).ToPageResourceAsync<Resource, ResourceResource>(
+            pageIndex,
+            pageSize,
+            User.GetUserId() is Id userId ? (x) => x.WithInjectedUserContext<ResourceResource>(userId) : null
+        );
 
             
         [HttpGet(ROUTE + "/waiting-for-verification")]
@@ -87,7 +105,11 @@ public class ResourceController(
             int pageSize  = 10
         ) => resourceService
             .GetAllWaitingForVerificationAsync()
-            .ToPageResourceAsync<Resource, ResourceResource>(pageIndex, pageSize);
+            .ToPageResourceAsync<Resource, ResourceResource>(
+                pageIndex,
+                pageSize,
+                User.GetUserId() is Id userId ? (x) => x.WithInjectedUserContext<ResourceResource>(userId) : null
+            );
 
     #endregion
     
