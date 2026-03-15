@@ -39,7 +39,8 @@ public record QuizSession(Id Id = default) : IAggregateRoot<QuizSession> {
             
         /// <returns> A copy of the session with the given participation score if the user is a participant. </returns>
         public virtual IResponse<QuizSession> TryWithScore(User user, int value) {
-            if (this.Participations.Any(x => x.User.Id == user.Id)) {
+            if (this.Participations.FirstOrDefault(x => x.User.Id == user.Id) is QuizParticipation participation) {
+                if (participation.Score is not null) return Response.Failure<QuizSession>(new InvariantException("Une seule participation est possible par utilisateur !"));
 
                 List<QuizParticipation> participations = [.. this.Participations];
                 participations.Remove(participations.First(x => x.User.Id == user.Id));
