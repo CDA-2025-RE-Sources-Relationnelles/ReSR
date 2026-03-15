@@ -11,21 +11,25 @@ public class QuizSessionResource(QuizSession from) : IResource<QuizSessionResour
     #region PROPERTIES
 
         [JsonIgnore]
-        public Id                             Id            { get; } = from.Id;
-        public string                         OpenedAt      { get; } = from.OpenedAt.ToString();
-        public IEnumerable<QuizParticipation> Participation { get; } = from.Participations.Select(x => new QuizParticipation(
-            Score : x.Score,
-            User  : UserPrivateResource.GetLink(x.User)
-        ));
+        public Id                             Id             { get; } = from.Id;
+        public string                         OpenedAt       { get; } = from.OpenedAt.ToString();
+        public IEnumerable<QuizParticipation> Participations { get; } = from.Participations
+            .OrderByDescending(x => x.Score)
+            .Select(x => new QuizParticipation(
+                Score : x.Score,
+                User  : UserPrivateResource.GetLink(x.User)
+            ));
 
         public QuizSessionLinks Links { get; } = new(
-            Self     : GetLink(from),
-            Resource : ResourceResource.GetLink(from.Resource)
+            Self        : GetLink(from),
+            Resource    : ResourceResource.GetLink(from.Resource),
+            Participate : GetLink(from).WithSubRoute("participate").WithMethod(Core.ValueObjects.HttpMethod.POST)
         );
 
         public readonly record struct QuizSessionLinks(
             Link          Self,
-            AnnotatedLink Resource
+            AnnotatedLink Resource,
+            Link          Participate
         );
 
         public readonly record struct QuizParticipation(
