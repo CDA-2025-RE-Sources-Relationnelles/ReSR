@@ -46,7 +46,7 @@ public class ResourceController(
     public static IResult WithInjectedUserContext<T>(ISuccess<T> success, Id? userId) where T : ResourceResource =>
         userId is Id id
             ? Results.Ok(success.OnSuccess(x => x.WithInjectedUserContext<T>(id)))
-            : Results.Ok();
+            : Results.Ok(success);
 
     #endregion
     #region ROUTES
