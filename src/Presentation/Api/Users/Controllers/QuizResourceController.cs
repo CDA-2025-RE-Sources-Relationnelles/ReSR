@@ -37,10 +37,11 @@ public class QuizResourceController(
         );
 
         public readonly record struct UpdateUserQuizResourceDto(
-            string? Title         = null,
-            string? Description   = null,
-            Id?     CategoryId    = null,
-            string? Relationships = null
+            string?                    Title         = null,
+            string?                    Description   = null,
+            Id?                        CategoryId    = null,
+            string?                    Relationships = null,
+            IEnumerable<QuizQuestion>? Questions     = null
         );
 
         public readonly record struct PostQuizResourceCommentDto(
@@ -133,7 +134,8 @@ public class QuizResourceController(
                 title: dto.Title,
                 description: dto.Description,
                 categoryId: dto.CategoryId,
-                relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : null
+                relationships: Enum.TryParse<Relationships>(dto.Relationships, true, out var relationships) ? relationships : null,
+                questions: dto.Questions
             ).ToResourceAsync<QuizResource, QuizResourceResource>(x =>
                 ResourceController.WithInjectedUserContext(x, User.GetUserId())
             );

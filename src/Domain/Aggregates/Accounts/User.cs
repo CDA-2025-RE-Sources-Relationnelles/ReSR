@@ -158,7 +158,7 @@ public record User : Account<User>, IAggregateRoot<User> {
             public virtual IResponse TryVerifyPermissions(UserPermissions value) =>
                 this.Permissions.HasFlag(value)
                 ? Response.Success()
-                : Response.Failure($"L'utilisateur n'a pas les permissions suivantes '{value.GetUniqueValues()}'");
+                : Response.Failure($"L'utilisateur n'a pas les permissions suivantes '{string.Join(", ", value.ToLocalizedNames())}'");
 
 
         #endregion

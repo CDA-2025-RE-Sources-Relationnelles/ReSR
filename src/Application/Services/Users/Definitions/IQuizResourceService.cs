@@ -18,10 +18,11 @@ public interface IQuizResourceService : IResourceService<QuizResource> {
 
     public Task<IResponse<QuizResource>> TryUpdateAsync(
         Id id,
-        string?        title         = null,
-        string?        description   = null,
-        Id?            categoryId    = null,
-        Relationships? relationships = null
+        string?                    title         = null,
+        string?                    description   = null,
+        Id?                        categoryId    = null,
+        Relationships?             relationships = null,
+        IEnumerable<QuizQuestion>? questions     = null
     );
 
     public Task<IResponse<QuizResource>> TryAddQuestionAsync(

@@ -47,6 +47,17 @@ public record QuizResource : Resource, IAggregateRoot<QuizResource> {
         public new QuizResource WithCategory(Category value) =>
             (QuizResource)base.WithCategory(value);
 
+        /// <returns> A copy of the resource with the given questions if valid. </returns>
+        public virtual IResponse<QuizResource> WithQuestions(IEnumerable<QuizQuestion> values) {
+
+            List<QuizQuestion> questions = [.. values];
+            return TryVerifyQuizQuestionsInvariant(questions).OnSuccess(() => {
+                this.Questions = questions;
+                return this;
+            });
+            
+        }
+
         /// <returns> A copy of the resource with the given additional question if valid. </returns>
         public virtual IResponse<QuizResource> WithNewQuestion(QuizQuestion value) =>
             TryVerifyQuizQuestionInvariant(value)

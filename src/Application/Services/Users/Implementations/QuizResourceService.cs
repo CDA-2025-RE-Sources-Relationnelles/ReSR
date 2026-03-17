@@ -34,10 +34,11 @@ internal class QuizResourceService(
 
     public Task<IResponse<QuizResource>> TryUpdateAsync(
         Id id,
-        string?        title         = null,
-        string?        description   = null,
-        Id?            categoryId    = null,
-        Relationships? relationships = null
+        string?                    title         = null,
+        string?                    description   = null,
+        Id?                        categoryId    = null,
+        Relationships?             relationships = null,
+        IEnumerable<QuizQuestion>? questions     = null
     ) => resourceRepository.TryUpdateAsync(id, async resource => {
 
         var response = Response.Success(resource);
@@ -50,6 +51,7 @@ internal class QuizResourceService(
         );
         if (relationships is not null) response = response.OnSuccess(x => x.WithRelationships(relationships.Value));
         if (description is not null) response = response.OnSuccess(x => x.WithDescription(description));
+        if (questions is not null) response = response.OnSuccess(x => x.WithQuestions(questions));
 
         return response;
 
