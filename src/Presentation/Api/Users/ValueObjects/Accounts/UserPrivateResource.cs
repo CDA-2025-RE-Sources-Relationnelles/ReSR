@@ -22,6 +22,7 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
         
         public UserLinks Links { get; } = new(
             Self            : GetLink(from),
+            RefreshSession  : GetLink(from).WithSubRoute("refresh-session").WithMethod(Core.ValueObjects.HttpMethod.POST),
             Anonymize       : GetLink(from).WithSubRoute("anonymize").WithMethod(Core.ValueObjects.HttpMethod.POST),
             LikeProfile     : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
             LikedByUsers    : GetLinks(from.LikedBy),
@@ -34,6 +35,7 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
 
         public readonly record struct UserLinks(
             AnnotatedLink Self,
+            Link          RefreshSession,
             Link          Anonymize,
             Link          LikeProfile,
             IEnumerable<AnnotatedLink> LikedByUsers,

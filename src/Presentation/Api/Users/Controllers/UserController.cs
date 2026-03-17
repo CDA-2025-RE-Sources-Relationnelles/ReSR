@@ -132,6 +132,15 @@ public class UserController(
 
                 }).ToResourceAsync<Session<User>, UserSessionResource>(Results.Ok);
 
+        [HttpPost("{userId}/refresh-session")]
+        [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]
+        [EndpointSummary("Only accessible for this user")]
+        [EndpointDescription("Regenerates a session.")]
+        public Task<IResult> RefreshAsync(Id userId) =>
+            sessionService
+                .TryGenerateSession(userId)
+                .ToResourceAsync<Session<User>, UserSessionResource>(Results.Ok);
+
         [HttpPost("{userId}/anonymize")]
         [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]
         [EndpointSummary("Only accessible for this user")]

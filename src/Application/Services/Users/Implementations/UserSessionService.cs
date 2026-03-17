@@ -140,4 +140,8 @@ public sealed class UserSessionService(
             repository.TryUpdateAsync(id, x => x.TryWithLikeFrom(from, value))
         );
 
+    public Task<IResponse<Session<User>>> TryGenerateSession(Id id) =>
+        repository
+            .TryUpdateAsync(id, x => x.WithNewActivity())
+            .OnSuccessAsync(user => authService.TryGenerateToken(user).OnSuccess(token => new Session<User>(token, user)));
 }

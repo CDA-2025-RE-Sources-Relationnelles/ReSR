@@ -52,5 +52,6 @@ public interface IUserSessionService : ISessionService<User> {
     /// <param name="email">The user's mail address.</param>
     public Task<IResponse> TryRequestPasswordResetPINAsync(string email);
     public Task<IResponse<User>> TryLikeProfile(Id id, Id fromId, bool value = true);
+    public Task<IResponse<Session<User>>> TryGenerateSession(Id id);
 
 }
