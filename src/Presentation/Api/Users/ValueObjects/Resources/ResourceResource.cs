@@ -17,7 +17,7 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
 
         public string              Title                  { get; } = from.Title;
         public string              Description            { get; } = from.Description;
-        public string              Relationships          { get; } = from.Relationships.ToString();
+        public string              Relationships          { get; } = string.Join(',', from.Relationships.GetUniqueValues());
         public IEnumerable<string> LocalizedRelationships { get; } = from.Relationships.ToLocalizedNames();
         public string              LocalizedVisibility    { get; } = from.Visibility.ToLocalizedName();
         public string              PublishedAt            { get; } = from.PublishedAt.ToString();

@@ -24,7 +24,7 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
         public string Description { get; internal init; } = null!;
 
         /// <summary> The resource's category </summary>
-        public Category Category { get; internal init; } = null!;
+        public Category Category { get; internal set; } = null!;
 
         /// <summary> The resource's targeted relationships. </summary>
         public Relationships Relationships { get; internal init; }
@@ -88,11 +88,12 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
                 };
 
             /// <returns> A copy of the resource with a new category. </returns>
-            public virtual Resource WithCategory(Category value) =>
-                this with {
+            public virtual Resource WithCategory(Category value) {
+                this.Category = value;
+                return this with {
                     EditedAt = DateTime.UtcNow,
-                    Category = value,
                 };
+            }
 
             /// <returns> A copy of the resource with the given relationships. </returns>
             public virtual Resource WithRelationships(Relationships value) =>
