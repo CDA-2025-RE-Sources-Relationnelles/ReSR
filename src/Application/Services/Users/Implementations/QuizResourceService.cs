@@ -42,7 +42,7 @@ internal class QuizResourceService(
     ) => resourceRepository.TryUpdateAsync(id, async resource => {
 
         var response = Response.Success(resource);
-
+        if (questions is not null) response = response.OnSuccess(x => x.WithQuestions(questions));
         if (categoryId is not null) response = await response.OnSuccessAsync(x =>
             categoryRepository
                 .TryGetAsync(categoryId.Value)
@@ -52,7 +52,6 @@ internal class QuizResourceService(
         if (title is not null) response = response.OnSuccess(x => x.TryWithTitle(title));
         if (relationships is not null) response = response.OnSuccess(x => x.WithRelationships(relationships.Value));
         if (description is not null) response = response.OnSuccess(x => x.WithDescription(description));
-        if (questions is not null) response = response.OnSuccess(x => x.WithQuestions(questions));
 
         return response;
 
