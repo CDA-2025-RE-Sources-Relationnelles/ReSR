@@ -137,7 +137,7 @@ public record User : Account<User>, IAggregateRoot<User> {
             /// <returns> A copy of the user account as anonymized. </returns>
             public virtual User AsAnonymized() =>
                 this with {
-                    Username     = string.Empty,
+                    Username     = "Anonyme",
                     Email        = string.Empty,
                     Password     = Password.FromNoise(),
                     DomainEvents = !this.IsAnonymous
