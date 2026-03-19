@@ -108,4 +108,9 @@ public class ResourceService<T>(
                     resources.Where(x => UserPermissionsService.TryVerifyUserResourceAccess(forUser, x) is ISuccess)
                 ) : Response.Success(resources.Where(x => x.Visibility == Visibility.Public));
         });
+
+    public Task<IResponse<IEnumerable<T>>> TryGetUserBookmarkedResources(Id id) =>
+        userRepository
+            .TryGetAsync(id)
+            .OnSuccessAsync(user => user.Bookmarks.Where(x => UserPermissionsService.TryVerifyUserResourceAccess(user, x) is ISuccess).Cast<T>());
 }

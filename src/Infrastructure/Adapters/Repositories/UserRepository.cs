@@ -16,7 +16,8 @@ internal class UserRepository(
             .Include(x => x.LikedUsers)
             .Include(x => x.LikedBy)
             .Include(x => x.Likes)
-            .Include(x => x.Bookmarks)
+            .Include(x => x.Bookmarks).ThenInclude(x => x.Category)
+            .Include(x => x.Bookmarks).ThenInclude(x => x.Owner)
             .Include(x => x.Exploits)
             .Include(x => x.OwnedResources);
             

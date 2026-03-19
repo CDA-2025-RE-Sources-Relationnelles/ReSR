@@ -54,4 +54,6 @@ public interface IResourceService<T> where T: Resource {
         Id id,
         Id? forUserId = null
     );
+
+    public Task<IResponse<IEnumerable<T>>> TryGetUserBookmarkedResources(Id id);
 }

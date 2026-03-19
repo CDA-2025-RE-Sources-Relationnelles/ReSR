@@ -1,7 +1,6 @@
 using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Presentation.Api.Users.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
-using ReSR.Presentation.Api.Users.ValueObjects.Resources;
 using ReSR.Domain.Extensions;
 
 namespace ReSR.Presentation.Api.Users.ValueObjects.Accounts;
@@ -21,16 +20,14 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
         public int                 ExploitCount         { get; } = from.Exploits.Count;
         
         public UserLinks Links { get; } = new(
-            Self            : GetLink(from),
-            RefreshSession  : GetLink(from).WithSubRoute("refresh-session").WithMethod(Core.ValueObjects.HttpMethod.POST),
-            Anonymize       : GetLink(from).WithSubRoute("anonymize").WithMethod(Core.ValueObjects.HttpMethod.POST),
-            LikeProfile     : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
-            LikedByUsers    : GetLinks(from.LikedBy),
-            Friends         : GetLinks(from.Friends),
-            Likes           : ResourceResource.GetLinks(from.Likes),
-            Bookmarks       : ResourceResource.GetLinks(from.Bookmarks),
-            Exploits        : ResourceResource.GetLinks(from.Exploits),
-            OwnedResources  : GetLink(from).WithSubRoute("owned-resources")
+            Self                : GetLink(from),
+            RefreshSession      : GetLink(from).WithSubRoute("refresh-session").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            Anonymize           : GetLink(from).WithSubRoute("anonymize").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            LikeProfile         : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
+            LikedByUsers        : GetLinks(from.LikedBy),
+            Friends             : GetLinks(from.Friends),
+            OwnedResources      : GetLink(from).WithSubRoute("owned-resources"),
+            BookmarkedResources : GetLink(from).WithSubRoute("bookmarked-resources")
         );
 
         public readonly record struct UserLinks(
@@ -40,10 +37,8 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
             Link          LikeProfile,
             IEnumerable<AnnotatedLink> LikedByUsers,
             IEnumerable<AnnotatedLink> Friends,
-            IEnumerable<AnnotatedLink> Likes,
-            IEnumerable<AnnotatedLink> Bookmarks,
-            IEnumerable<AnnotatedLink> Exploits,
-            Link OwnedResources
+            Link OwnedResources,
+            Link BookmarkedResources
         );
 
     #endregion

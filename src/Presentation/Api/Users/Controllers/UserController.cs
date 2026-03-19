@@ -115,6 +115,21 @@ public class UserController(
                 User.GetUserId() is Id id ? (x) => x.WithInjectedUserContext<ResourceResource>(id) : null
             );
 
+        [HttpGet("{userId}/bookmarked-resources")]
+        [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]
+        [EndpointDescription("Queries the user's bookmarked resources.")]
+        public Task<IResult> GetUserBookmarkedResourcesAsync(
+            Id  userId,
+            int pageIndex = 0,
+            int pageSize  = 10
+        ) => resourceService
+            .TryGetUserBookmarkedResources(userId)
+            .ToPageResourceAsync<Resource, ResourceResource>(
+                pageIndex,
+                pageSize,
+                User.GetUserId() is Id id ? (x) => x.WithInjectedUserContext<ResourceResource>(id) : null
+            );
+
         [HttpPatch("{userId}")]
         [Authorize(Policy = nameof(UserSessionAuthorizationRequirement))]
         [EndpointSummary("Only accessible for this user")]
