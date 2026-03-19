@@ -38,6 +38,7 @@ internal class MailService(
             string subject,
             string body
         ) => Response.WrapAsync(async () => {
+            if (toEmail.IsWhiteSpace()) return;
 
             using MailMessage myMail = new(this.senderEmail, new (toEmail)) {
 
