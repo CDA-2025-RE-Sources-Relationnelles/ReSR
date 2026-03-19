@@ -1,3 +1,5 @@
+using Serilog;
+
 namespace ReSR.Presentation.Api.Core.Extensions;
 public static partial class Extensions {
 
@@ -7,6 +9,8 @@ public static partial class Extensions {
     /// <param name="self">The app builder.</param>
     public static void FinalizePresentation(this WebApplication app, params string[] args) {
         
+        app.UseSerilogRequestLogging();
+
         if (app.Environment.IsDevelopment()) {
             app.UseSwagger();
             app.UseSwaggerUI();
