@@ -25,7 +25,7 @@ public class UserPrivateResource(User from) : IResource<UserPrivateResource, Use
             Anonymize           : GetLink(from).WithSubRoute("anonymize").WithMethod(Core.ValueObjects.HttpMethod.POST),
             LikeProfile         : GetLink(from).WithSubRoute("like-profile").WithMethod(Core.ValueObjects.HttpMethod.POST),
             LikedByUsers        : GetLinks(from.LikedBy),
-            Friends             : GetLinks(from.Friends),
+            Friends             : GetLinks(from.Friends.Where(x => !x.IsAnonymous)),
             OwnedResources      : GetLink(from).WithSubRoute("owned-resources"),
             BookmarkedResources : GetLink(from).WithSubRoute("bookmarked-resources")
         );
