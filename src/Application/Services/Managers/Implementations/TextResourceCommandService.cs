@@ -37,13 +37,14 @@ internal class TextResourceCommandService(
 
         var response = Response.Success(resource);
 
-        if (title is not null) response = response.OnSuccess(x => x.TryWithTitle(title));
-        if (description is not null) response = response.OnSuccess(x => x.WithDescription(description));
         if (categoryId is not null) response = await response.OnSuccessAsync(x =>
             categoryRepository
                 .TryGetAsync(categoryId.Value)
                 .OnSuccessAsync(category => x.WithCategory(category))
         );
+        
+        if (title is not null) response = response.OnSuccess(x => x.TryWithTitle(title));
+        if (description is not null) response = response.OnSuccess(x => x.WithDescription(description));
         if (relationships is not null) response = response.OnSuccess(x => x.WithRelationships(relationships.Value));
         if (content is not null) response = response.OnSuccess(x => x.WithContent(content));
 

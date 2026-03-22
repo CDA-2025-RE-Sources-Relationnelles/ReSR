@@ -31,17 +31,20 @@ internal class QuizResourceCommandService(
         string?                    title         = null,
         string?                    description   = null,
         Id?                        categoryId    = null,
-        Relationships?             relationships = null
+        Relationships?             relationships = null,
+        IEnumerable<QuizQuestion>? questions     = null
     ) => repository.TryUpdateAsync(id, async resource => {
 
         var response = Response.Success(resource);
 
-        if (title is not null) response = response.OnSuccess(x => x.TryWithTitle(title));
+        if (questions is not null) response = response.OnSuccess(x => x.WithQuestions(questions));
         if (categoryId is not null) response = await response.OnSuccessAsync(x =>
             categoryRepository
                 .TryGetAsync(categoryId.Value)
                 .OnSuccessAsync(category => x.WithCategory(category))
         );
+
+        if (title is not null) response = response.OnSuccess(x => x.TryWithTitle(title));
         if (relationships is not null) response = response.OnSuccess(x => x.WithRelationships(relationships.Value));
         if (description is not null) response = response.OnSuccess(x => x.WithDescription(description));
 
