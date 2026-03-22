@@ -40,8 +40,10 @@ public class UserController(
         [Authorize(Roles = nameof(ManagerPermissions.ReadUsers))]
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the users.")]
-        public Task<IResult> GetUsersAsync() =>
-            repository.GetAllAsync().ToResourceAsync<User, UserResource>(Results.Ok);
+        public Task<IResult> GetUsersAsync(
+            int pageIndex = 0,
+            int pageSize  = 10
+        ) => repository.GetAllAsync().ToPageResourceAsync<User, UserResource>(pageIndex, pageSize);
 
         [HttpGet("{userId}")]
         [Authorize(Roles = nameof(ManagerPermissions.ReadUsers))]

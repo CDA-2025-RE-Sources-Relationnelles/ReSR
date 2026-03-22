@@ -44,14 +44,18 @@ public class TextResourceController(
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the text resources.")]
         public Task<IResult> GetTextResourcesAsync(
-            Id?    categoryIdFilter    = null,
-            string relationshipsFilter = nameof(Relationships.None),
-            string orderBy             = nameof(OrderBy.Newest)
+            int     pageIndex           = 0,
+            int     pageSize            = 10,
+            string? titleSearch         = null,
+            Id?     categoryIdFilter    = null,
+            string  relationshipsFilter = nameof(Relationships.None),
+            string  orderBy             = nameof(OrderBy.Newest)
         ) => queryService.GetAllAsync(
+            titleSearch: titleSearch,
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
-        ).ToResourceAsync<TextResource, TextResourceResource>(Results.Ok);
+        ).ToPageResourceAsync<TextResource, TextResourceResource>(pageIndex, pageSize);
 
         [HttpGet("{resourceId}")]
         [Authorize(Roles = nameof(ManagerPermissions.ReadContent))]

@@ -13,7 +13,7 @@ public class ManagerResource(Manager from) : IResource<ManagerResource, Manager>
         public Id Id { get; } = from.Id;
 
         public string              Email                { get; } = from.Email;
-        public string              Permissions          { get; } = from.Permissions.ToString();
+        public string              Permissions          { get; } = string.Join(',', from.Permissions.GetUniqueValues());
         public IEnumerable<string> LocalizedPermissions { get; } = from.Permissions.ToLocalizedNames();
         
         public ManagerLinks Links { get; } = new(

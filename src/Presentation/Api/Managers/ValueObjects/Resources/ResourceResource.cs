@@ -2,8 +2,8 @@ using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Extensions;
 using ReSR.Presentation.Api.Core.ValueObjects;
-using ReSR.Presentation.Api.Users.ValueObjects.Accounts;
-using ReSR.Presentation.Api.Users.ValueObjects.Categories;
+using ReSR.Presentation.Api.Managers.ValueObjects.Accounts;
+using ReSR.Presentation.Api.Managers.ValueObjects.Categories;
 
 namespace ReSR.Presentation.Api.Managers.ValueObjects.Resources;
 public abstract class ResourceResource(Resource from) : IResource<ResourceResource, Resource> {
@@ -14,8 +14,9 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         public Id Id { get; } = from.Id;
 
         public string              Title                  { get; } = from.Title;
+        public string              Type                   { get; } = from.GetType().Name;
         public string              Description            { get; } = from.Description;
-        public string              Relationships          { get; } = from.Relationships.ToString();
+        public string              Relationships          { get; } = string.Join(',', from.Relationships.GetUniqueValues());
         public string              Visibility             { get; } = from.Visibility.ToString();
         public IEnumerable<string> LocalizedRelationships { get; } = from.Relationships.ToLocalizedNames();
         public string              LocalizedVisibility    { get; } = from.Visibility.ToLocalizedName();
@@ -28,7 +29,7 @@ public abstract class ResourceResource(Resource from) : IResource<ResourceResour
         public ResourceLinks Links { get; } = new(
             Self     : GetLink(from),
             Category : CategoryResource.GetLink(from.Category),
-            Owner    : from.Owner is not null ? UserPrivateResource.GetLink(from.Owner) : null,
+            Owner    : from.Owner is not null ? UserResource.GetLink(from.Owner) : null,
             Suspend  : GetLink(from).WithSubRoute("suspend").WithMethod(Core.ValueObjects.HttpMethod.POST)
         );
 

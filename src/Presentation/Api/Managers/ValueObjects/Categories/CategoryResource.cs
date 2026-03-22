@@ -1,7 +1,7 @@
 using ReSR.Domain.Aggregates.Categories;
-using ReSR.Presentation.Api.Users.Controllers;
+using ReSR.Presentation.Api.Managers.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
-using ReSR.Presentation.Api.Users.ValueObjects.Resources;
+using ReSR.Presentation.Api.Managers.ValueObjects.Resources;
 
 namespace ReSR.Presentation.Api.Managers.ValueObjects.Categories;
 public class CategoryResource(Category resource) : IResource<CategoryResource, Category> {

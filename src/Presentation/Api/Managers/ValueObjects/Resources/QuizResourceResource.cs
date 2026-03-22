@@ -1,6 +1,6 @@
 using ReSR.Domain.Aggregates.Resources;
 using ReSR.Domain.Aggregates.Resources.ValueObjects;
-using ReSR.Presentation.Api.Users.Controllers;
+using ReSR.Presentation.Api.Managers.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
 
 namespace ReSR.Presentation.Api.Managers.ValueObjects.Resources;

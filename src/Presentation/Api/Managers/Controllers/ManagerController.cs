@@ -39,8 +39,10 @@ public class ManagerController(
         [Authorize(Roles = nameof(ManagerPermissions.ReadManagers))]
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the managers.")]
-        public Task<IResult> GetManagersAsync() =>
-            repository.GetAllAsync().ToResourceAsync<Manager, ManagerResource>(Results.Ok);
+        public Task<IResult> GetManagersAsync(
+            int pageIndex = 0,
+            int pageSize  = 10
+        ) => repository.GetAllAsync().ToPageResourceAsync<Manager, ManagerResource>(pageIndex, pageSize);
 
         [HttpGet("{managerId}")]
         [Authorize(Roles = nameof(ManagerPermissions.ReadManagers))]

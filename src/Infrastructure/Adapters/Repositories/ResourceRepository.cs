@@ -19,7 +19,7 @@ internal class ResourceRepository<T>(
         Visibility visibilityFilter
     ) => await this.GetJoinedTable().Where(x =>
         EF.Functions.ILike(x.Title, $"%{titleSearch}%") &&
-        x.Visibility == visibilityFilter &&
+        visibilityFilter.HasFlag(x.Visibility) &&
         (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
         (x.Relationships & relationshipsFilter) == relationshipsFilter
     ).ToListAsync();

@@ -44,14 +44,18 @@ public class QuizResourceController(
         [EndpointSummary("Only accessible for managers with read permissions.")]
         [EndpointDescription("Queries the quiz resources.")]
         public Task<IResult> GetQuizResourcesAsync(
-            Id?    categoryIdFilter    = null,
-            string relationshipsFilter = nameof(Relationships.None),
-            string orderBy             = nameof(OrderBy.Newest)
+            int     pageIndex           = 0,
+            int     pageSize            = 10,
+            string? titleSearch         = null,
+            Id?     categoryIdFilter    = null,
+            string  relationshipsFilter = nameof(Relationships.None),
+            string  orderBy             = nameof(OrderBy.Newest)
         ) => queryService.GetAllAsync(
+            titleSearch: titleSearch,
             categoryIdFilter: categoryIdFilter,
             relationshipsFilter: Enum.TryParse<Relationships>(relationshipsFilter, true, out var relationshipsFilterParsed) ? relationshipsFilterParsed : Relationships.None,
             orderBy: Enum.TryParse<OrderBy>(orderBy, true, out var orderByParsed) ? orderByParsed : OrderBy.Newest
-        ).ToResourceAsync<QuizResource, QuizResourceResource>(Results.Ok);
+        ).ToPageResourceAsync<QuizResource, QuizResourceResource>(pageIndex, pageSize);
 
         [HttpGet("{resourceId}")]
         [Authorize(Roles = nameof(ManagerPermissions.ReadContent))]

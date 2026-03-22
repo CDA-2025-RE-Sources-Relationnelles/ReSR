@@ -70,6 +70,7 @@ public static partial class Extensions {
 
         builder.Services.AddScoped<ITextResourceCommandService, TextResourceCommandService>();
         builder.Services.AddScoped<IQuizResourceCommandService, QuizResourceCommandService>();
+        builder.Services.AddScoped<IResourceQueryService<Resource>, ResourceQueryService<Resource>>();
         builder.Services.AddScoped<IResourceQueryService<TextResource>, ResourceQueryService<TextResource>>();
         builder.Services.AddScoped<IResourceQueryService<QuizResource>, ResourceQueryService<QuizResource>>();
 

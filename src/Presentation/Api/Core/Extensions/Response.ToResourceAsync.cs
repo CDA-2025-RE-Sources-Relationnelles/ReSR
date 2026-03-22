@@ -131,7 +131,7 @@ public static partial class Extensions {
         int pageSize,
         Func<TResource, TResource>? transform = null
     ) where TResource : IResource<TResource, TValue> =>
-        (await task).ToPageResource<TValue, TResource>(pageIndex, pageSize, transform);
+        (await task).ToPageResource(pageIndex, pageSize, transform);
 
     /// <summary>
     /// Converts a <see cref="IResponse{IEnumerable{TValue}}"/> to a HATEOAS page wrapped in an HTTP response.
@@ -145,5 +145,5 @@ public static partial class Extensions {
         int pageSize,
         Func<TResource, TResource>? transform = null
     ) where TResource : IResource<TResource, TValue> =>
-        (await task).ToPageResource<TValue, TResource>(pageIndex, pageSize, transform);
+        (await task).ToPageResource(pageIndex, pageSize, transform);
 }

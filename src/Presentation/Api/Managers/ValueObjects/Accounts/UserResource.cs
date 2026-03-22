@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 using ReSR.Domain.Aggregates.Accounts;
-using ReSR.Presentation.Api.Users.Controllers;
+using ReSR.Presentation.Api.Managers.Controllers;
 using ReSR.Presentation.Api.Core.ValueObjects;
 using ReSR.Domain.Extensions;
 
@@ -14,7 +14,7 @@ public class UserResource(User from) : IResource<UserResource, User> {
 
         public string              Username             { get; } = from.Username;
         public string              Email                { get; } = from.Email;
-        public string              Permissions          { get; } = from.Permissions.ToString();
+        public string              Permissions          { get; } = string.Join(',', from.Permissions.GetUniqueValues());
         public IEnumerable<string> LocalizedPermissions { get; } = from.Permissions.ToLocalizedNames();
         public bool                Suspended            { get; } = from.Suspended;
         public bool                IsAnonymous          { get; } = from.IsAnonymous;

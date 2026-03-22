@@ -172,7 +172,7 @@ public abstract record Resource(Id Id = default) : IAggregateRoot<Resource> {
                 
             /// <returns> A copy of the resource with suspension set or unset. </returns>
             public virtual Resource WithSuspension(bool value = true) =>
-                this with { Visibility = value ? Visibility | Visibility.Suspended : Visibility & ~Visibility.Suspended };
+                this with { Visibility = value ? Visibility.Suspended : Visibility.Public };
 
 
 

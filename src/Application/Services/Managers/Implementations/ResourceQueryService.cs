@@ -8,19 +8,16 @@ using ReSR.Domain.Ports;
 
 namespace ReSR.Application.Services.Managers.Implementations;
 public class ResourceQueryService<T>(
-    IRepository<T> resourceRepository
+    IResourceRepository<T> resourceRepository
 ) : IResourceQueryService<T> where T : Resource, IAggregateRoot<T> {
 
     public async Task<IEnumerable<T>> GetAllAsync(
-        Id? categoryIdFilter,
+        string?       titleSearch,
+        Id?           categoryIdFilter,
         Relationships relationshipsFilter,
         OrderBy       orderBy
     ) {
-        var resources = await resourceRepository.GetAllAsync(x =>
-            x.Visibility == Visibility.Public &&
-            (categoryIdFilter == null || x.Category.Id == categoryIdFilter) &&
-            (x.Relationships & relationshipsFilter) == relationshipsFilter
-        );
+        var resources = await resourceRepository.GetAllAsync(titleSearch, categoryIdFilter, relationshipsFilter, Visibility.Public | Visibility.Suspended);
 
         return orderBy switch {
             OrderBy.Newest    => resources.OrderByDescending(x => x.EditedAt),
