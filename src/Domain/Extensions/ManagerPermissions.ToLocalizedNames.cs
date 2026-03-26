@@ -18,10 +18,13 @@ public static partial class Extensions {
             default : {
                 foreach (var permission in self.GetUniqueValues())
                     yield return permission switch {
-                        ManagerPermissions.ManageContent  => "Gestion du contenu",
-                        ManagerPermissions.ManageUsers    => "Gestion des utilisateur.rice.s",
-                        ManagerPermissions.ManageManagers => "Gestion des managers",
-                        _                                 => "Permission inconnue"
+                        ManagerPermissions.ReadContent   => "Accès au contenu",
+                        ManagerPermissions.ReadUsers     => "Accès aux utilisateur.rice.s",
+                        ManagerPermissions.ReadManagers  => "Accès aux gestionnaires",
+                        ManagerPermissions.WriteContent  => "Gestion du contenu",
+                        ManagerPermissions.WriteUsers    => "Gestion des utilisateur.rice.s",
+                        ManagerPermissions.WriteManagers => "Gestion des gestionnaires",
+                        _                                => "Permission inconnue"
                     };
                 break;
             }
