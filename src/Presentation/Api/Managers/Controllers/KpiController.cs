@@ -24,7 +24,6 @@ public class KpiController(
     #region ROUTES
 
         [HttpGet(ROUTE + "/users/{dateRange}")]
-        [Authorize]
         [EndpointDescription("Generates users KPI.")]
         public Task<IResult> GetUserKpiAsync(string dateRange) =>
             userKpiService
@@ -32,7 +31,6 @@ public class KpiController(
                 .ToResultAsync(Results.Ok);
 
         [HttpGet(ROUTE + "/users/download")]
-        [Authorize]
         [EndpointDescription("Generates users KPI.")]
         public async Task<IResult> DownloadUserKpiAsync() =>
             userKpiExportService
@@ -40,7 +38,6 @@ public class KpiController(
                 .ToResult(x => Results.File(x.Value, "text/csv", "user-kpi.csv"));
 
         [HttpGet(ROUTE + "/resources/{dateRange}")]
-        [Authorize]
         [EndpointDescription("Generates resources KPI.")]
         public Task<IResult> GetResourceKpiAsync(
             string  dateRange,
@@ -57,7 +54,6 @@ public class KpiController(
                 ).ToResultAsync(Results.Ok);
 
         [HttpGet(ROUTE + "/resources/download")]
-        [Authorize]
         [EndpointDescription("Generates resources KPI.")]
         public async Task<IResult> DownloadResourceKpiAsync() =>
             resouceKpiExportService
