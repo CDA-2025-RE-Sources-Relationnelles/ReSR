@@ -84,7 +84,7 @@ public static partial class Extensions {
             return password;
         }
 
-        var userPermissions = FlagsManipulation.GetUniqueValues<UserPermissions>().ToList();
+        List<UserPermissions> userPermissions = [..FlagsManipulation.GetUniqueValues<UserPermissions>(), UserPermissions.None];
 
         dbContext.AddRange(
             Enumerable.Range(0, 100).Select(i =>
