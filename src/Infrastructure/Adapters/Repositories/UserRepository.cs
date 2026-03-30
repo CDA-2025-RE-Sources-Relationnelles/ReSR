@@ -23,7 +23,7 @@ internal class UserRepository(
             
     protected override Task<IResponse<User>> TryValidateAsync(User entity) =>
         base.TryValidateAsync(entity)
-            .OnSuccessAsync(async _ => !await this.table.ToAsyncEnumerable().AnyAsync(x => x.Id != entity.Id && x.Username == entity.Username)
+            .OnSuccessAsync(async _ => !await this.table.ToAsyncEnumerable().AnyAsync(x => x.Id != entity.Id && x.Username == entity.Username && !x.IsAnonymous)
                 ? Response.Success()
                 : Response.Failure(new InvariantException($"Il ne peut y avoir plusieurs utilisateurs avec l'identifiant '{entity.Username}' !")))
             .OnSuccessAsync(() => entity);
