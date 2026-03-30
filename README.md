@@ -91,23 +91,21 @@ Puis, entrez cette commande dans le terminal :
 ```shell
 cd ReSR
 dotnet build
-dotnet ef database update --project src\\Infrastructure
 ```
 Si vous n'avez pas de certificat ( HTTPS ) générez un certificat de développeur avec la commande suivante : 
 
 ```shell
 dotnet dev-certs https --trust
 ```
-Si vous souhaitez avoir des données par défaut ( génération de ressources et catégories ) :
-
-```shell
-docker cp seed-data.sql resr-db-1:/tmp/seed-data.sql
-docker exec resr-db-1 psql -U "root@resr.fr" -d resr -f /tmp/seed-data.sql
-```
 
 ### Exécution
 
-Lancez l'**API** en entrant cette commande dans le terminale :
+Si vous souhaitez démarrer la solution avec une base de données de test, entrez cette commande lors de la première exécution :
+```shell
+dotnet run --launch-profile https --project src\\Presentation\\Api -- -n
+```
+
+Autrement, lancez l'**API** en entrant cette commande dans le terminale :
 
 ```shell
 dotnet run --launch-profile https --project src\\Presentation\\Api
