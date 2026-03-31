@@ -57,7 +57,7 @@ public class ManagerController(
         [EndpointDescription("Creates a new manager.")]
         public Task<IResult> PostManagerAsync(CreateManagerDto dto) =>
             commandService
-                .TryCreateAsync(dto.Email, dto.Password, Enum.TryParse<ManagerPermissions>(dto.Permissions, true, out var permissions) ? permissions : ManagerPermissions.AdminRole)
+                .TryCreateAsync(dto.Email, dto.Password, Enum.TryParse<ManagerPermissions>(dto.Permissions, true, out var permissions) ? permissions : ManagerPermissions.None)
                 .ToResourceAsync<Manager, ManagerResource>(Results.Ok);
 
         [HttpPatch("{managerId}")]

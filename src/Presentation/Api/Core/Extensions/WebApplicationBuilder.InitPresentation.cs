@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Aggregates.Accounts.ValueObjects;
 using ReSR.Presentation.Api.Managers.Authorization;
 using ReSR.Presentation.Api.Users.Authorization;
 
@@ -63,9 +64,15 @@ public static partial class Extensions {
                     partitionKey : httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
                     factory      : partition => new FixedWindowRateLimiterOptions {
                         AutoReplenishment = true,
-                        PermitLimit       = httpContext.User.Identity?.IsAuthenticated == true ? 64 : 32,
-                        QueueLimit        = 0,
-                        Window            = TimeSpan.FromMinutes(1)
+                        PermitLimit       = httpContext.User.Identity?.IsAuthenticated == true
+                            ? httpContext.User.IsInRole(nameof(Manager))
+                                ? 128
+                                : httpContext.User.IsInRole(nameof(UserPermissions.VerifyComments)) || httpContext.User.IsInRole(nameof(UserPermissions.VerifyResources))
+                                    ? 96
+                                    : 64
+                            : 48,
+                        QueueLimit = 0,
+                        Window     = TimeSpan.FromMinutes(1)
                     }
                 )
             );
