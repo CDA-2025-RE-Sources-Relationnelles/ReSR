@@ -90,7 +90,7 @@ dotnet dev-certs https -ep $env:USERPROFILE\.aspnet\https\aspnetapp.pfx -p <ASPN
 
 ##### Exécution
 ```shell
-docker-compose -f docker-compose.yml up -d
+docker-compose -f docker-compose.yml up -d --build
 ```
 
 ### Hébergement local
@@ -100,5 +100,5 @@ Si vous souhaitez démarrer la solution localement, entrez cette commande après
 dotnet run --launch-profile https --project src\\Presentation\\Api --
 ```
 
-\* Si vous souhaitez initialiser la base de données avec des données de test, ajoutez `-n` ou `new-test-db`.
-\* Si vous souhaitez forcer cette action en réinitialisant la base de données, ajoutez aussi `-f` ou `force-init`.
+\* Si vous souhaitez initialiser la base de données avec des données de test, ajoutez `-n` ou `--new-test-db`.
+\* Si vous souhaitez forcer cette action en réinitialisant la base de données, ajoutez aussi `-f` ou `--force-init`.

@@ -38,11 +38,9 @@ public static partial class Extensions {
 
         var dbContext = scope.ServiceProvider.GetRequiredService<DbContext>();
 
-        if (force) {
+        if (force) dbContext.Database.EnsureDeleted();
+        if (force || dbContext.Database.EnsureCreated()) {
 
-            dbContext.Database.EnsureDeleted();
-            dbContext.Database.EnsureCreated();
-        
             dbContext.Add(Manager.TryCreate(app.Configuration["Root:Email"]!, app.Configuration["Root:Password"]!, ManagerPermissions.SuperAdminRole).Unwrap());
             
             dbContext.InitUsers();
@@ -50,7 +48,7 @@ public static partial class Extensions {
             dbContext.InitResources();
             dbContext.InitComments();
 
-        } else dbContext.Database.EnsureCreated();
+        }
 
         app.Logger.LogInformation("Database initialization completed!");
 
