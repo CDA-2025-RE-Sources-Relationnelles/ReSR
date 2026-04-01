@@ -29,7 +29,7 @@ services:
     networks:
       - resr
     ports:
-      - "3000:1080"
+      - "8082:1080"
 
   resr-api:
     build:
@@ -38,14 +38,14 @@ services:
     networks:
       - resr
     ports:
-      - 7151:80
-      - 7150:443
+      - 8443:8443
+      - 8080:8080
     env_file:
       - .env
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
-      ASPNETCORE_URLS: "https://+;http://+"
-      ASPNETCORE_HTTPS_PORTS: "443"
+      ASPNETCORE_HTTPS_PORTS: "8443"
+      ASPNETCORE_HTTP_PORTS: "8080"
     command: ["-n", "-d"]
     volumes:
       - ${USERPROFILE}/.aspnet/https:/https

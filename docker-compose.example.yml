@@ -16,19 +16,19 @@ services:
     build:
       context: .
       dockerfile: src/Presentation/Api/Dockerfile
+    networks:
+      - resr
     ports:
-      - 7151:80
-      - 7150:443
+      - 8443:8443
+      - 8080:8080
     env_file:
       - .env
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ASPNETCORE_URLS: "https://+;http://+"
-      ASPNETCORE_HTTPS_PORTS: "443"
-    command: ["-n"]
+      ASPNETCORE_HTTPS_PORTS: "8443"
+      ASPNETCORE_HTTP_PORTS: "8080"
+    command: ["-n", "-d"]
     volumes:
       - ${USERPROFILE}/.aspnet/https:/https
-      - ~/.vsdbg:/remote_debugger:rw
     depends_on:
       - db
 
