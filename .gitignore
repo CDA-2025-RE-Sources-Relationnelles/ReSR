@@ -291,3 +291,4 @@ __pycache__/
 docker-compose.yml
 appsettings.shared.Development.json
 appsettings.shared.json
+docker-compose.yml
