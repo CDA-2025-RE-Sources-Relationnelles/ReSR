@@ -1,33 +1,39 @@
 services:
   db:
-    image: postgres
+    image: postgres:14.22
     restart: always
     shm_size: 128mb
-    ports:
-      - "${DB__Port}:5432"
+    networks:
+      - resr
     environment:
       POSTGRES_PASSWORD: ${DB__Password}
       POSTGRES_USER: ${DB__Username}
       POSTGRES_DB: ${DB__Database}
+    volumes:
+      - resr-db:/var/lib/postgresql/data/
 
-  smtp:
-    image: maildev/maildev
-    environment:
-      MAILDEV_SMTP_PORT: 1026
-    ports:
-      - "3000:1080"         # Interface web
-      - "${Smtp__Port}:1026" # SMTP
-
-  resr:
+  resr-api:
     build:
       context: .
       dockerfile: src/Presentation/Api/Dockerfile
     ports:
+      - 7151:80
       - 7150:443
     env_file:
       - .env
     environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
       ASPNETCORE_URLS: "https://+;http://+"
       ASPNETCORE_HTTPS_PORTS: "443"
+    command: ["-n"]
     volumes:
       - ${USERPROFILE}/.aspnet/https:/https
+      - ~/.vsdbg:/remote_debugger:rw
+    depends_on:
+      - db
+
+networks:
+  resr:
+
+volumes:
+  resr-db:

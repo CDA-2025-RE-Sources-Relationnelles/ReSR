@@ -45,39 +45,44 @@ Configurez votre `docker-compose.yml` en remplaçant les données entre `<...>` 
 
 ```yml
 services:
-
   db:
-    image: postgres
+    image: postgres:14.22
     restart: always
     shm_size: 128mb
-    ports:
-      - ${DB__Port}:5432
+    networks:
+      - resr
     environment:
       POSTGRES_PASSWORD: ${DB__Password}
       POSTGRES_USER: ${DB__Username}
       POSTGRES_DB: ${DB__Database}
-
-  smtp:
-    image: maildev/maildev
-    environment:
-      MAILDEV_SMTP_PORT: 1026
-    ports:
-      - "3000:1080"          # Interface web
-      - "${Smtp__Port}:1026" # SMTP
+    volumes:
+      - resr-db:/var/lib/postgresql/data/
 
   resr-api:
     build:
       context: .
       dockerfile: src/Presentation/Api/Dockerfile
     ports:
-      - <Port HTTPS de l'API sur votre machine>:443
-      - <Port HTTP de l'API sur votre machine>:8080
+      - <Port HTTP de l'API>:80
+      - <Port HTTPS de l'API>:443
     env_file:
       - .env
     environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
       ASPNETCORE_URLS: "https://+;http://+"
+      ASPNETCORE_HTTPS_PORTS: "443"
+    command: ["-n"]
     volumes:
       - ${USERPROFILE}/.aspnet/https:/https
+      - ~/.vsdbg:/remote_debugger:rw
+    depends_on:
+      - db
+
+networks:
+  resr:
+
+volumes:
+  resr-db:
 ```
 
 Puis, assurez vous que le dossier `%USERPROFILE%/.aspnet/https/` existe avant d'entrez cette commande dans le terminal powershell en remplaçant `ASPNETCORE_Kestrel__Certificates__Default__Password` par la valeur configurée dans le `.env` :
@@ -89,9 +94,20 @@ dotnet dev-certs https -ep $env:USERPROFILE\.aspnet\https\aspnetapp.pfx -p <ASPN
 \* Si vous êtes sur MacOS, remplacez la variable d'environnement `USERPROFILE` par `HOME`.
 
 ##### Exécution
+
+Si vous souhaitez démarrer la solution en environnement de developpement, entrez cette commande :
+
+```shell
+docker-compose -f docker-compose.dev.yml up -d --build
+```
+
+Si vous souhaitez démarrer la solution en environnement de production, entrez cette commande :
+
 ```shell
 docker-compose -f docker-compose.yml up -d --build
 ```
+
+L'API sera accessible sur `http://localhost:<Port HTTP de l'API>` et automatiquement redirigée vers `https://localhost:<Port HTTPS de l'API>`.
 
 ### Hébergement local
 Si vous souhaitez démarrer la solution localement, entrez cette commande après avoir initialisé les variables d'environnement :
@@ -100,5 +116,6 @@ Si vous souhaitez démarrer la solution localement, entrez cette commande après
 dotnet run --launch-profile https --project src\\Presentation\\Api --
 ```
 
-\* Si vous souhaitez initialiser la base de données avec des données de test, ajoutez `-n` ou `--new-test-db`.
+\* Si vous souhaitez initialiser la base de données, ajoutez `-n` ou `--new-db`.
+\* Si vous souhaitez indiquer la base de données avec des données de test, ajoutez aussi `-d` ou `--dev`.
 \* Si vous souhaitez forcer cette action en réinitialisant la base de données, ajoutez aussi `-f` ou `--force-init`.
