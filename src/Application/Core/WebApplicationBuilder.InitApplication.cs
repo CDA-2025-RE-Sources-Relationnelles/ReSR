@@ -39,7 +39,7 @@ public static partial class Extensions {
                     .AddEnvironmentVariables()
                     .AddJsonFile(
                         path     : $"appsettings.shared{(builder.Environment.IsDevelopment() ? ".Development" : "")}.json",
-                        optional : false
+                        optional : true
                     );
         }
 
