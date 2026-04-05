@@ -1,59 +1,4 @@
-### Configuration
-
-Vous pouvez configurer la solution à l'aide du fichier `appsettings.shared.json` *(ou `appsettings.shared.Developement.json` pour la version de développement)* :
-
-```json
-{
-  "AllowedHosts": "*",
-
-  "Root": {
-    "Email"    : <Adresse électronique de l'administrateur racine>,
-    "Password" : <Mot de passe de l'administrateur racine>
-  },
-  
-  "DB" : {
-    "Host"          : <Adresse de la base de données PostgreSQL>,
-    "Port"          : <Port de la base de données PostgreSQL>,
-    "Database"      : <Nom de la base de données PostgreSQL>,
-    "Username"      : <Utilisateur de la base de données PostgreSQL>,
-    "Password"      : <Mot de passe de la base de données PostgreSQL>,
-    "EncryptionKey" : <Clé de chiffrement 128bit pour la base de données>
-  },
-
-  "Jwt" : {
-    "Key" : <Clé de chiffrement 512bit pour l'authentification>,
-    "Issuer"   : "resr.fr",
-    "Audience" : "resr.fr",
-    "Expiry"   : {
-      "Manager" : <Durée de l'authentification administrateur (hh:mm)>,
-      "User"    : <Durée de l'authentification utilisateur (hh:mm)>,
-    }
-  },
-
-  "Pin" : {
-    "RegistrationValidationRequestExpiry" : <Durée des codes PIN de création de compte utilisateur (hh:mm)>,
-    "PasswordResetRequestExpiry"          : <Durée des codes PIN de réinistialisation de mot de passe utilisateur (hh:mm)>
-  },
-
-  "Smtp" : {
-    "Host"        : <Adresse du service d'envoi de courrier électronique>,
-    "Port"        : <Port du service d'envoi de courrier électronique>,
-    "SenderEmail" : "noreply@resr.fr"
-  },
-  
-  "Logging" : {
-    "LogLevel" : {
-      "Default" : "Information",
-      "Microsoft.EntityFrameworkCore" : "Warning"
-    }
-  }
-}
-```
-
-Il est possible de configurer la solution à l'aide de variables d'environnement : dans ce cas, nommez vos variables avec le format ``<Nom du parent>__<Nom de l'enfant>__<...>``. (exemple : ``Root__Email=root@resr.fr``).
-
-### Initialisation
-
+### Initialiser le projet
 
 Clonez d'abord le dépôt en entrant cette commande dans le terminale :
 
@@ -61,52 +6,73 @@ Clonez d'abord le dépôt en entrant cette commande dans le terminale :
 git clone https://github.com/CDA-2025-RE-Sources-Relationnelles/ReSR.git
 ```
 
-Si aucune base de données et service d'envoi de courrier électronique ne sont en place, vous pouvez les mettre en place à l'aide de ce docker-compose :
+### Configurer la solution
 
-```yml
-services:
+Vous pouvez configurer la solution à l'aide du fichier `.env` (un exemple est donné avec `.env.example`) :
 
-  db:
-    image: postgres
-    restart: always
-    shm_size: 128mb
-    ports:
-      - <DB__Port>:5432
-    environment:
-      POSTGRES_PASSWORD: <DB__Password>
-      POSTGRES_USER: <DB__Username>
-      POSTGRES_DB: <DB__Database>
+```env
+Root__Email   = <Adresse électronique de l'administrateur racine>
+Root_Password = <Mot de passe de l'administrateur racine>
 
-  smtp:
-    image: maildev/maildev
-    environment:
-      MAILDEV_SMTP_PORT: 1026
-    ports:
-      - "3000:1080"         # Interface web
-      - "<Smtp__Port>:1026" # SMTP
+DB__Host          = <Adresse de la base de données PostgreSQL>
+DB__Port          = <Port de la base de données PostgreSQL>
+DB__Database      = <Nom de la base de données PostgreSQL>
+DB__Username      = <Utilisateur de la base de données PostgreSQL>
+DB__Password      = <Mot de passe de la base de données PostgreSQL>
+DB__EncryptionKey = <Clé de chiffrement 128bit pour la base de données>
+
+Jwt__Key             = <Clé de chiffrement 512bit pour l'authentification>
+Jwt__Issuer          = "resr.fr"
+Jwt__Audience        = "resr.fr"
+Jwt__Expiry__Manager = <Durée de l'authentification administrateur (hh:mm)>
+Jwt__Expiry__User    = <Durée de l'authentification utilisateur (hh:mm)>
+
+Pin__RegistrationValidationRequestExpiry = <Durée des codes PIN de création de compte utilisateur (hh:mm)>
+Pin__PasswordResetRequestExpiry          = <Durée des codes PIN de réinistialisation de mot de passe utilisateur (hh:mm)>
+
+Smtp__Host        = <Adresse du service d'envoi de courrier électronique>
+Smtp__Port        = <Port du service d'envoi de courrier électronique>
+Smtp__SenderEmail = "noreply@resr.fr"
+  
+Logging__LogLevel__Default                       = "Information"
+Logging__LogLevel__Microsoft.EntityFrameworkCore = "Warning"
 ```
 
-Puis, entrez cette commande dans le terminal :
+### Hébergement Docker
+#### Configuration
+
+Configurez votre `docker-compose.yml` (un exemple est donné avec `docker-compose.yml.example`).
+Puis, assurez vous que le dossier `%USERPROFILE%/.aspnet/https/` existe avant d'entrez cette commande dans le terminal powershell en remplaçant `ASPNETCORE_Kestrel__Certificates__Default__Password` par la valeur configurée dans le `.env` :
 
 ```shell
-cd ReSR
-dotnet build
+dotnet dev-certs https -ep $env:USERPROFILE\.aspnet\https\aspnetapp.pfx -p <ASPNETCORE_Kestrel__Certificates__Default__Password> --trust
 ```
-Si vous n'avez pas de certificat ( HTTPS ) générez un certificat de développeur avec la commande suivante : 
+
+\* Si vous êtes sur MacOS, remplacez la variable d'environnement `USERPROFILE` par `HOME`.
+
+##### Exécution
+
+Si vous souhaitez démarrer la solution en environnement de developpement, entrez cette commande après avoir configuré `docker-compose.dev.yml` :
 
 ```shell
-dotnet dev-certs https --trust
+docker compose -f docker-compose.dev.yml up -d --build
 ```
 
-### Exécution
-
-Si vous souhaitez démarrer la solution avec une base de données de test, entrez cette commande lors de la première exécution :
-```shell
-dotnet run --launch-profile https --project src\\Presentation\\Api -- -n
-```
-
-Autrement, lancez l'**API** en entrant cette commande dans le terminale :
+Si vous souhaitez démarrer la solution en environnement de production, entrez cette commande après avoir configuré `docker-compose.yml` :
 
 ```shell
-dotnet run --launch-profile https --project src\\Presentation\\Api
+docker compose -f docker-compose.yml up -d --build
 ```
+
+L'API sera accessible sur `http://localhost:8080` et automatiquement redirigée vers `https://localhost:8443`.
+
+### Hébergement local
+Si vous souhaitez démarrer la solution localement, entrez cette commande après avoir initialisé les variables d'environnement :
+
+```shell
+dotnet run --launch-profile https --project src\\Presentation\\Api --
+```
+
+\* Si vous souhaitez initialiser la base de données, ajoutez `-n` ou `--new-db`.
+\* Si vous souhaitez indiquer la base de données avec des données de test, ajoutez aussi `-d` ou `--dev`.
+\* Si vous souhaitez forcer cette action en réinitialisant la base de données, ajoutez aussi `-f` ou `--force-init`.

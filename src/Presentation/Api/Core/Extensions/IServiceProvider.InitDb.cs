@@ -31,21 +31,25 @@ public static partial class Extensions {
     /// Initializes the database.
     /// </summary>
     /// <param name="self">The app builder.</param>
-    public static void InitDb(this WebApplication app) {
+    public static void InitDb(this WebApplication app, bool forceInit = false, bool dev = false) {
 
         using var scope = app.Services.CreateScope();
         app.Logger.LogInformation("Database initialization started...");
 
         var dbContext = scope.ServiceProvider.GetRequiredService<DbContext>();
-        dbContext.Database.EnsureDeleted();
-        dbContext.Database.EnsureCreated();
-        
-        dbContext.Add(Manager.TryCreate(app.Configuration["Root:Email"]!, app.Configuration["Root:Password"]!, ManagerPermissions.SuperAdminRole).Unwrap());
-        
-        dbContext.InitUsers();
-        dbContext.InitCategories();
-        dbContext.InitResources();
-        dbContext.InitComments();
+
+        if (forceInit) dbContext.Database.EnsureDeleted();
+        if (dbContext.Database.EnsureCreated() || forceInit) {
+
+            dbContext.Add(Manager.TryCreate(app.Configuration["Root:Email"]!, app.Configuration["Root:Password"]!, ManagerPermissions.SuperAdminRole).Unwrap());
+            dbContext.InitCategories();
+            
+            if (dev) {
+                dbContext.InitUsers();
+                dbContext.InitResources();
+                dbContext.InitComments();
+            }
+        }
 
         app.Logger.LogInformation("Database initialization completed!");
 

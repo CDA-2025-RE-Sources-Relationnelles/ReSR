@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:14.22
+    restart: always
+    shm_size: 128mb
+    networks:
+      - resr
+    environment:
+      POSTGRES_PASSWORD: ${DB__Password}
+      POSTGRES_USER: ${DB__Username}
+      POSTGRES_DB: ${DB__Database}
+    volumes:
+      - resr-db-dev:/var/lib/postgresql/data/
+
+  adminer:
+    image: adminer:5.4.2
+    restart: always
+    networks:
+      - resr
+    depends_on:
+      - db
+    ports:
+      - 8081:8080
+
+  smtp:
+    image: maildev/maildev:2.2.1
+    environment:
+      MAILDEV_SMTP_PORT: ${Smtp__Port}
+    networks:
+      - resr
+    ports:
+      - "8082:1080"
+
+  resr-api:
+    build:
+      context: .
+      dockerfile: src/Presentation/Api/Dockerfile
+    networks:
+      - resr
+    ports:
+      - 8443:8443
+      - 8080:8080
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_HTTPS_PORTS: "8443"
+      ASPNETCORE_HTTP_PORTS: "8080"
+    command: ["-n", "-d"]
+    volumes:
+      - ${USERPROFILE}/.aspnet/https:/https
+      - ~/.vsdbg:/remote_debugger:rw
+    depends_on:
+      - db
+
+networks:
+  resr:
+
+volumes:
+  resr-db-dev:

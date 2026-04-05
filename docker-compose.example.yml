@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:14.22
+    restart: always
+    shm_size: 128mb
+    networks:
+      - resr
+    environment:
+      POSTGRES_PASSWORD: ${DB__Password}
+      POSTGRES_USER: ${DB__Username}
+      POSTGRES_DB: ${DB__Database}
+    volumes:
+      - resr-db:/var/lib/postgresql/data/
+
+  resr-api:
+    build:
+      context: .
+      dockerfile: src/Presentation/Api/Dockerfile
+    networks:
+      - resr
+    ports:
+      - 8443:8443
+      - 8080:8080
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_HTTPS_PORTS: "8443"
+      ASPNETCORE_HTTP_PORTS: "8080"
+    command: ["-n", "-d"]
+    volumes:
+      - ${USERPROFILE}/.aspnet/https:/https
+    depends_on:
+      - db
+
+networks:
+  resr:
+
+volumes:
+  resr-db:
