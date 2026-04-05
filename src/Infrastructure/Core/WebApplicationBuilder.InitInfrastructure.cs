@@ -1,0 +1,72 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
+using ReSR.Domain.Aggregates.Accounts;
+using ReSR.Domain.Aggregates.Categories;
+using ReSR.Domain.Aggregates.Messages;
+using ReSR.Infrastructure.Adapters.Repositories;
+using ReSR.Domain.Aggregates.QuizSessions;
+using ReSR.Domain.Aggregates.Resources;
+using ReSR.Application.Ports;
+using ReSR.Infrastructure.Adapters;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using ReSR.Domain.Ports;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ReSR.Application.ValueObjects.Accounts;
+using ReSR.Application.ValueObjects.Resources;
+
+namespace ReSR.Infrastructure.Core;
+public static partial class Extensions {
+
+    /// <summary>
+    /// Initializes all the infrastructure's services.
+    /// </summary>
+    /// <param name="self">The app builder.</param>
+    public static void InitInfrastructure(this WebApplicationBuilder builder) {
+
+        builder.Services.AddDbContext<DbContext, ApplicationDbContext>(x =>
+            x.UseNpgsql(
+                builder.Configuration.GetConnectionString(),
+                options => options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            )
+        );
+
+        builder.Services.AddScoped<IAccountRepository<Manager>, AccountRepository<Manager>>();
+        builder.Services.AddScoped<IAccountRepository<User>,    UserRepository>();
+        builder.Services.AddScoped<IRepository<Manager>>(x => x.GetRequiredService<IAccountRepository<Manager>>());
+        builder.Services.AddScoped<IRepository<User>>(x => x.GetRequiredService<IAccountRepository<User>>());
+
+        builder.Services.AddScoped<IRepository<Category>, CategoryRepository>();
+
+        builder.Services.AddScoped<IRepository<Comment>,        CommentRepository>();
+        builder.Services.AddScoped<IPrivateMessageRepository,   PrivateMessageRepository>();
+        builder.Services.AddScoped<IRepository<PrivateMessage>>(x => x.GetRequiredService<IPrivateMessageRepository>());
+
+        builder.Services.AddScoped<IRepository<QuizSession>, QuizSessionRepository>();
+
+        builder.Services.AddScoped<IResourceRepository<Resource>,     ResourceRepository<Resource>>();
+        builder.Services.AddScoped<IResourceRepository<TextResource>, ResourceRepository<TextResource>>();
+        builder.Services.AddScoped<IResourceRepository<QuizResource>, ResourceRepository<QuizResource>>();
+
+        builder.Services.AddScoped<IRepository<Resource>>(x => x.GetRequiredService<IResourceRepository<Resource>>());
+        builder.Services.AddScoped<IRepository<TextResource>>(x => x.GetRequiredService<IResourceRepository<TextResource>>());
+        builder.Services.AddScoped<IRepository<QuizResource>>(x => x.GetRequiredService<IResourceRepository<QuizResource>>());
+
+        builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+
+        builder.Services.AddScoped<IAccountAuthService<Manager>, ManagerAuthService>();
+        builder.Services.AddScoped<IAccountAuthService<User>,    UserAuthService>();
+
+
+        builder.Services.AddSingleton<IPasswordResetCacheService,          PasswordResetCacheService>();
+        builder.Services.AddSingleton<IRegistrationValidationCacheService, RegistrationValidationCacheService>();
+
+
+        builder.Services.AddScoped<IMailService, MailService>();
+
+        builder.Services.AddScoped<IExportService<UserKpi>, CsvExportService<UserKpi>>();
+        builder.Services.AddScoped<IExportService<ResourceKpi>, CsvExportService<ResourceKpi>>();
+
+    }
+}
