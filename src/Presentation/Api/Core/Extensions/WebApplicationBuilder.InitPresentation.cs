@@ -9,6 +9,7 @@ using ReSR.Domain.Aggregates.Accounts;
 using ReSR.Domain.Aggregates.Accounts.ValueObjects;
 using ReSR.Presentation.Api.Managers.Authorization;
 using ReSR.Presentation.Api.Users.Authorization;
+using Serilog;
 
 namespace ReSR.Presentation.Api.Core.Extensions;
 public static partial class Extensions {
@@ -18,6 +19,24 @@ public static partial class Extensions {
     /// </summary>
     /// <param name="self">The app builder.</param>
     public static void InitPresentation(this WebApplicationBuilder builder) {
+
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .CreateBootstrapLogger();
+
+        var logsPath = Path.Combine(builder.Environment.ContentRootPath, "logs", "resr-.log");
+        builder.Host.UseSerilog((context, services, configuration) =>
+            configuration
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext()
+                .WriteTo.File(
+                    path            : logsPath,
+                    rollingInterval : RollingInterval.Day,
+                    retainedFileCountLimit : 30,
+                    outputTemplate  : "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}"
+                )
+        );
 
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();

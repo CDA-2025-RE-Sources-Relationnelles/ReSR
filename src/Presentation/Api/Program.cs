@@ -11,5 +11,4 @@ builder.InitPresentation();
 var app = builder.Build();
 
 app.FinalizePresentation(args);
-
-app.Run();
+app.RunPresentation();
