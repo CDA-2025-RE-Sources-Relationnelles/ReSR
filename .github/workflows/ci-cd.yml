@@ -1,0 +1,218 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [master, main, develop]
+  push:
+    branches:
+      - master
+      - main
+      - develop
+      - 'release/**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/resr-api
+  DOTNET_VERSION: '10.0.x'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # 1) Tests : exécutés sur PR et sur push
+  #    Bloque le merge si KO (status check)
+  # ─────────────────────────────────────────────────────────────
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ReSR.slnx
+
+      - name: Build
+        run: dotnet build ReSR.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: |
+          dotnet test ReSR.slnx \
+            --configuration Release \
+            --no-build \
+            --logger "trx;LogFileName=test-results.trx" \
+            --logger "console;verbosity=normal" \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_id }}
+          path: ./TestResults
+          retention-days: 30
+
+      - name: Publish test summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: .NET Tests
+          path: ./TestResults/**/*.trx
+          reporter: dotnet-trx
+          fail-on-error: false
+
+  # ─────────────────────────────────────────────────────────────
+  # 2) SonarCloud — scan de qualité de code (push uniquement)
+  # ─────────────────────────────────────────────────────────────
+  sonar:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Java (requis par sonar-scanner)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache dotnet-sonarscanner tool
+        uses: actions/cache@v4
+        with:
+          path: ~/.dotnet/tools
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Install dotnet-sonarscanner
+        run: dotnet tool install --global dotnet-sonarscanner || true
+
+      - name: SonarCloud scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet sonarscanner begin \
+            /k:"CDA-2025-RE-Sources-Relationnelles_ReSR" \
+            /o:"cda-2025-re-sources-relationnelles" \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.host.url="https://sonarcloud.io"
+          dotnet build ReSR.slnx --configuration Release
+          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+  # ─────────────────────────────────────────────────────────────
+  # 3) Build + push image — uniquement sur push, après tests OK.
+  #    Tags calculés selon la branche :
+  #      master/main  → <sha> + latest
+  #      release/x.y  → <sha> + x.y-rc
+  #      develop      → <sha> + dev-latest
+  # ─────────────────────────────────────────────────────────────
+  build-push:
+    name: Build & Push image
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_sha: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long,prefix=
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
+            type=raw,value=dev-latest,enable=${{ github.ref == 'refs/heads/develop' }}
+            type=match,pattern=release/(.*),group=1,suffix=-rc,enable=${{ startsWith(github.ref, 'refs/heads/release/') }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: src/Presentation/Api/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ─────────────────────────────────────────────────────────────
+  # 4) Update GitOps manifest — uniquement sur push develop.
+  #    Clone ReSR-GitOps, remplace l'image tag par le SHA,
+  #    commit et push. ArgoCD/Flux prendra le relais.
+  # ─────────────────────────────────────────────────────────────
+  update-gitops:
+    name: Bump GitOps manifest
+    runs-on: ubuntu-latest
+    needs: build-push
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.GITOPS_APP_ID }}
+          private-key: ${{ secrets.GITOPS_APP_PRIVATE_KEY }}
+          owner: CDA-2025-RE-Sources-Relationnelles
+          repositories: ReSR-GitOps
+
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
+        with:
+          repository: CDA-2025-RE-Sources-Relationnelles/ReSR-GitOps
+          token: ${{ steps.app-token.outputs.token }}
+          path: gitops
+
+      - name: Update image tag
+        run: |
+          cd gitops
+          IMAGE_PATH=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+          NEW_IMAGE="${IMAGE_PATH}:${{ github.sha }}"
+          sed -i -E "s|image: ghcr\.io/.*/resr-api:.*|image: ${NEW_IMAGE}|g" prod/resr-api.yaml
+
+      - name: Commit & push
+        run: |
+          cd gitops
+          git config user.email "${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+          git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+          if git diff --quiet; then
+            echo "Aucun changement à committer"
+            exit 0
+          fi
+          git add prod/resr-api.yaml
+          git commit -m "chore(resr-api): bump image to ${{ github.sha }}"
+          git push
