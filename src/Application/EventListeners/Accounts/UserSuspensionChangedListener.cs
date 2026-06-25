@@ -17,13 +17,19 @@ internal class UserSuspensionChangedListener(
                 user.Email,
                 "Suspension de votre compte RE(Sources) Relationnelles",
                 $"""
-                Votre compte RE(Sources) Relationnelles a été temporairement suspendu.
-                """
+                Votre compte RE(Sources) Relationnelles a été temporairement suspendu
+                """ + ( domainEvent.Reason is not null
+                    ? $" pour la raison suivante : \"{domainEvent.Reason}\"."
+                    : "."
+                )
             ) : mailService.TrySendEmailAsync(
                 user.Email,
                 "Suspension de votre compte RE(Sources) Relationnelles",
                 $"""
-                Votre compte RE(Sources) Relationnelles est de nouveau actif.
-                """
+                Votre compte RE(Sources) Relationnelles est de nouveau actif
+                """ + ( domainEvent.Reason is not null
+                    ? $" pour la raison suivante : \"{domainEvent.Reason}\"."
+                    : "."
+                )
             ));
 }
