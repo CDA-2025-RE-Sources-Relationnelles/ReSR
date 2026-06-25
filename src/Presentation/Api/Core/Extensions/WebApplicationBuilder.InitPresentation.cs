@@ -27,15 +27,15 @@ public static partial class Extensions {
         var logsPath = Path.Combine(builder.Environment.ContentRootPath, "logs", "resr-.log");
         builder.Host.UseSerilog((context, services, configuration) =>
             configuration
-                .ReadFrom.Configuration(context.Configuration)
-                .ReadFrom.Services(services)
                 .Enrich.FromLogContext()
                 .WriteTo.File(
                     path            : logsPath,
                     rollingInterval : RollingInterval.Day,
                     retainedFileCountLimit : 30,
                     outputTemplate  : "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}"
-                )
+                ).WriteTo.Console(outputTemplate : "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services)
         );
 
         builder.Services.AddControllers();
@@ -44,6 +44,14 @@ public static partial class Extensions {
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddCors(options => {
+            options.AddDefaultPolicy(
+                builder => builder
+                    .SetIsOriginAllowedToAllowWildcardSubdomains()
+                    .WithOrigins("https://*.resr.fr", "https://resr.fr")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+            );
+
             options.AddPolicy("AllowAll",
                 builder => builder
                     .AllowAnyOrigin()

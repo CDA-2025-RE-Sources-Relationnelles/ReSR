@@ -14,11 +14,10 @@ public static partial class Extensions {
         if (app.Environment.IsDevelopment()) {
             app.UseSwagger();
             app.UseSwaggerUI();
-        }
+            app.UseCors("AllowAll");
+        } else app.UseCors();
 
-        app.UseHttpsRedirection();
         app.UseHsts();
-        app.UseCors("AllowAll");
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseRateLimiter();
