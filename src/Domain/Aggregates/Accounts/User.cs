@@ -49,8 +49,13 @@ public record User : Account<User>, IAggregateRoot<User> {
         /// <summary> The user's published resources. </summary>
         public virtual ICollection<Resource> OwnedResources { get; internal init; } = [];
 
+
         /// <summary> Whether or not the user's account has been temporaly deactivated. </summary>
         public bool Suspended { get; internal init; }
+
+        /// <summary> The ammount of failed authentication attemps. </summary>
+        public int AuthFailedAttemptCount { get; internal init; }
+
 
         /// <summary> The date at which the user's automatic anonymization process started, if any. </summary>
         public DateTime? AnonymizationProcessStartedAt { get; internal init; }
@@ -121,18 +126,39 @@ public record User : Account<User>, IAggregateRoot<User> {
 
             /// <returns> A copy of the user account with a new activity. </returns>
             public virtual User WithNewActivity() =>
-                this with { LastActivity = DateTime.UtcNow };
+                this with {
+                    LastActivity = DateTime.UtcNow,
+                    AuthFailedAttemptCount = 0
+                };
 
 
 
             /// <returns> A copy of the user account with the given suspension. </returns>
-            public virtual User WithSuspension(bool value = true) =>
+            public virtual User WithSuspension(bool value = true, string? reason = null) =>
                 this with {
                     Suspended    = value,
                     DomainEvents = this.Suspended != value
-                        ? [..this.DomainEvents, new UserSuspensionChanged(this.Id, value)]
+                        ? [..this.DomainEvents, new UserSuspensionChanged(this.Id, value, reason)]
                         : this.DomainEvents
                 };
+
+            
+            /// <summary>
+            /// Returns a copy of the user with a new failed authentication attempt.
+            /// If it reaches 6, the returned user will be suspended.
+            /// </summary>
+            public User WithNewFailedAuthAttempt(out bool exceededLimit) {
+                var updated = this with {
+                    AuthFailedAttemptCount = this.AuthFailedAttemptCount + 1
+                };
+
+                exceededLimit = updated.AuthFailedAttemptCount is >= 6;
+                
+                if (exceededLimit)
+                    updated = updated.WithSuspension(true, "Limite de tentatives de connexion dépassée");
+
+                return updated;
+            }
 
             /// <returns> A copy of the user account as anonymized. </returns>
             public virtual User AsAnonymized() =>
